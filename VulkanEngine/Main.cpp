@@ -27,6 +27,12 @@
 #include "Logger.hpp"
 #include "Engine.hpp"
 
+/*
+*	Global variables
+*
+*
+*/
+Logger			logger;
 
 /*
 *	Prototypes
@@ -52,7 +58,6 @@ namespace game {
 	*
 	*/
 	Engine			engine;
-	Logger			logger;
 
 	/*
 	*	Function:		game::init()

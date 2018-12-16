@@ -51,7 +51,6 @@ void Engine::initWindow() {
 void Engine::initVulkan() {
 
 	createInstance();
-	
 
 }
 
@@ -61,6 +60,13 @@ void Engine::initVulkan() {
 *
 */
 void Engine::createInstance() {
+
+	if (enableValidationLayers && !checkValidationLayerSupport()) {
+	
+		logger.log(ERROR_LOG, "Validation layers requested, but not available!");
+		throw std::runtime_error("Validation layers requested, but not available!");
+	
+	}
 
 	VkApplicationInfo appInfo;
 	appInfo.sType					= VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -76,15 +82,62 @@ void Engine::createInstance() {
 
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
+	uint32_t extensionCount = 0;
+	vkEnumerateInstanceExtensionProperties(
+		
+		nullptr,
+		&extensionCount,
+		nullptr
+	
+	);
+	
+	std::vector< VkExtensionProperties > extensions(extensionCount);
+	
+	vkEnumerateInstanceExtensionProperties(
+		
+		nullptr,
+		&extensionCount,
+		extensions.data()
+	
+	);
+
+	std::cout << "Available extensions:" << std::endl;
+
+	for (const auto& extension : extensions) {
+
+		std::cout << "\t" << extension.extensionName << std::endl;
+
+	}
+
 	VkInstanceCreateInfo createInfo;
 	createInfo.sType						= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pNext						= nullptr;
 	createInfo.flags						= 0;
 	createInfo.pApplicationInfo				= &appInfo;
-	createInfo.enabledLayerCount			= 0;
-	createInfo.ppEnabledLayerNames			= nullptr;
-	createInfo.enabledExtensionCount		= glfwExtensionCount;
-	createInfo.ppEnabledExtensionNames		= glfwExtensions;
+	if (enableValidationLayers) {
+	
+		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+		createInfo.ppEnabledLayerNames = validationLayers.data();
+	
+	}
+	else {
+
+		createInfo.enabledLayerCount = 0;
+		createInfo.ppEnabledLayerNames = nullptr;
+
+	}
+
+	auto reqExtensions = getRequiredExtensions();
+	createInfo.enabledExtensionCount		= static_cast< uint32_t >(reqExtensions.size());
+	createInfo.ppEnabledExtensionNames		= reqExtensions.data();
+
+	std::cout << "Enabled extensions: " << std::endl;
+
+	for (unsigned int i = 0; i < reqExtensions.size(); i++) {
+	
+		std::cout << "\t" << reqExtensions[i] << std::endl;
+	
+	}
 
 	result = vkCreateInstance(
 	
@@ -119,14 +172,79 @@ void Engine::mainLoop() {
 }
 
 /*
-*
-*
+*	Function:		void cleanup()
+*	Purpose:		Handles all destruction and cleaning up tasks
 *
 */
 void Engine::cleanup() {
 
+	vkDestroyInstance(instance, nullptr);
+
 	glfwDestroyWindow(window);
 
 	glfwTerminate();
+
+}
+
+/*
+*	Function:		bool checkValidationLayerSupport()
+*	Purpose:		Checks whether the targer system supports validation layers
+*
+*/
+bool Engine::checkValidationLayerSupport() {
+
+	uint32_t layerCount;
+	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+	std::vector< VkLayerProperties > availableLayers(layerCount);
+	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+	for (const char* layerName : validationLayers) {
+	
+		bool layerFound = false;
+		
+		for (const auto& layerProperties : availableLayers) {
+		
+			if (strcmp(layerName, layerProperties.layerName) == 0) {
+			
+				layerFound = true;
+				break;
+
+			}
+		
+		}
+
+		if (!layerFound) {
+		
+			return false;
+		
+		}
+
+	}
+
+	return true;
+
+}
+
+/*
+*	Function:		std::vector< const char* > getRequiredExtensions()
+*	Purpose:		Fetches the required extensions
+*
+*/
+std::vector< const char* > Engine::getRequiredExtensions() {
+
+	uint32_t glfwExtensionCount = 0;
+	const char** glfwExtensions;
+	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+	std::vector< const char* > extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+	if (enableValidationLayers) {
+	
+		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
+	}
+
+	return extensions;
 
 }
