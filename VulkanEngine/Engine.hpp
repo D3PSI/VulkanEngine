@@ -18,6 +18,27 @@
 	const bool enableValidationLayers = true;
 #endif
 
+namespace game {
+
+	VkResult CreateDebugUtilsMessengerEXT(
+
+		VkInstance instance,
+		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks* pAllocator,
+		VkDebugUtilsMessengerEXT* pCallback
+
+	);
+	void DestroyDebugUtilsMessengerEXT(
+
+		VkInstance instance,
+		VkDebugUtilsMessengerEXT callback,
+		const VkAllocationCallbacks* pAllocator
+
+	);
+	int init();
+
+}
+
 class Engine
 {
 public:
@@ -36,6 +57,7 @@ private:
 	
 	};
 	VkInstance									instance;
+	VkDebugUtilsMessengerEXT					callback;
 
 	void initWindow(void);
 	void initVulkan(void);
@@ -45,27 +67,15 @@ private:
 	bool checkValidationLayerSupport(void);
 	std::vector< const char* > getRequiredExtensions(void);
 
-	/*
-	*	Function:
-	*	Purpose:		Callback function for VULKAN validation layers
-	*
-	*/
-	VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 
 		VkDebugUtilsMessageSeverityFlagBitsEXT			messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT					messageType,
 		const VkDebugUtilsMessengerCallbackDataEXT*		pCallbackData,
 		void*											pUserData
 
-		) {
-
-		std::string msg = pCallbackData->pMessage;
-
-		logger.log(ERROR_LOG, "Validation layer: " + msg);
-
-		return VK_FALSE;
-
-	}
+	);
+	void setupDebugCallback(void);
 
 };
 

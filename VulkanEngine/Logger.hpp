@@ -9,15 +9,19 @@
 #include <fstream>
 #include <time.h>
 
-#define ERROR_LOG 0
-#define START_STOP_LOG 1
-#define EVENT_LOG 2
+typedef enum LogNr {
+
+	ERROR_LOG = 0,
+	START_STOP_LOG = 1,
+	EVENT_LOG = 2
+
+} LogNr;
 
 class Logger
 {
 public:
 	Logger(std::string directory = "logs/");
-	void log(int logNr, std::string text);
+	void log(LogNr logNr, std::string text);
 	~Logger();
 private:
 	std::string directory;

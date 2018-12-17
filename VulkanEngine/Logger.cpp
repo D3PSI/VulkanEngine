@@ -20,11 +20,11 @@ Logger::Logger(std::string directory_) {
 }
 
 /*
-*	Function:		void log()
+*	Function:		void log(LogNr logNr, std::string text)
 *	Purpose:		Writes to selected Log-File
 *
 */
-void Logger::log(int logNr, std::string text) {
+void Logger::log(LogNr logNr, std::string text) {
 
 	static int countEvent = 0;
 	static int countError = 0;

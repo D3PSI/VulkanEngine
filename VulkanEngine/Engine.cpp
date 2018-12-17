@@ -51,6 +51,7 @@ void Engine::initWindow() {
 void Engine::initVulkan() {
 
 	createInstance();
+	setupDebugCallback();
 
 }
 
@@ -178,6 +179,18 @@ void Engine::mainLoop() {
 */
 void Engine::cleanup() {
 
+	if (enableValidationLayers) {
+	
+		game::DestroyDebugUtilsMessengerEXT(
+		
+			instance,
+			callback,
+			nullptr
+
+		);
+	
+	}
+
 	vkDestroyInstance(instance, nullptr);
 
 	glfwDestroyWindow(window);
@@ -246,5 +259,69 @@ std::vector< const char* > Engine::getRequiredExtensions() {
 	}
 
 	return extensions;
+
+}
+
+/*
+*	Function:		VKAPI_ATTR VkBool32 VKAPI_CALL Engine::debugCallback(
+*
+*						VkDebugUtilsMessageSeverityFlagBitsEXT			messageSeverity,
+*						VkDebugUtilsMessageTypeFlagsEXT					messageType,
+*						const VkDebugUtilsMessengerCallbackDataEXT*		pCallbackData,
+*						void*											pUserData
+*							
+*						)
+*	Purpose:		Callback function for VULKAN validation layers
+*
+*/
+VKAPI_ATTR VkBool32 VKAPI_CALL Engine::debugCallback(
+
+	VkDebugUtilsMessageSeverityFlagBitsEXT			messageSeverity,
+	VkDebugUtilsMessageTypeFlagsEXT					messageType,
+	const VkDebugUtilsMessengerCallbackDataEXT*		pCallbackData,
+	void*											pUserData
+
+	) {
+
+	std::string msg = pCallbackData->pMessage;
+
+	std::cerr << "Validation layer: " << msg << std::endl;
+
+	return VK_FALSE;
+
+}
+
+/*
+*	Function:		
+*	Purpose:		
+*
+*/
+void Engine::setupDebugCallback() {
+
+	if (!enableValidationLayers) return;
+
+	VkDebugUtilsMessengerCreateInfoEXT createInfo;
+	createInfo.sType					= VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	createInfo.flags					= 0;
+	createInfo.messageSeverity			= VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	createInfo.messageType				= VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	createInfo.pfnUserCallback			= debugCallback;
+	createInfo.pUserData				= nullptr;
+	
+	result = game::CreateDebugUtilsMessengerEXT(
+
+		instance,
+		&createInfo,
+		nullptr,
+		&callback
+
+	);
+
+	if (result != VK_SUCCESS) {
+		
+		logger.log(ERROR_LOG, "Failed to set up debug callback!" + result);
+		throw std::runtime_error("Failed to set up debug callback!");
+	
+	}
 
 }

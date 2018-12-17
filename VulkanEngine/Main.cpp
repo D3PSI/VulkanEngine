@@ -41,6 +41,21 @@ Logger			logger;
 */
 namespace game {
 
+	VkResult CreateDebugUtilsMessengerEXT(
+
+		VkInstance instance,
+		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks* pAllocator,
+		VkDebugUtilsMessengerEXT* pCallback
+
+	);
+	void DestroyDebugUtilsMessengerEXT(
+
+		VkInstance instance,
+		VkDebugUtilsMessengerEXT callback,
+		const VkAllocationCallbacks* pAllocator
+
+	);
 	int init();
 
 }
@@ -60,7 +75,83 @@ namespace game {
 	Engine			engine;
 
 	/*
-	*	Function:		game::init()
+	*	Function:		VkResult game::CreateDebugUtilsMessengerEXT(
+	*
+	*						VkInstance instance,
+	*						const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+	*						const VkAllocationCallbacks* pAllocator,
+	*						VkDebugUtilsMessengerEXT* pCallback
+	*
+	*					)
+	*	Purpose:		Sets up the callback messenger
+	*
+	*/
+	VkResult CreateDebugUtilsMessengerEXT(
+	
+		VkInstance instance,
+		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks* pAllocator, 
+		VkDebugUtilsMessengerEXT* pCallback
+
+	) {
+	
+		auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+		if (func != nullptr) {
+		
+			return func(
+				
+				instance,
+				pCreateInfo, 
+				pAllocator, 
+				pCallback
+			
+			);
+		
+		}
+		else {
+		
+			return VK_ERROR_EXTENSION_NOT_PRESENT;
+		
+		}
+
+	}
+
+	/*
+	*	Function:		void DestroyDebugUtilsMessengerEXT(
+	*	
+	*						VkInstance instance,
+	*						VkDebugUtilsMessengerEXT callback,
+	*						const VkAllocationCallbacks* pAllocator
+	*
+	*					)
+	*	Purpose:		Destroys the messenger handle
+	*
+	*/
+	void DestroyDebugUtilsMessengerEXT(
+		
+		VkInstance instance,
+		VkDebugUtilsMessengerEXT callback,
+		const VkAllocationCallbacks* pAllocator
+
+		) {
+	
+		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+		if (func != nullptr) {
+		
+			func(
+				
+				instance,
+				callback,
+				pAllocator
+			
+			);
+		
+		}
+
+	}
+
+	/*
+	*	Function:		int game::init()
 	*	Purpose:		Handles main initialization of everything
 	*
 	*/
@@ -84,6 +175,11 @@ namespace game {
 
 }
 
+/*
+*	Function:		int main()
+*	Purpose:		Entry point
+*
+*/
 int main() {
 
 	return game::init();
