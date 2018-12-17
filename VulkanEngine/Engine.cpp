@@ -325,3 +325,95 @@ void Engine::setupDebugCallback() {
 	}
 
 }
+
+/*
+*	Function:		void pickPhysicalDevice()
+*	Purpose:		Enumerates devices and picks the best one (GPU)
+*
+*/
+void Engine::pickPhysicalDevice() {
+
+	uint32_t deviceCount = 0;
+	vkEnumeratePhysicalDevices(
+	
+		instance,
+		&deviceCount,
+		nullptr
+	
+	);
+	if (deviceCount = 0) {
+	
+		logger.log(ERROR_LOG, "Failed to find GPU's with VULKAN support!");
+		throw std::runtime_error("Failed to find GPU's with VULKAN support!");
+
+	}
+	else {
+	
+		std::vector< VkPhysicalDevice > devices(deviceCount);
+		vkEnumeratePhysicalDevices(
+		
+			instance,
+			&deviceCount,
+			devices.data()
+		
+		);
+
+		std::multimap< int, VkPhysicalDevice > candidates;
+
+		for (const auto& device : devices) {
+		
+			int score = rateDeviceSuitability(device);
+			candidates.insert(std::make_pair(score, device));
+		
+		}
+
+		if (candidates.rbegin()->first > 0) {
+
+			physicalDevice = candidates.rbegin()->second;
+		
+		} 
+		else {
+
+			logger.log(ERROR_LOG, "Failed to find a suitable GPU!");
+			throw std::runtime_error("Failed to find a suitable GPU!");
+		
+		}
+
+	}
+
+}
+
+/*
+*	Function:		void rateDeviceSuitability(VkPhysicalDevice device)
+*	Purpose:		Checks whether the device supports VULKAN by giving each device a score and picking the highest one
+*
+*/
+int Engine::rateDeviceSuitability(VkPhysicalDevice device) {
+
+	VkPhysicalDeviceProperties deviceProperties;
+	VkPhysicalDeviceFeatures deviceFeatures;
+	vkGetPhysicalDeviceProperties(device, &deviceProperties);
+	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+	int score = 0;
+
+	// Discrete GPU's are significantly better
+	if (deviceProperties.deviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+	
+		score += 1000;
+	
+	}
+
+	// Max. possible size of textures affects the graphics quality
+	score += deviceProperties.limits.maxImageDimension2D;
+
+	// App. can't work without geometry shaders
+	if (!deviceFeatures.geometryShader) {
+	
+		return 0;
+	
+	}
+
+	return score;
+
+}

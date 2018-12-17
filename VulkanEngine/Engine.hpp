@@ -8,6 +8,7 @@
 #include <vulkan/vulkan.h>
 
 #include <string>
+#include <map>
 #include <vector>
 
 #include "Logger.hpp"
@@ -57,6 +58,7 @@ private:
 	
 	};
 	VkInstance									instance;
+	VkPhysicalDevice							physicalDevice			= VK_NULL_HANDLE;
 	VkDebugUtilsMessengerEXT					callback;
 
 	void initWindow(void);
@@ -76,6 +78,8 @@ private:
 
 	);
 	void setupDebugCallback(void);
+	void pickPhysicalDevice(void);
+	int rateDeviceSuitability(VkPhysicalDevice device);
 
 };
 
