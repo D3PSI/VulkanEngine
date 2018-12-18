@@ -52,6 +52,8 @@ void Engine::initVulkan() {
 
 	createInstance();
 	setupDebugCallback();
+	pickPhysicalDevice();
+	createLogicalDevice();
 
 }
 
@@ -69,7 +71,7 @@ void Engine::createInstance() {
 	
 	}
 
-	VkApplicationInfo appInfo;
+	VkApplicationInfo appInfo = {};
 	appInfo.sType					= VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pNext					= nullptr;
 	appInfo.pApplicationName		= title.c_str();
@@ -110,7 +112,7 @@ void Engine::createInstance() {
 
 	}
 
-	VkInstanceCreateInfo createInfo;
+	VkInstanceCreateInfo createInfo = {};
 	createInfo.sType						= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pNext						= nullptr;
 	createInfo.flags						= 0;
@@ -178,6 +180,8 @@ void Engine::mainLoop() {
 *
 */
 void Engine::cleanup() {
+
+	vkDestroyDevice(device,	nullptr);
 
 	if (enableValidationLayers) {
 	
@@ -300,7 +304,7 @@ void Engine::setupDebugCallback() {
 
 	if (!enableValidationLayers) return;
 
-	VkDebugUtilsMessengerCreateInfoEXT createInfo;
+	VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
 	createInfo.sType					= VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 	createInfo.flags					= 0;
 	createInfo.messageSeverity			= VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
@@ -335,85 +339,116 @@ void Engine::pickPhysicalDevice() {
 
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(
-	
+		
 		instance,
 		&deviceCount,
 		nullptr
 	
 	);
-	if (deviceCount = 0) {
-	
-		logger.log(ERROR_LOG, "Failed to find GPU's with VULKAN support!");
-		throw std::runtime_error("Failed to find GPU's with VULKAN support!");
+
+	if (deviceCount == 0) {
+
+		logger.log(ERROR_LOG, "Failed to fing GPU's with Vulkan support!");
+		throw std::runtime_error("failed to find GPUs with Vulkan support!");
 
 	}
-	else {
+
+	std::vector<VkPhysicalDevice> devices(deviceCount);
+	vkEnumeratePhysicalDevices(
+		
+		instance, 
+		&deviceCount, 
+		devices.data()
 	
-		std::vector< VkPhysicalDevice > devices(deviceCount);
-		vkEnumeratePhysicalDevices(
-		
-			instance,
-			&deviceCount,
-			devices.data()
-		
-		);
+	);
 
-		std::multimap< int, VkPhysicalDevice > candidates;
-
-		for (const auto& device : devices) {
-		
-			int score = rateDeviceSuitability(device);
-			candidates.insert(std::make_pair(score, device));
-		
+	for (const auto& device : devices) {
+		if (isDeviceSuitable(device)) {
+			physicalDevice = device;
+			break;
 		}
+	}
 
-		if (candidates.rbegin()->first > 0) {
+	if (physicalDevice == VK_NULL_HANDLE) {
 
-			physicalDevice = candidates.rbegin()->second;
-		
-		} 
-		else {
-
-			logger.log(ERROR_LOG, "Failed to find a suitable GPU!");
-			throw std::runtime_error("Failed to find a suitable GPU!");
-		
-		}
+		logger.log(ERROR_LOG, "Failed to find a suitable GPU!");
+		throw std::runtime_error("Failed to find a suitable GPU!");
 
 	}
 
 }
 
 /*
-*	Function:		void rateDeviceSuitability(VkPhysicalDevice device)
+*	Function:		bool isDeviceSuitable(VkPhysicalDevice device)
 *	Purpose:		Checks whether the device supports VULKAN by giving each device a score and picking the highest one
 *
 */
-int Engine::rateDeviceSuitability(VkPhysicalDevice device) {
+bool Engine::isDeviceSuitable(VkPhysicalDevice device) {
 
-	VkPhysicalDeviceProperties deviceProperties;
-	VkPhysicalDeviceFeatures deviceFeatures;
-	vkGetPhysicalDeviceProperties(device, &deviceProperties);
-	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+	QueueFamilyIndices indices = game::findQueueFamilies(device);
 
-	int score = 0;
+	return indices.isComplete();
 
-	// Discrete GPU's are significantly better
-	if (deviceProperties.deviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+}
+
+/*
+*	Function:		void createLogicalDevice()
+*	Purpose:		Creates the logical device from previously selected physical device
+*
+*/
+void Engine::createLogicalDevice() {
+
+	QueueFamilyIndices indices = game::findQueueFamilies(physicalDevice);
+
+	VkDeviceQueueCreateInfo queueCreateInfo = {};
+	queueCreateInfo.sType					= VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	queueCreateInfo.queueFamilyIndex		= indices.graphicsFamily.value();
+	queueCreateInfo.queueCount				= 1;
+
+	float queuePriority						= 1.0f;
+	queueCreateInfo.pQueuePriorities		= &queuePriority;
+
+	VkPhysicalDeviceFeatures deviceFeatures = {};
+
+	VkDeviceCreateInfo createInfo = {};
+	createInfo.sType						= VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	createInfo.pQueueCreateInfos			= &queueCreateInfo;
+	createInfo.queueCreateInfoCount			= 1;
+	createInfo.pEnabledFeatures				= &deviceFeatures;
+	createInfo.enabledExtensionCount		= 0;
+	if (enableValidationLayers) {
 	
-		score += 1000;
+		createInfo.enabledLayerCount		= static_cast< uint32_t >(validationLayers.size());
+		createInfo.ppEnabledLayerNames		= validationLayers.data();
+
+	}
+	else {
+	
+		createInfo.enabledLayerCount		= 0;
 	
 	}
 
-	// Max. possible size of textures affects the graphics quality
-	score += deviceProperties.limits.maxImageDimension2D;
+	if (vkCreateDevice(
+	
+			physicalDevice,
+			&createInfo,
+			nullptr,
+			&device
 
-	// App. can't work without geometry shaders
-	if (!deviceFeatures.geometryShader) {
+		) != VK_SUCCESS) {
 	
-		return 0;
-	
+		logger.log(ERROR_LOG, "Failed to create logical device!");
+		throw std::runtime_error("Failed to create logical device!");
+
 	}
 
-	return score;
+	vkGetDeviceQueue(
+		
+		device, 
+		indices.graphicsFamily.value(),
+		0,
+		&graphicsQueue
+	
+	);
 
 }

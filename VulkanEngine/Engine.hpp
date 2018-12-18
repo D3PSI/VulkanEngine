@@ -10,8 +10,10 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <optional>
 
 #include "Logger.hpp"
+#include "QueueFamilyIndices.cpp"
 
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
@@ -36,6 +38,7 @@ namespace game {
 		const VkAllocationCallbacks* pAllocator
 
 	);
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 	int init();
 
 }
@@ -59,6 +62,8 @@ private:
 	};
 	VkInstance									instance;
 	VkPhysicalDevice							physicalDevice			= VK_NULL_HANDLE;
+	VkDevice									device;
+	VkQueue										graphicsQueue;
 	VkDebugUtilsMessengerEXT					callback;
 
 	void initWindow(void);
@@ -79,7 +84,8 @@ private:
 	);
 	void setupDebugCallback(void);
 	void pickPhysicalDevice(void);
-	int rateDeviceSuitability(VkPhysicalDevice device);
+	bool isDeviceSuitable(VkPhysicalDevice device);
+	void createLogicalDevice(void);
 
 };
 
