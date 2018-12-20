@@ -4,8 +4,8 @@
 *
 */
 #pragma once
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#include <vulkan/vulkan.h>
 
 #include <string>
 #include <map>
@@ -63,6 +63,7 @@ private:
 	VkInstance									instance;
 	VkPhysicalDevice							physicalDevice			= VK_NULL_HANDLE;
 	VkDevice									device;
+	VkSurfaceKHR								surface;
 	VkQueue										graphicsQueue;
 	VkDebugUtilsMessengerEXT					callback;
 
@@ -86,6 +87,7 @@ private:
 	void pickPhysicalDevice(void);
 	bool isDeviceSuitable(VkPhysicalDevice device);
 	void createLogicalDevice(void);
+	void createSurface(void);
 
 };
 

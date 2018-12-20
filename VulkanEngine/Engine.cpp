@@ -52,6 +52,7 @@ void Engine::initVulkan() {
 
 	createInstance();
 	setupDebugCallback();
+	createSurface();
 	pickPhysicalDevice();
 	createLogicalDevice();
 
@@ -194,6 +195,14 @@ void Engine::cleanup() {
 		);
 	
 	}
+
+	vkDestroySurfaceKHR(
+		
+		instance,
+		surface, 
+		nullptr
+	
+	);
 
 	vkDestroyInstance(instance, nullptr);
 
@@ -450,5 +459,28 @@ void Engine::createLogicalDevice() {
 		&graphicsQueue
 	
 	);
+
+}
+
+/*
+*	Function:		void createSurface()
+*	Purpose:		Creates the surface handle using GLFW
+*
+*/
+void Engine::createSurface() {
+
+	if (glfwCreateWindowSurface(
+		
+			instance, 
+			window, 
+			nullptr,
+			&surface
+	
+		) != VK_SUCCESS) {
+
+		logger.log(ERROR_LOG, "Failed to create window surface!");
+		throw std::runtime_error("Failed to create window surface!");
+	
+	}
 
 }
