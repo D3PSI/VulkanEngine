@@ -9,6 +9,7 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <vector>
 #include <optional>
 
@@ -38,7 +39,6 @@ namespace game {
 		const VkAllocationCallbacks* pAllocator
 
 	);
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 	int init();
 
 }
@@ -65,6 +65,7 @@ private:
 	VkDevice									device;
 	VkSurfaceKHR								surface;
 	VkQueue										graphicsQueue;
+	VkQueue										presentQueue;
 	VkDebugUtilsMessengerEXT					callback;
 
 	void initWindow(void);
@@ -88,6 +89,7 @@ private:
 	bool isDeviceSuitable(VkPhysicalDevice device);
 	void createLogicalDevice(void);
 	void createSurface(void);
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
 };
 

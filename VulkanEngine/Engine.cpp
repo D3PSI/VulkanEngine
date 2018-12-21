@@ -15,7 +15,7 @@ void Engine::run() {
 
 	initWindow();
 	initVulkan();
-	mainLoop();
+	mainLoop();	
 	cleanup();
 
 }
@@ -72,7 +72,7 @@ void Engine::createInstance() {
 	
 	}
 
-	VkApplicationInfo appInfo = {};
+	VkApplicationInfo appInfo		= {};
 	appInfo.sType					= VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pNext					= nullptr;
 	appInfo.pApplicationName		= title.c_str();
@@ -113,15 +113,15 @@ void Engine::createInstance() {
 
 	}
 
-	VkInstanceCreateInfo createInfo = {};
+	VkInstanceCreateInfo createInfo			= {};
 	createInfo.sType						= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pNext						= nullptr;
 	createInfo.flags						= 0;
 	createInfo.pApplicationInfo				= &appInfo;
 	if (enableValidationLayers) {
 	
-		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-		createInfo.ppEnabledLayerNames = validationLayers.data();
+		createInfo.enabledLayerCount		= static_cast<uint32_t>(validationLayers.size());
+		createInfo.ppEnabledLayerNames		= validationLayers.data();
 	
 	}
 	else {
@@ -313,13 +313,13 @@ void Engine::setupDebugCallback() {
 
 	if (!enableValidationLayers) return;
 
-	VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
-	createInfo.sType					= VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-	createInfo.flags					= 0;
-	createInfo.messageSeverity			= VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-	createInfo.messageType				= VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-	createInfo.pfnUserCallback			= debugCallback;
-	createInfo.pUserData				= nullptr;
+	VkDebugUtilsMessengerCreateInfoEXT createInfo		= {};
+	createInfo.sType									= VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	createInfo.flags									= 0;
+	createInfo.messageSeverity							= VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	createInfo.messageType								= VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	createInfo.pfnUserCallback							= debugCallback;
+	createInfo.pUserData								= nullptr;
 	
 	result = game::CreateDebugUtilsMessengerEXT(
 
@@ -394,7 +394,7 @@ void Engine::pickPhysicalDevice() {
 */
 bool Engine::isDeviceSuitable(VkPhysicalDevice device) {
 
-	QueueFamilyIndices indices = game::findQueueFamilies(device);
+	QueueFamilyIndices indices = findQueueFamilies(device);
 
 	return indices.isComplete();
 
@@ -407,24 +407,32 @@ bool Engine::isDeviceSuitable(VkPhysicalDevice device) {
 */
 void Engine::createLogicalDevice() {
 
-	QueueFamilyIndices indices = game::findQueueFamilies(physicalDevice);
+	QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
-	VkDeviceQueueCreateInfo queueCreateInfo = {};
-	queueCreateInfo.sType					= VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	queueCreateInfo.queueFamilyIndex		= indices.graphicsFamily.value();
-	queueCreateInfo.queueCount				= 1;
+	std::vector< VkDeviceQueueCreateInfo > queueCreateInfos;
+	std::set< uint32_t > uniqueQueueFamilies		= {indices.graphicsFamily.value(), indices.presentFamily.value()};
+	float queuePriority								= 1.0f;
 
-	float queuePriority						= 1.0f;
-	queueCreateInfo.pQueuePriorities		= &queuePriority;
+	for (uint32_t queueFamily : uniqueQueueFamilies) {
+	
+		VkDeviceQueueCreateInfo queueCreateInfo = {};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamily;
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+		queueCreateInfos.push_back(queueCreateInfo);
+
+	}
 
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 
-	VkDeviceCreateInfo createInfo = {};
+	VkDeviceCreateInfo createInfo			= {};
 	createInfo.sType						= VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	createInfo.pQueueCreateInfos			= &queueCreateInfo;
-	createInfo.queueCreateInfoCount			= 1;
+	createInfo.pQueueCreateInfos			= queueCreateInfos.data();
+	createInfo.queueCreateInfoCount			= static_cast< uint32_t >(queueCreateInfos.size());
 	createInfo.pEnabledFeatures				= &deviceFeatures;
 	createInfo.enabledExtensionCount		= 0;
+
 	if (enableValidationLayers) {
 	
 		createInfo.enabledLayerCount		= static_cast< uint32_t >(validationLayers.size());
@@ -460,6 +468,15 @@ void Engine::createLogicalDevice() {
 	
 	);
 
+	vkGetDeviceQueue(
+		
+		device,
+		indices.presentFamily.value(),
+		0, 
+		&presentQueue
+	
+	);
+
 }
 
 /*
@@ -482,5 +499,71 @@ void Engine::createSurface() {
 		throw std::runtime_error("Failed to create window surface!");
 	
 	}
+
+}
+
+/*
+	*	Function:		QueueFamilyIndices game::findQueueFamilies(VkPhysicalDevice device)
+	*	Purpose:		Finds the indices for the correct queue families for the physical device
+	*
+	*/
+QueueFamilyIndices Engine::findQueueFamilies(VkPhysicalDevice device) {
+
+	QueueFamilyIndices indices;
+
+	uint32_t queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(
+
+		device,
+		&queueFamilyCount,
+		nullptr
+
+	);
+
+	std::vector< VkQueueFamilyProperties > queueFamilies(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(
+
+		device,
+		&queueFamilyCount,
+		queueFamilies.data()
+
+	);
+
+	int i = 0;
+	for (const auto& queueFamily : queueFamilies) {
+
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(
+
+			device,
+			i,
+			surface,
+			&presentSupport
+
+		);
+
+		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+
+			indices.graphicsFamily = i;
+
+		}
+
+		if (indices.isComplete()) {
+
+			break;
+
+		}
+
+		if (queueFamily.queueCount > 0 && presentSupport) {
+
+			indices.presentFamily = i;
+
+		}
+
+		i++;
+
+	}
+
+	return indices;
 
 }
