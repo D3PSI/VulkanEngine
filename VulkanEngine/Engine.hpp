@@ -41,6 +41,7 @@ namespace game {
 		const VkAllocationCallbacks* pAllocator
 
 	);
+	static std::vector< char > readFile(const std::string& filename);
 	int init();
 
 }
@@ -110,6 +111,8 @@ private:
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilites);
 	void createSwapChain(void);
 	void createImageViews(void);
+	VkShaderModule createShaderModule(const std::vector< char >& code);
+	void createGraphicsPipeline(void);
 
 };
 

@@ -58,6 +58,7 @@ namespace game {
 		const VkAllocationCallbacks* pAllocator
 
 	);
+	static std::vector< char > readFile(const std::string& filename);
 	int init();
 
 }
@@ -119,7 +120,7 @@ namespace game {
 	}
 
 	/*
-	*	Function:		void DestroyDebugUtilsMessengerEXT(
+	*	Function:		void game::DestroyDebugUtilsMessengerEXT(
 	*	
 	*						VkInstance instance,
 	*						VkDebugUtilsMessengerEXT callback,
@@ -149,6 +150,31 @@ namespace game {
 			);
 		
 		}
+
+	}
+
+	/*
+	*	Function:		static std::vector< char > game::readFile(const std::string& filename)
+	*	Purpose:		Reads (shader) files to binary handled by std::vector< char >
+	*
+	*/
+	static std::vector< char > readFile(const std::string& filename) {
+	
+		std::ifstream file(filename, std::ios::ate | std::ios::binary);
+		if (!file.is_open()) {
+		
+			logger.log(ERROR_LOG, "Failed to open shader file!");
+			throw std::runtime_error("Failed to open shader file!");
+		
+		}
+	
+		size_t fileSize = (size_t)file.tellg();
+		std::vector< char > buffer(fileSize);
+
+		file.seekg(0);
+		file.read(buffer.data(), fileSize);
+		file.close();
+		return buffer;
 
 	}
 
