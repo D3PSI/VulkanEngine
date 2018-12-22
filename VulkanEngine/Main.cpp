@@ -45,17 +45,17 @@ namespace game {
 
 	VkResult CreateDebugUtilsMessengerEXT(
 
-		VkInstance instance,
-		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-		const VkAllocationCallbacks* pAllocator,
-		VkDebugUtilsMessengerEXT* pCallback
+		VkInstance										instance,
+		const VkDebugUtilsMessengerCreateInfoEXT*		pCreateInfo,
+		const VkAllocationCallbacks*					pAllocator,
+		VkDebugUtilsMessengerEXT*						pCallback
 
 	);
 	void DestroyDebugUtilsMessengerEXT(
 
-		VkInstance instance,
-		VkDebugUtilsMessengerEXT callback,
-		const VkAllocationCallbacks* pAllocator
+		VkInstance										instance,
+		VkDebugUtilsMessengerEXT						callback,
+		const VkAllocationCallbacks*					pAllocator
 
 	);
 	std::vector< char > readFile(const std::string& filename);
@@ -92,10 +92,10 @@ namespace game {
 	*/
 	VkResult CreateDebugUtilsMessengerEXT(
 	
-		VkInstance instance,
-		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-		const VkAllocationCallbacks* pAllocator, 
-		VkDebugUtilsMessengerEXT* pCallback
+		VkInstance										instance,
+		const VkDebugUtilsMessengerCreateInfoEXT*		pCreateInfo,
+		const VkAllocationCallbacks*					pAllocator, 
+		VkDebugUtilsMessengerEXT*						pCallback
 
 	) {
 	
@@ -133,9 +133,9 @@ namespace game {
 	*/
 	void DestroyDebugUtilsMessengerEXT(
 		
-		VkInstance instance,
-		VkDebugUtilsMessengerEXT callback,
-		const VkAllocationCallbacks* pAllocator
+		VkInstance										instance,
+		VkDebugUtilsMessengerEXT						callback,
+		const VkAllocationCallbacks*					pAllocator
 
 		) {
 	
