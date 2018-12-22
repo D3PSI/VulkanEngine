@@ -75,7 +75,8 @@ namespace game {
 	*	
 	*
 	*/
-	Engine			engine;
+	Engine					engine;
+	const int				MAX_FRAMES_IN_FLIGHT				= 2;
 
 	/*
 	*	Function:		VkResult game::CreateDebugUtilsMessengerEXT(
@@ -173,6 +174,7 @@ namespace game {
 		file.seekg(0);
 		file.read(buffer.data(), fileSize);
 		file.close();
+
 		return buffer;
 
 	}

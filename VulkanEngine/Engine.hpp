@@ -28,6 +28,8 @@ extern Logger									logger;
 
 namespace game {
 
+	extern const int MAX_FRAMES_IN_FLIGHT;
+
 	VkResult CreateDebugUtilsMessengerEXT(
 
 		VkInstance instance,
@@ -55,22 +57,22 @@ public:
 private:
 	VkResult									result;
 	GLFWwindow*									window;
-	const unsigned int							width					= 1280;
-	const unsigned int							height					= 780;
-	const std::string							title					= "VULKAN by D3PSI";
-	GLFWmonitor*								monitor					= nullptr; 
-	const std::vector< const char* >			validationLayers		= {
+	const unsigned int							width							= 1280;
+	const unsigned int							height							= 780;
+	const std::string							title							= "VULKAN by D3PSI";
+	GLFWmonitor*								monitor							= nullptr; 
+	const std::vector< const char* >			validationLayers				= {
 	
 		"VK_LAYER_LUNARG_standard_validation"
 	
 	};
-	const std::vector< const char* >			deviceExtensions		= {
+	const std::vector< const char* >			deviceExtensions				= {
 	
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	
 	};
 	VkInstance									instance;
-	VkPhysicalDevice							physicalDevice			= VK_NULL_HANDLE;
+	VkPhysicalDevice							physicalDevice					= VK_NULL_HANDLE;
 	VkDevice									device;
 	VkSurfaceKHR								surface;
 	VkQueue										graphicsQueue;
@@ -86,10 +88,12 @@ private:
 	VkPipelineLayout							pipelineLayout;
 	VkPipeline									graphicsPipeline;
 	std::vector< VkFramebuffer >				swapChainFramebuffers;
-	std::vector< VkCommandBuffer >				commandBuffers;
 	VkCommandPool								commandPool;
-	VkSemaphore									imageAvailableSemaphore;
-	VkSemaphore									renderFinishedSemaphore;
+	std::vector< VkCommandBuffer >				commandBuffers;
+	std::vector< VkSemaphore >					imageAvailableSemaphores;
+	std::vector< VkSemaphore >					renderFinishedSemaphores;
+	std::vector< VkFence >						inFlightFences;
+	size_t										currentFrame					= 0;
 
 	void initWindow(void);
 	void initVulkan(void);
@@ -126,7 +130,7 @@ private:
 	void createFramebuffers(void);
 	void createCommandPool(void);
 	void createCommandBuffers(void);
-	void createSemaphores(void);
+	void createSyncObjects(void);
 	void renderFrame(void);
 
 };

@@ -69,7 +69,7 @@ void Engine::initVulkan() {
 	createFramebuffers();
 	createCommandPool();
 	createCommandBuffers();
-	createSemaphores();
+	createSyncObjects();
 
 }
 
@@ -198,8 +198,13 @@ void Engine::mainLoop() {
 */
 void Engine::cleanup() {
 
-	vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
-	vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
+	for (size_t i = 0; i < game::MAX_FRAMES_IN_FLIGHT; i++) {
+
+		vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+		vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+		vkDestroyFence(device, inFlightFences[i], nullptr);
+
+	}
 
 	vkDestroyCommandPool(
 	
@@ -1389,29 +1394,49 @@ void Engine::createCommandBuffers(void) {
 *	Purpose:		Creates the semaphores to safely compute everything
 *
 */
-void Engine::createSemaphores(void) {
+void Engine::createSyncObjects(void) {
+
+	imageAvailableSemaphores.resize(game::MAX_FRAMES_IN_FLIGHT);
+	renderFinishedSemaphores.resize(game::MAX_FRAMES_IN_FLIGHT);
+	inFlightFences.resize(game::MAX_FRAMES_IN_FLIGHT);
 
 	VkSemaphoreCreateInfo semaphoreInfo		= {};
 	semaphoreInfo.sType						= VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-	
-	if (vkCreateSemaphore(
+
+	VkFenceCreateInfo fenceInfo				= {};
+	fenceInfo.sType							= VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags							= VK_FENCE_CREATE_SIGNALED_BIT;
+
+
+	for (size_t i = 0; i < game::MAX_FRAMES_IN_FLIGHT; i++) {
+
+		if (vkCreateSemaphore(
+
+			device,
+			&semaphoreInfo,
+			nullptr,
+			&imageAvailableSemaphores[i]
+
+		) != VK_SUCCESS || vkCreateSemaphore(
+
+			device,
+			&semaphoreInfo,
+			nullptr,
+			&renderFinishedSemaphores[i]
+
+		) != VK_SUCCESS ||vkCreateFence(
 		
-		device,
-		&semaphoreInfo,
-		nullptr,
-		&imageAvailableSemaphore
-	
-	) != VK_SUCCESS || vkCreateSemaphore(
-	
-		device, 
-		&semaphoreInfo,
-		nullptr,
-		&renderFinishedSemaphore
-	
-	) != VK_SUCCESS) {
-	
-		logger.log(ERROR_LOG, "Failed to create semaphores!");
-	
+			device,
+			&fenceInfo,
+			nullptr,
+			&inFlightFences[i]
+		
+		) != VK_SUCCESS) {
+
+			logger.log(ERROR_LOG, "Failed to create semaphores!");
+
+		}
+
 	}
 
 }
@@ -1423,13 +1448,30 @@ void Engine::createSemaphores(void) {
 */
 void Engine::renderFrame(void) {
 
+	vkWaitForFences(
+	
+		device,
+		1,
+		&inFlightFences[currentFrame],
+		VK_TRUE,
+		std::numeric_limits< uint64_t >::max()
+	
+	);
+	vkResetFences(
+	
+		device,
+		1,
+		&inFlightFences[currentFrame]
+	
+	);
+
 	uint32_t imageIndex;
 	vkAcquireNextImageKHR(
 	
 		device,
 		swapChain,
 		std::numeric_limits< uint64_t >::max(),
-		imageAvailableSemaphore,
+		imageAvailableSemaphores[currentFrame],
 		VK_NULL_HANDLE,
 		&imageIndex
 	
@@ -1438,7 +1480,7 @@ void Engine::renderFrame(void) {
 	VkSubmitInfo submitInfo				= {};
 	submitInfo.sType					= VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkSemaphore waitSemaphores[]		= {imageAvailableSemaphore};
+	VkSemaphore waitSemaphores[]		= {imageAvailableSemaphores[currentFrame]};
 	VkPipelineStageFlags waitStages[]	= {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 	submitInfo.waitSemaphoreCount		= 1;
 	submitInfo.pWaitSemaphores			= waitSemaphores;
@@ -1446,7 +1488,7 @@ void Engine::renderFrame(void) {
 	submitInfo.commandBufferCount		= 1;
 	submitInfo.pCommandBuffers			= &commandBuffers[imageIndex];
 
-	VkSemaphore signalSemaphores[]		= {renderFinishedSemaphore};
+	VkSemaphore signalSemaphores[]		= {renderFinishedSemaphores[currentFrame]};
 	submitInfo.signalSemaphoreCount		= 1;
 	submitInfo.pSignalSemaphores		= signalSemaphores;
 
@@ -1455,7 +1497,7 @@ void Engine::renderFrame(void) {
 		graphicsQueue,
 		1,
 		&submitInfo,
-		VK_NULL_HANDLE
+		inFlightFences[currentFrame]
 	
 	) != VK_SUCCESS) {
 	
@@ -1477,5 +1519,7 @@ void Engine::renderFrame(void) {
 	vkQueuePresentKHR(presentQueue, &presentInfo);
 
 	vkQueueWaitIdle(presentQueue);
+
+	currentFrame = (currentFrame + 1) % game::MAX_FRAMES_IN_FLIGHT;
 
 }
