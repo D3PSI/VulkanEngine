@@ -67,6 +67,8 @@ void Engine::initVulkan() {
 	createRenderPass();
 	createGraphicsPipeline();
 	createFramebuffers();
+	createCommandPool();
+	createCommandBuffers();
 
 }
 
@@ -191,6 +193,14 @@ void Engine::mainLoop() {
 *
 */
 void Engine::cleanup() {
+
+	vkDestroyCommandPool(
+	
+		device,
+		commandPool,
+		nullptr
+	
+	);
 
 	for (auto framebuffer : swapChainFramebuffers) {
 
@@ -1243,6 +1253,116 @@ void Engine::createFramebuffers(void) {
 		
 		}
 
+	}
+
+}
+
+/*
+*	Function:		void createCommandPool()
+*	Purpose:		Creates the command pool
+*
+*/
+void Engine::createCommandPool(void) {
+
+	QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+
+	VkCommandPoolCreateInfo poolInfo	= {};
+	poolInfo.sType						= VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.queueFamilyIndex			= queueFamilyIndices.graphicsFamily.value();
+	poolInfo.flags						= 0;
+
+	if (vkCreateCommandPool(
+	
+		device,
+		&poolInfo,
+		nullptr,
+		&commandPool
+	
+	) != VK_SUCCESS) {
+	
+		logger.log(ERROR_LOG, "Failed to create command pool!");
+	
+	}
+
+}
+
+/*
+*	Function:		void createCommandBuffers()
+*	Purpose:		Creates command buffers
+*
+*/
+void Engine::createCommandBuffers(void) {
+
+	commandBuffers.resize(swapChainFramebuffers.size());
+
+	VkCommandBufferAllocateInfo allocInfo		= {};
+	allocInfo.sType								= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool						= commandPool;
+	allocInfo.level								= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount				= (uint32_t)commandBuffers.size();
+
+	if (vkAllocateCommandBuffers(
+	
+		device,
+		&allocInfo,
+		commandBuffers.data()
+	
+	) != VK_SUCCESS) {
+	
+		logger.log(ERROR_LOG, "Failed to allocate command buffers!");
+	
+	}
+
+	for (size_t i = 0; i < commandBuffers.size(); i++) {
+	
+		VkRenderPassBeginInfo renderPassBeginInfo		= {};
+		renderPassBeginInfo.sType						= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassBeginInfo.renderPass					= renderPass;
+		renderPassBeginInfo.framebuffer					= swapChainFramebuffers[i];
+		renderPassBeginInfo.renderArea.offset			= {0, 0};
+		renderPassBeginInfo.renderArea.extent			= swapChainExtent;
+
+		VkClearValue clearColor							= {0.0f, 0.0f, 0.0f, 1.0f};
+		renderPassBeginInfo.clearValueCount				= 1;
+		renderPassBeginInfo.pClearValues				= &clearColor;
+
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+		vkBeginCommandBuffer(
+			
+			commandBuffers[i],
+			&beginInfo
+		
+		);
+
+		vkCmdBeginRenderPass(
+			
+			commandBuffers[i],
+			&renderPassBeginInfo,
+			VK_SUBPASS_CONTENTS_INLINE
+
+			);
+
+				vkCmdBindPipeline(
+		
+					commandBuffers[i],
+					VK_PIPELINE_BIND_POINT_GRAPHICS,
+					graphicsPipeline
+		
+				);
+
+				// RENDERING CALCULATIONS HERE \\
+
+				vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+
+		vkCmdEndRenderPass(commandBuffers[i]);
+
+		if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+		
+			logger.log(ERROR_LOG, "Failed to record command buffer!");
+		
+		}
 	}
 
 }

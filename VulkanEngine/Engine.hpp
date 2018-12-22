@@ -86,6 +86,8 @@ private:
 	VkPipelineLayout							pipelineLayout;
 	VkPipeline									graphicsPipeline;
 	std::vector< VkFramebuffer >				swapChainFramebuffers;
+	std::vector< VkCommandBuffer >				commandBuffers;
+	VkCommandPool								commandPool;
 
 	void initWindow(void);
 	void initVulkan(void);
@@ -120,6 +122,8 @@ private:
 	void createGraphicsPipeline(void);
 	void createRenderPass(void);
 	void createFramebuffers(void);
+	void createCommandPool(void);
+	void createCommandBuffers(void);
 
 };
 
