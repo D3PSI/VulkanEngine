@@ -56,6 +56,7 @@ void Engine::initVulkan() {
 	pickPhysicalDevice();
 	createLogicalDevice();
 	createSwapChain();
+	createImageViews();
 
 }
 
@@ -182,6 +183,12 @@ void Engine::mainLoop() {
 *
 */
 void Engine::cleanup() {
+
+	for (auto imageView : swapChainImageViews) {
+	
+		vkDestroyImageView(device, imageView, nullptr);
+	
+	}
 
 	vkDestroySwapchainKHR(
 
@@ -840,12 +847,12 @@ void Engine::createSwapChain(void) {
 
 	if (vkCreateSwapchainKHR(
 			
-				device,
-				&createInfo,
-				nullptr,
-				&swapChain
+		device,
+		&createInfo,
+		nullptr,
+		&swapChain
 	
-			) != VK_SUCCESS) {
+	) != VK_SUCCESS) {
 	
 		logger.log(ERROR_LOG, "Failed to create Swapchain!");
 		throw std::runtime_error("Failed to create Swapchain!");
@@ -873,5 +880,50 @@ void Engine::createSwapChain(void) {
 	swapChainImageFormat		= surfaceFormat.format;
 	swapChainImageColorSpace	= surfaceFormat.colorSpace;
 	swapChainExtent				= extent;
+
+}
+
+/*
+*	Function:		void createImageViews()
+*	Purpose:		Creates the VkImageView vector for the swapchain
+*
+*/
+void Engine::createImageViews(void) {
+
+	swapChainImageViews.resize(swapChainImages.size());
+	for (size_t i = 0; i < swapChainImages.size(); i++) {
+	
+		VkImageViewCreateInfo createInfo			= {};
+		createInfo.sType							= VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image							= swapChainImages[i];
+		createInfo.viewType							= VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format							= swapChainImageFormat;
+		createInfo.components.r						= VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g						= VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b						= VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a						= VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.subresourceRange.aspectMask		= VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel	= 0;
+		createInfo.subresourceRange.levelCount		= 1;
+		createInfo.subresourceRange.baseArrayLayer	= 0;
+		createInfo.subresourceRange.layerCount		= 1;
+
+		if (vkCreateImageView(
+
+			device,
+			&createInfo,
+			nullptr,
+			&swapChainImageViews[i]
+
+		) != VK_SUCCESS) {
+
+			logger.log(ERROR_LOG, "Failed to create image views!");
+			throw std::runtime_error("Failed to create image views!");
+
+		}
+
+	}
+
+	
 
 }
