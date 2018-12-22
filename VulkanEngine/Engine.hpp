@@ -24,6 +24,8 @@
 	const bool enableValidationLayers = true;
 #endif
 
+extern Logger									logger;
+
 namespace game {
 
 	VkResult CreateDebugUtilsMessengerEXT(
@@ -52,7 +54,6 @@ public:
 	void run(void);
 private:
 	VkResult									result;
-	Logger										logger;
 	GLFWwindow*									window;
 	const unsigned int							width					= 1280;
 	const unsigned int							height					= 780;
@@ -83,6 +84,7 @@ private:
 	std::vector< VkImageView >					swapChainImageViews;
 	VkRenderPass								renderPass;
 	VkPipelineLayout							pipelineLayout;
+	VkPipeline									graphicsPipeline;
 
 	void initWindow(void);
 	void initVulkan(void);

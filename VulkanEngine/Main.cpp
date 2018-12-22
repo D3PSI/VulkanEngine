@@ -185,8 +185,12 @@ namespace game {
 	int init() {
 	
 		try {
+
+			logger.log(START_STOP_LOG, "Starting application...");
 		
 			engine.run();
+
+			logger.log(START_STOP_LOG, "Stopping application...");
 
 			return EXIT_SUCCESS;
 		

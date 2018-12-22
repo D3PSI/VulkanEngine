@@ -13,10 +13,17 @@
 */
 void Engine::run() {
 
+	logger.log(EVENT_LOG, "Initializing GLFW-window...");
 	initWindow();
+	logger.log(EVENT_LOG, "Successfully initialized GLFW-window!");
+	logger.log(EVENT_LOG, "Initializing Vulkan...");
 	initVulkan();
+	logger.log(EVENT_LOG, "Successfully initialized VULKAN!");
+	logger.log(EVENT_LOG, "Entering main game loop...");
 	mainLoop();	
+	logger.log(EVENT_LOG, "Cleaning up...");
 	cleanup();
+	logger.log(EVENT_LOG, "Successfully cleaned up!");
 
 }
 
@@ -184,6 +191,13 @@ void Engine::mainLoop() {
 */
 void Engine::cleanup() {
 
+	vkDestroyPipeline(
+	
+		device,
+		graphicsPipeline,
+		nullptr
+	
+	);
 
 	vkDestroyPipelineLayout(
 	
@@ -1088,6 +1102,39 @@ void Engine::createGraphicsPipeline(void) {
 	) != VK_SUCCESS) {
 	
 		logger.log(ERROR_LOG, "Failed to create pipeline layout!");
+	
+	}
+
+	VkGraphicsPipelineCreateInfo pipelineInfo						= {};
+	pipelineInfo.sType												= VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	pipelineInfo.stageCount											= 2;
+	pipelineInfo.pStages											= shaderStages;
+	pipelineInfo.pVertexInputState									= &vertexInputInfo;
+	pipelineInfo.pInputAssemblyState								= &inputAssembly;
+	pipelineInfo.pViewportState										= &viewportState;
+	pipelineInfo.pRasterizationState								= &rasterizer;
+	pipelineInfo.pMultisampleState									= &multisampling;
+	pipelineInfo.pDepthStencilState									= nullptr;
+	pipelineInfo.pColorBlendState									= &colorBlending;
+	pipelineInfo.pDynamicState										= nullptr;
+	pipelineInfo.layout												= pipelineLayout;
+	pipelineInfo.renderPass											= renderPass;
+	pipelineInfo.subpass											= 0;
+	pipelineInfo.basePipelineHandle									= VK_NULL_HANDLE;
+	pipelineInfo.basePipelineIndex									= -1;
+
+	if (vkCreateGraphicsPipelines(
+	
+		device,
+		VK_NULL_HANDLE,
+		1,
+		&pipelineInfo,
+		nullptr,
+		&graphicsPipeline
+	
+	) != VK_SUCCESS) {
+	
+		logger.log(ERROR_LOG, "Failed to create graphics pipeline!");
 	
 	}
 
