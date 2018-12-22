@@ -163,8 +163,7 @@ namespace game {
 		std::ifstream file(filename, std::ios::ate | std::ios::binary);
 		if (!file.is_open()) {
 		
-			logger.log(ERROR_LOG, "Failed to open shader file!");
-			throw std::runtime_error("Failed to open shader file!");
+			logger.log(ERROR_LOG, "Failed to open (shader?) file!");
 		
 		}
 	

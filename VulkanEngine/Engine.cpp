@@ -57,6 +57,7 @@ void Engine::initVulkan() {
 	createLogicalDevice();
 	createSwapChain();
 	createImageViews();
+	createRenderPass();
 	createGraphicsPipeline();
 
 }
@@ -71,7 +72,6 @@ void Engine::createInstance() {
 	if (enableValidationLayers && !checkValidationLayerSupport()) {
 	
 		logger.log(ERROR_LOG, "Validation layers requested, but not available!");
-		throw std::runtime_error("Validation layers requested, but not available!");
 	
 	}
 
@@ -157,7 +157,6 @@ void Engine::createInstance() {
 	if (result != VK_SUCCESS) {
 	
 		logger.log(ERROR_LOG, "ERROR: " + result);
-		throw std::runtime_error("Error: " + result);
 	
 	}
 
@@ -185,12 +184,21 @@ void Engine::mainLoop() {
 */
 void Engine::cleanup() {
 
+
 	vkDestroyPipelineLayout(
 	
 		device,
 		pipelineLayout,
 		nullptr
 
+	);
+
+	vkDestroyRenderPass(
+	
+		device,
+		renderPass,
+		nullptr
+	
 	);
 
 	for (auto imageView : swapChainImageViews) {
@@ -358,7 +366,6 @@ void Engine::setupDebugCallback() {
 	if (result != VK_SUCCESS) {
 		
 		logger.log(ERROR_LOG, "Failed to set up debug callback!" + result);
-		throw std::runtime_error("Failed to set up debug callback!");
 	
 	}
 
@@ -383,7 +390,6 @@ void Engine::pickPhysicalDevice() {
 	if (deviceCount == 0) {
 
 		logger.log(ERROR_LOG, "Failed to fing GPU's with Vulkan support!");
-		throw std::runtime_error("failed to find GPUs with Vulkan support!");
 
 	}
 
@@ -406,7 +412,6 @@ void Engine::pickPhysicalDevice() {
 	if (physicalDevice == VK_NULL_HANDLE) {
 
 		logger.log(ERROR_LOG, "Failed to find a suitable GPU!");
-		throw std::runtime_error("Failed to find a suitable GPU!");
 
 	}
 
@@ -491,7 +496,6 @@ void Engine::createLogicalDevice() {
 		) != VK_SUCCESS) {
 	
 		logger.log(ERROR_LOG, "Failed to create logical device!");
-		throw std::runtime_error("Failed to create logical device!");
 
 	}
 
@@ -532,7 +536,6 @@ void Engine::createSurface() {
 		) != VK_SUCCESS) {
 
 		logger.log(ERROR_LOG, "Failed to create window surface!");
-		throw std::runtime_error("Failed to create window surface!");
 	
 	}
 
@@ -864,7 +867,6 @@ void Engine::createSwapChain(void) {
 	) != VK_SUCCESS) {
 	
 		logger.log(ERROR_LOG, "Failed to create Swapchain!");
-		throw std::runtime_error("Failed to create Swapchain!");
 
 	}
 
@@ -927,7 +929,6 @@ void Engine::createImageViews(void) {
 		) != VK_SUCCESS) {
 
 			logger.log(ERROR_LOG, "Failed to create image views!");
-			throw std::runtime_error("Failed to create image views!");
 
 		}
 
@@ -959,7 +960,6 @@ VkShaderModule Engine::createShaderModule(const std::vector<char>& code) {
 	) !=VK_SUCCESS) {
 	
 		logger.log(ERROR_LOG, "Failed to create shader module!");
-		throw std::runtime_error("Failed to create shader module!");
 	
 	}
 	
@@ -1088,11 +1088,58 @@ void Engine::createGraphicsPipeline(void) {
 	) != VK_SUCCESS) {
 	
 		logger.log(ERROR_LOG, "Failed to create pipeline layout!");
-		throw std::runtime_error("Failed to create pipeline layout!");
 	
 	}
 
 	vkDestroyShaderModule(device, fragShaderModule, nullptr);
 	vkDestroyShaderModule(device, vertShaderModule, nullptr);
+
+}
+
+/*
+*	Function:		void createRenderPass()
+*	Purpose:		Generates a render pass
+*
+*/
+void Engine::createRenderPass(void) {
+
+	VkAttachmentDescription colorAttachment		= {};
+	colorAttachment.format						= swapChainImageFormat;
+	colorAttachment.samples						= VK_SAMPLE_COUNT_1_BIT;
+	colorAttachment.loadOp						= VK_ATTACHMENT_LOAD_OP_CLEAR;
+	colorAttachment.storeOp						= VK_ATTACHMENT_STORE_OP_STORE;
+	colorAttachment.stencilLoadOp				= VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.stencilStoreOp				= VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	colorAttachment.initialLayout				= VK_IMAGE_LAYOUT_UNDEFINED;
+	colorAttachment.finalLayout					= VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	
+	VkAttachmentReference colorAttachmentRef	= {};
+	colorAttachmentRef.attachment				= 0;
+	colorAttachmentRef.layout					= VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass				= {};
+	subpass.pipelineBindPoint					= VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount				= 1;
+	subpass.pColorAttachments					= &colorAttachmentRef;
+	
+	VkRenderPassCreateInfo renderPassInfo		= {};
+	renderPassInfo.sType						= VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.attachmentCount				= 1;
+	renderPassInfo.pAttachments					= &colorAttachment;
+	renderPassInfo.subpassCount					= 1;
+	renderPassInfo.pSubpasses					= &subpass;
+
+	if (vkCreateRenderPass(
+		
+		device, 
+		&renderPassInfo,
+		nullptr,
+		&renderPass
+	
+	) != VK_SUCCESS) {
+	
+		logger.log(ERROR_LOG, "Failed to create render pass!");
+	
+	}
 
 }

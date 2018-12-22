@@ -63,7 +63,7 @@ private:
 		"VK_LAYER_LUNARG_standard_validation"
 	
 	};
-	const std::vector< const char* >			deviceExtensions = {
+	const std::vector< const char* >			deviceExtensions		= {
 	
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	
@@ -81,6 +81,7 @@ private:
 	VkColorSpaceKHR								swapChainImageColorSpace;
 	VkExtent2D									swapChainExtent;
 	std::vector< VkImageView >					swapChainImageViews;
+	VkRenderPass								renderPass;
 	VkPipelineLayout							pipelineLayout;
 
 	void initWindow(void);
@@ -114,6 +115,7 @@ private:
 	void createImageViews(void);
 	VkShaderModule createShaderModule(const std::vector< char >& code);
 	void createGraphicsPipeline(void);
+	void createRenderPass(void);
 
 };
 
