@@ -9,12 +9,14 @@
 
 #include <string>
 #include <map>
+#include <algorithm>
 #include <set>
 #include <vector>
 #include <optional>
 
 #include "Logger.hpp"
 #include "QueueFamilyIndices.cpp"
+#include "SwapChainSupportDetails.cpp"
 
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
@@ -60,6 +62,11 @@ private:
 		"VK_LAYER_LUNARG_standard_validation"
 	
 	};
+	const std::vector< const char* >			deviceExtensions = {
+	
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	
+	};
 	VkInstance									instance;
 	VkPhysicalDevice							physicalDevice			= VK_NULL_HANDLE;
 	VkDevice									device;
@@ -67,6 +74,11 @@ private:
 	VkQueue										graphicsQueue;
 	VkQueue										presentQueue;
 	VkDebugUtilsMessengerEXT					callback;
+	VkSwapchainKHR								swapChain;
+	std::vector< VkImage >						swapChainImages;
+	VkFormat									swapChainImageFormat;
+	VkColorSpaceKHR								swapChainImageColorSpace;
+	VkExtent2D									swapChainExtent;
 
 	void initWindow(void);
 	void initVulkan(void);
@@ -90,6 +102,12 @@ private:
 	void createLogicalDevice(void);
 	void createSurface(void);
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector< VkSurfaceFormatKHR >& availableFormats);
+	VkPresentModeKHR chooseSwapPresentMode(const std::vector< VkPresentModeKHR > availablePresentModes);
+	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilites);
+	void createSwapChain(void);
 
 };
 
