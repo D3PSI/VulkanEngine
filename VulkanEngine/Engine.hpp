@@ -41,7 +41,7 @@ namespace game {
 		const VkAllocationCallbacks* pAllocator
 
 	);
-	static std::vector< char > readFile(const std::string& filename);
+	std::vector< char > readFile(const std::string& filename);
 	int init();
 
 }
@@ -81,6 +81,7 @@ private:
 	VkColorSpaceKHR								swapChainImageColorSpace;
 	VkExtent2D									swapChainExtent;
 	std::vector< VkImageView >					swapChainImageViews;
+	VkPipelineLayout							pipelineLayout;
 
 	void initWindow(void);
 	void initVulkan(void);

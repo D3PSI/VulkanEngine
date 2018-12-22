@@ -58,7 +58,7 @@ namespace game {
 		const VkAllocationCallbacks* pAllocator
 
 	);
-	static std::vector< char > readFile(const std::string& filename);
+	std::vector< char > readFile(const std::string& filename);
 	int init();
 
 }
@@ -158,7 +158,7 @@ namespace game {
 	*	Purpose:		Reads (shader) files to binary handled by std::vector< char >
 	*
 	*/
-	static std::vector< char > readFile(const std::string& filename) {
+	std::vector< char > readFile(const std::string& filename) {
 	
 		std::ifstream file(filename, std::ios::ate | std::ios::binary);
 		if (!file.is_open()) {
