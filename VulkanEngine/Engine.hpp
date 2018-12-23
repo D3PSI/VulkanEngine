@@ -107,6 +107,8 @@ private:
 	bool										framebufferResized				= false;
 	VkBuffer									vertexBuffer;
 	VkDeviceMemory								vertexBufferMemory;
+	clock_t										current_ticks, delta_ticks;
+	clock_t										fps								= 0;
 
 	void initWindow(void);
 	void initVulkan(void);
