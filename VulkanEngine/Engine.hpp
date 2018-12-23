@@ -18,6 +18,7 @@
 #include "Logger.hpp"
 #include "QueueFamilyIndices.cpp"
 #include "SwapChainSupportDetails.cpp"
+#include "Vertex.cpp"
 
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
@@ -50,6 +51,14 @@ namespace game {
 	int init();
 
 }
+
+const std::vector< Vertex > vertices = {
+
+	{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+	{{0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
+	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+
+};
 
 class Engine
 {

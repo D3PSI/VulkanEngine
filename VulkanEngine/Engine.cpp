@@ -1033,12 +1033,15 @@ void Engine::createGraphicsPipeline(void) {
 
 	VkPipelineShaderStageCreateInfo shaderStages[]					= { vertShaderStageInfo, fragShaderStageInfo };
 
+	auto bindingDescription											= Vertex::getBindingDescription();
+	auto attributeDescriptions										= Vertex::getAttributeDescriptions();
+		
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo			= {};
 	vertexInputInfo.sType											= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount					= 0;
-	vertexInputInfo.pVertexBindingDescriptions						= nullptr;
-	vertexInputInfo.vertexAttributeDescriptionCount					= 0;
-	vertexInputInfo.pVertexAttributeDescriptions					= nullptr;
+	vertexInputInfo.vertexBindingDescriptionCount					= 1;
+	vertexInputInfo.pVertexBindingDescriptions						= &bindingDescription;
+	vertexInputInfo.vertexAttributeDescriptionCount					= static_cast< uint32_t >(attributeDescriptions.size());
+	vertexInputInfo.pVertexAttributeDescriptions					= attributeDescriptions.data();
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly			= {};
 	inputAssembly.sType												= VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -1652,5 +1655,9 @@ void Engine::framebufferResizeCallback(GLFWwindow* window, int width, int height
 
 	auto app = reinterpret_cast< Engine* >(glfwGetWindowUserPointer(window));
 	app->framebufferResized = true;
+
+	std::string log = "Framebuffer resized to: " + std::to_string(width) + " / " + std::to_string(height);
+
+	logger.log(EVENT_LOG, log);
 
 }
