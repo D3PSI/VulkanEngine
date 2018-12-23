@@ -36,7 +36,7 @@ void Engine::initWindow() {
 
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 	window = glfwCreateWindow(
 		
@@ -47,6 +47,9 @@ void Engine::initWindow() {
 		nullptr
 	
 	);
+
+	glfwSetWindowUserPointer(window, this);
+	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
 }
 
@@ -198,11 +201,31 @@ void Engine::mainLoop() {
 */
 void Engine::cleanup() {
 
+	cleanupSwapChain();
+
 	for (size_t i = 0; i < game::MAX_FRAMES_IN_FLIGHT; i++) {
 
-		vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-		vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-		vkDestroyFence(device, inFlightFences[i], nullptr);
+		vkDestroySemaphore(
+			
+			device, 
+			renderFinishedSemaphores[i],
+			nullptr
+		
+		);
+		vkDestroySemaphore(
+			
+			device,
+			imageAvailableSemaphores[i],
+			nullptr
+		
+		);
+		vkDestroyFence(
+			
+			device,
+			inFlightFences[i],
+			nullptr
+		
+		);
 
 	}
 
@@ -212,56 +235,6 @@ void Engine::cleanup() {
 		commandPool,
 		nullptr
 	
-	);
-
-	for (auto framebuffer : swapChainFramebuffers) {
-
-		vkDestroyFramebuffer(
-			
-			device, 
-			framebuffer, 
-			nullptr
-		
-		);
-
-	}
-
-	vkDestroyPipeline(
-	
-		device,
-		graphicsPipeline,
-		nullptr
-	
-	);
-
-	vkDestroyPipelineLayout(
-	
-		device,
-		pipelineLayout,
-		nullptr
-
-	);
-
-	vkDestroyRenderPass(
-	
-		device,
-		renderPass,
-		nullptr
-	
-	);
-
-	for (auto imageView : swapChainImageViews) {
-	
-		vkDestroyImageView(device, imageView, nullptr);
-	
-	}
-
-	vkDestroySwapchainKHR(
-
-		device,
-		swapChain,
-		nullptr
-
 	);
 
 	vkDestroyDevice(device,	nullptr);
@@ -831,8 +804,22 @@ VkExtent2D Engine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities
 	
 	}
 	else {
+
+		int width, height;
+		glfwGetFramebufferSize(
+		
+			window,
+			&width,
+			&height
+		
+		);
 	
-		VkExtent2D actualExtent = {width, height};
+		VkExtent2D actualExtent = {
+			
+			static_cast< uint32_t >(width), 
+			static_cast< uint32_t >(height)
+		
+		};
 		actualExtent.width = std::max(
 			
 			capabilities.minImageExtent.width, 
@@ -1457,16 +1444,9 @@ void Engine::renderFrame(void) {
 		std::numeric_limits< uint64_t >::max()
 	
 	);
-	vkResetFences(
-	
-		device,
-		1,
-		&inFlightFences[currentFrame]
-	
-	);
 
 	uint32_t imageIndex;
-	vkAcquireNextImageKHR(
+	result = vkAcquireNextImageKHR(
 	
 		device,
 		swapChain,
@@ -1476,6 +1456,18 @@ void Engine::renderFrame(void) {
 		&imageIndex
 	
 	);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+	
+		recreateSwapChain();
+		return;
+	
+	}
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+	
+		logger.log(ERROR_LOG, "Failed to acquire swap chain image!");
+	
+	}
 
 	VkSubmitInfo submitInfo				= {};
 	submitInfo.sType					= VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -1491,6 +1483,14 @@ void Engine::renderFrame(void) {
 	VkSemaphore signalSemaphores[]		= {renderFinishedSemaphores[currentFrame]};
 	submitInfo.signalSemaphoreCount		= 1;
 	submitInfo.pSignalSemaphores		= signalSemaphores;
+
+	vkResetFences(
+
+		device,
+		1,
+		&inFlightFences[currentFrame]
+
+	);
 
 	if (vkQueueSubmit(
 	
@@ -1516,10 +1516,141 @@ void Engine::renderFrame(void) {
 	presentInfo.pImageIndices			= &imageIndex;
 	presentInfo.pResults				= nullptr;
 
-	vkQueuePresentKHR(presentQueue, &presentInfo);
+	result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+	
+		framebufferResized = false;
+		recreateSwapChain();
+	
+	}
+	else if (result != VK_SUCCESS) {
+	
+		logger.log(ERROR_LOG, "Failed to present swap chain image!");
+	
+	}
 
 	vkQueueWaitIdle(presentQueue);
 
 	currentFrame = (currentFrame + 1) % game::MAX_FRAMES_IN_FLIGHT;
+
+}
+
+/*
+*	Function:		void recreateSwapChain()
+*	Purpose:		Recreates the swapchain on window resize events and more
+*
+*/
+void Engine::recreateSwapChain(void) {
+
+	int width = 0, height = 0;
+	while (width == 0 || height == 0) {
+	
+		glfwGetFramebufferSize(
+		
+			window,
+			&width,
+			&height
+		
+		);
+	
+		glfwWaitEvents();
+
+	}
+
+	vkDeviceWaitIdle(device);
+
+	cleanupSwapChain();
+
+	createSwapChain();
+	createImageViews();
+	createRenderPass();
+	createGraphicsPipeline();
+	createFramebuffers();
+	createCommandBuffers();
+
+}
+
+/*
+*	Function:		void cleanupSwapChain()
+*	Purpose:		Cleans objects, that are needed for swapchain recreation
+*
+*/
+void Engine::cleanupSwapChain(void) {
+
+	for (size_t i = 0; i < swapChainFramebuffers.size(); i++) {
+
+		vkDestroyFramebuffer(
+			
+			device,
+			swapChainFramebuffers[i], 
+			nullptr
+		
+		);
+
+	}
+
+	vkFreeCommandBuffers(
+		
+		device,
+		commandPool,
+		static_cast<uint32_t>(commandBuffers.size()),
+		commandBuffers.data()
+	
+	);
+
+	vkDestroyPipeline(
+
+		device, 
+		graphicsPipeline,
+		nullptr
+
+	);
+	vkDestroyPipelineLayout(
+		
+		device,
+		pipelineLayout,
+		nullptr
+	
+	);
+	vkDestroyRenderPass(
+		
+		device,
+		renderPass,
+		nullptr
+	
+	);
+
+	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+
+		vkDestroyImageView(
+			
+			device, 
+			swapChainImageViews[i], 
+			nullptr
+		
+		);
+
+	}
+
+	vkDestroySwapchainKHR(
+		
+		device,
+		swapChain,
+		nullptr
+	
+	);
+
+}
+
+/*
+*	Function:		static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
+*	Purpose:		GLFW-callback function on window resize event
+*
+*/
+void Engine::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+
+	auto app = reinterpret_cast< Engine* >(glfwGetWindowUserPointer(window));
+	app->framebufferResized = true;
 
 }

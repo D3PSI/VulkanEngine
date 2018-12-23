@@ -95,6 +95,7 @@ private:
 	std::vector< VkSemaphore >					renderFinishedSemaphores;
 	std::vector< VkFence >						inFlightFences;
 	size_t										currentFrame					= 0;
+	bool										framebufferResized				= false;
 
 	void initWindow(void);
 	void initVulkan(void);
@@ -133,6 +134,9 @@ private:
 	void createCommandBuffers(void);
 	void createSyncObjects(void);
 	void renderFrame(void);
+	void recreateSwapChain(void);
+	void cleanupSwapChain(void);
+	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
 };
 
