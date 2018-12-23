@@ -59,6 +59,8 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< Sec << "		===		"
 				<< text << std::endl;
 
+			stream.close();
+
 			std::cerr << Day << ":"
 				<< Month << ":"
 				<< Year << "   "
@@ -67,7 +69,6 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< Sec << "		===		"
 				<< text << std::endl;
 
-			stream.close();
 
 		}
 		else {
@@ -121,6 +122,14 @@ void Logger::log(LogNr logNr, std::string text) {
 			
 			stream.close();
 
+			std::cout << Day << ":"
+				<< Month << ":"
+				<< Year << "   "
+				<< Hour << ":"
+				<< Min << ":"
+				<< Sec << "		===		"
+				<< text << std::endl;
+
 		}
 		else {
 
@@ -135,6 +144,14 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< text << std::endl;
 
 			stream.close();
+
+			std::cout << Day << ":"
+				<< Month << ":"
+				<< Year << "   "
+				<< Hour << ":"
+				<< Min << ":"
+				<< Sec << "		===		"
+				<< text << std::endl;
 
 		}
 		break;
