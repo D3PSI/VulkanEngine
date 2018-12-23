@@ -78,7 +78,7 @@ namespace game {
 	*
 	*/
 	Engine												engine;
-	const int											MAX_FRAMES_IN_FLIGHT				= 2;
+	const unsigned int									MAX_FRAMES_IN_FLIGHT				= 2;
 
 	/*
 	*	Function:		VkResult game::CreateDebugUtilsMessengerEXT(

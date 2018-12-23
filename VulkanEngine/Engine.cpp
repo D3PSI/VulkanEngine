@@ -185,7 +185,7 @@ void Engine::createInstance() {
 void Engine::mainLoop() {
 
 	double lastTime		= glfwGetTime();
-	int nbFrames		= 0;
+	float nbFrames		= 0;
 	float maxfps		= 0;
 
 	while (!glfwWindowShouldClose(window)) {
@@ -205,7 +205,7 @@ void Engine::mainLoop() {
 			std::string maxFPS = "Max FPS:	%f\n";
 
 			printf(fps.c_str(), double(nbFrames / seconds));
-			printf(frametime.c_str(), double(nbFrames / (1000.0 * seconds)));
+			printf(frametime.c_str(), double((1000.0 * seconds) / nbFrames));
 			printf(maxFPS.c_str(), double(maxfps / seconds));
 			nbFrames	 = 0;
 			lastTime	+= seconds;

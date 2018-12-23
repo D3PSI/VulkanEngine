@@ -30,7 +30,7 @@ extern Logger									logger;
 
 namespace game {
 
-	extern const int MAX_FRAMES_IN_FLIGHT;
+	extern const unsigned int MAX_FRAMES_IN_FLIGHT;
 
 	VkResult CreateDebugUtilsMessengerEXT(
 
