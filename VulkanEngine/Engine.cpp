@@ -1703,11 +1703,23 @@ void Engine::cleanupSwapChain(void) {
 }
 
 /*
-*	Function:		static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
+*	Function:		static void framebufferResizeCallback(
+*
+*						GLFWwindow*		window, 
+*						int				width,
+*						int				height
+*	
+*					)
 *	Purpose:		GLFW-callback function on window resize event
 *
 */
-void Engine::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+void Engine::framebufferResizeCallback(
+	
+	GLFWwindow*		window,
+	int				width,
+	int				height
+
+) {
 
 	auto app = reinterpret_cast< Engine* >(glfwGetWindowUserPointer(window));
 	app->framebufferResized = true;
@@ -1726,13 +1738,17 @@ void Engine::framebufferResizeCallback(GLFWwindow* window, int width, int height
 void Engine::createVertexBuffer(void) {
 
 	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+
+	VkBuffer					stagingBuffer;
+	VkDeviceMemory				stagingBufferMemory;
+
 	createBuffer(
-		
+	
 		bufferSize,
-		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		vertexBuffer,
-		vertexBufferMemory
+		stagingBuffer,
+		stagingBufferMemory
 	
 	);
 
@@ -1740,7 +1756,7 @@ void Engine::createVertexBuffer(void) {
 	vkMapMemory(
 
 		device,
-		vertexBufferMemory,
+		stagingBufferMemory,
 		0,
 		bufferSize,
 		0,
@@ -1754,7 +1770,40 @@ void Engine::createVertexBuffer(void) {
 		(size_t)bufferSize
 	
 	);
-	vkUnmapMemory(device, vertexBufferMemory);
+	vkUnmapMemory(device, stagingBufferMemory);
+
+	createBuffer(
+		
+		bufferSize,
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		vertexBuffer,
+		vertexBufferMemory
+	
+	);
+
+	copyBuffer(
+	
+		stagingBuffer,
+		vertexBuffer,
+		bufferSize
+
+	);
+
+	vkDestroyBuffer(
+		
+		device,
+		stagingBuffer, 
+		nullptr
+	
+	);
+	vkFreeMemory(
+		
+		device,
+		stagingBufferMemory,
+		nullptr
+	
+	);
 
 }
 
@@ -1858,6 +1907,89 @@ void Engine::createBuffer(
 		buffer,
 		bufferMemory,
 		0
+	
+	);
+
+}
+
+/*
+*	Function:		void copyBuffer(
+*	
+*						VkBuffer srcBuffer
+*						VkBuffer dstBuffer
+*						VkDeviceSize size
+*					)
+*	Purpose:		Copies a source buffer to a destination buffer
+*
+*/
+void Engine::copyBuffer(
+
+	VkBuffer		srcBuffer,
+	VkBuffer		dstBuffer,
+	VkDeviceSize	size
+
+) {
+
+	VkCommandBufferAllocateInfo allocInfo		= {};
+	allocInfo.sType								= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level								= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool						= commandPool;
+	allocInfo.commandBufferCount				= 1;
+
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers(
+	
+		device,
+		&allocInfo,
+		&commandBuffer
+
+	);
+
+	VkCommandBufferBeginInfo beginInfo		= {};
+	beginInfo.sType							= VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags							= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+	VkBufferCopy copyRegion		= {};
+	copyRegion.srcOffset		= 0;
+	copyRegion.dstOffset		= 0;
+	copyRegion.size				= size;
+
+	vkCmdCopyBuffer(
+	
+		commandBuffer,
+		srcBuffer,
+		dstBuffer,
+		1,
+		&copyRegion
+	
+	);
+
+	vkEndCommandBuffer(commandBuffer);
+
+	VkSubmitInfo submitInfo				= {};
+	submitInfo.sType					= VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount		= 1;
+	submitInfo.pCommandBuffers			= &commandBuffer;
+
+	vkQueueSubmit(
+		
+		graphicsQueue, 
+		1, 
+		&submitInfo,
+		VK_NULL_HANDLE
+	
+	);
+
+	vkQueueWaitIdle(graphicsQueue);
+
+	vkFreeCommandBuffers(
+		
+		device,
+		commandPool,
+		1,
+		&commandBuffer
 	
 	);
 

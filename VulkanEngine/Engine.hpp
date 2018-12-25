@@ -149,7 +149,13 @@ private:
 	void renderFrame(void);
 	void recreateSwapChain(void);
 	void cleanupSwapChain(void);
-	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+	static void framebufferResizeCallback(
+		
+		GLFWwindow*		window, 
+		int				width, 
+		int				eight
+	
+	);
 	void createVertexBuffer(void);
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	void createBuffer(
@@ -159,6 +165,13 @@ private:
 		VkMemoryPropertyFlags		properties,
 		VkBuffer&					buffer, 
 		VkDeviceMemory&				bufferMemory
+	
+	);
+	void copyBuffer(
+	
+		VkBuffer		srcBuffer,
+		VkBuffer		dstBuffer,
+		VkDeviceSize	size
 	
 	);
 
