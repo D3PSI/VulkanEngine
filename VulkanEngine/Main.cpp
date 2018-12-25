@@ -196,6 +196,8 @@ namespace game {
 
 			logger.log(START_STOP_LOG, "Stopping application...");
 
+			std::cin.get();
+
 			return EXIT_SUCCESS;
 		
 		} 

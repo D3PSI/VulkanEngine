@@ -1725,77 +1725,33 @@ void Engine::framebufferResizeCallback(GLFWwindow* window, int width, int height
 */
 void Engine::createVertexBuffer(void) {
 
-	VkBufferCreateInfo bufferInfo	= {};
-	bufferInfo.sType				= VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size					= sizeof(vertices[0]) * vertices.size();
-	bufferInfo.usage				= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	bufferInfo.sharingMode			= VK_SHARING_MODE_EXCLUSIVE;
-
-	if (vkCreateBuffer(
-	
-		device,
-		&bufferInfo,
-		nullptr,
-		&vertexBuffer
-
-	) != VK_SUCCESS) {
-	
-		logger.log(ERROR_LOG, "Failed to create vertex buffer!");
-	
-	}
-
-	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(
-	
-		device,
-		vertexBuffer,
-		&memRequirements
-	
-	);
-
-	VkMemoryAllocateInfo allocInfo		= {};
-	allocInfo.sType						= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocInfo.allocationSize			= memRequirements.size;
-	allocInfo.memoryTypeIndex			= findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-	if (vkAllocateMemory(
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+	createBuffer(
 		
-		device,
-		&allocInfo,
-		nullptr,
-		&vertexBufferMemory
-	
-	) != VK_SUCCESS) {
-	
-		logger.log(ERROR_LOG, "Failed to allocate vertex buffer memory!");
-	
-	}
-
-	vkBindBufferMemory(
-	
-		device,
+		bufferSize,
+		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		vertexBuffer,
-		vertexBufferMemory,
-		0
-
+		vertexBufferMemory
+	
 	);
 
 	void* data;
 	vkMapMemory(
-	
+
 		device,
 		vertexBufferMemory,
 		0,
-		bufferInfo.size,
+		bufferSize,
 		0,
 		&data
 	
 	);
 	memcpy(
-	
+
 		data,
 		vertices.data(),
-		(size_t) bufferInfo.size
+		(size_t)bufferSize
 	
 	);
 	vkUnmapMemory(device, vertexBufferMemory);
@@ -1825,4 +1781,84 @@ uint32_t Engine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
 	logger.log(ERROR_LOG, "Failed to find suitable memory type!");
 
 	return uint32_t();
+}
+
+/*
+*	Function:		void createBuffer(
+*			
+*						VkDeviceSize				size,
+*						VkBufferUsageFlags			usage,
+*						VkMemoryPropertyFlags		properties,
+*						VkBuffer&					buffer, 
+*						VkDeviceMemory&				bufferMemory
+*
+*					)
+*	Purpose:		
+*
+*/
+void Engine::createBuffer(
+	
+	VkDeviceSize				size,
+	VkBufferUsageFlags			usage,
+	VkMemoryPropertyFlags		properties,
+	VkBuffer&					buffer, 
+	VkDeviceMemory&				bufferMemory
+
+) {
+
+	VkBufferCreateInfo bufferInfo		= {};
+	bufferInfo.sType					= VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size						= size;
+	bufferInfo.usage					= usage;
+	bufferInfo.sharingMode				= VK_SHARING_MODE_EXCLUSIVE;
+
+	if (vkCreateBuffer(
+		
+		device,
+		&bufferInfo,
+		nullptr, 
+		&buffer
+	
+	) != VK_SUCCESS) {
+
+		logger.log(ERROR_LOG, "Failed to create buffer!");
+
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(
+		
+		device,
+		buffer,
+		&memRequirements
+	
+	);
+
+	VkMemoryAllocateInfo allocInfo		= {};
+	allocInfo.sType						= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize			= memRequirements.size;
+	allocInfo.memoryTypeIndex			= findMemoryType(memRequirements.memoryTypeBits, properties);
+
+	if (vkAllocateMemory(
+		
+		device,
+		&allocInfo,
+		nullptr,
+		&bufferMemory
+	
+	) != VK_SUCCESS) {
+
+		logger.log(ERROR_LOG, "Failed to allocate buffer memory!");
+
+	}
+
+	vkBindBufferMemory(
+		
+		device,
+		buffer,
+		bufferMemory,
+		0
+	
+	);
+
 }
