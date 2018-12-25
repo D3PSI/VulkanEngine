@@ -6,6 +6,9 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <string>
 #include <map>
@@ -14,11 +17,13 @@
 #include <vector>
 #include <optional>
 #include <iostream>
+#include <chrono>
 
 #include "Logger.hpp"
 #include "QueueFamilyIndices.cpp"
 #include "SwapChainSupportDetails.cpp"
 #include "Vertex.cpp"
+#include "UniformBufferObject.cpp"
 
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
@@ -102,6 +107,9 @@ private:
 	VkExtent2D									swapChainExtent;
 	std::vector< VkImageView >					swapChainImageViews;
 	VkRenderPass								renderPass;
+	VkDescriptorSetLayout						descriptorSetLayout;
+	VkDescriptorPool							descriptorPool;
+	std::vector< VkDescriptorSet >				descriptorSets;
 	VkPipelineLayout							pipelineLayout;
 	VkPipeline									graphicsPipeline;
 	std::vector< VkFramebuffer >				swapChainFramebuffers;
@@ -116,6 +124,8 @@ private:
 	VkDeviceMemory								vertexBufferMemory;
 	VkBuffer									indexBuffer;
 	VkDeviceMemory								indexBufferMemory;
+	std::vector< VkBuffer >						uniformBuffers;
+	std::vector< VkDeviceMemory >				uniformBuffersMemory;
 	clock_t										current_ticks, delta_ticks;
 	clock_t										fps								= 0;
 
@@ -184,6 +194,11 @@ private:
 	
 	);
 	void createIndexBuffer(void);
+	void createDescriptorSetLayout(void);
+	void createUniformBuffers(void);
+	void updateUniformBuffer(uint32_t currentImage);
+	void createDescriptorPool(void);
+	void createDescriptorSets(void);
 
 };
 
