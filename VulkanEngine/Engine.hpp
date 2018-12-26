@@ -128,6 +128,8 @@ private:
 	std::vector< VkDeviceMemory >				uniformBuffersMemory;
 	clock_t										current_ticks, delta_ticks;
 	clock_t										fps								= 0;
+	VkImage										textureImage;
+	VkDeviceMemory								textureImageMemory;
 
 	void initWindow(void);
 	void initVulkan(void);
@@ -199,6 +201,7 @@ private:
 	void updateUniformBuffer(uint32_t currentImage);
 	void createDescriptorPool(void);
 	void createDescriptorSets(void);
+	void createTextureImage(void);
 
 };
 
