@@ -75,6 +75,7 @@ void Engine::initVulkan() {
 	createCommandPool();
 	createTextureImage();
 	createTextureImageView();
+	createTextureSampler();
 	createVertexBuffer();
 	createIndexBuffer();
 	createUniformBuffers();
@@ -237,6 +238,14 @@ void Engine::mainLoop() {
 void Engine::cleanup() {
 
 	cleanupSwapChain();
+
+	vkDestroySampler(
+	
+		device,
+		textureSampler,
+		nullptr
+
+	);
 
 	vkDestroyImageView(
 	
@@ -581,7 +590,10 @@ bool Engine::isDeviceSuitable(VkPhysicalDevice device) {
 
 	}
 
-	return indices.isComplete() && extensionsSupported && swapChainAdequate;
+	VkPhysicalDeviceFeatures supportedFeatures;
+	vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
+	return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 
 }
 
@@ -610,6 +622,7 @@ void Engine::createLogicalDevice() {
 	}
 
 	VkPhysicalDeviceFeatures deviceFeatures = {};
+	deviceFeatures.samplerAnisotropy		= VK_TRUE;
 
 	VkDeviceCreateInfo createInfo			= {};
 	createInfo.sType						= VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -2768,5 +2781,45 @@ VkImageView Engine::createImageView(VkImage image, VkFormat format) {
 	}
 
 	return imageView;
+
+}
+
+/*
+*	Function:		void createTextureSampler()
+*	Purpose:		Creates a texture sampler
+*
+*/
+void Engine::createTextureSampler(void) {
+
+	VkSamplerCreateInfo samplerInfo			= {};
+	samplerInfo.sType						= VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.magFilter					= VK_FILTER_LINEAR;
+	samplerInfo.minFilter					= VK_FILTER_LINEAR;
+	samplerInfo.addressModeU				= VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeV				= VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeW				= VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.anisotropyEnable			= VK_TRUE;
+	samplerInfo.maxAnisotropy				= 16;
+	samplerInfo.borderColor					= VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	samplerInfo.unnormalizedCoordinates		= VK_FALSE;
+	samplerInfo.compareEnable				= VK_FALSE;
+	samplerInfo.compareOp					= VK_COMPARE_OP_ALWAYS;
+	samplerInfo.mipmapMode					= VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerInfo.mipLodBias					= 0.0f;
+	samplerInfo.minLod						= 0.0f;
+	samplerInfo.maxLod						= 0.0f;
+
+	if (vkCreateSampler(
+	
+		device,
+		&samplerInfo,
+		nullptr,
+		&textureSampler
+
+	) != VK_SUCCESS) {
+	
+		logger.log(ERROR_LOG, "Failed to create texture sampler!");
+	
+	}
 
 }

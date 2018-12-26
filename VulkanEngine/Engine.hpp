@@ -131,6 +131,7 @@ private:
 	VkImage										textureImage;
 	VkDeviceMemory								textureImageMemory;
 	VkImageView									textureImageView;
+	VkSampler									textureSampler;
 
 	void initWindow(void);
 	void initVulkan(void);
@@ -235,6 +236,7 @@ private:
 	);
 	void createTextureImageView(void);
 	VkImageView createImageView(VkImage image, VkFormat format);
+	void createTextureSampler(void);
 
 };
 
