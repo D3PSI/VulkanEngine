@@ -130,6 +130,7 @@ private:
 	clock_t										fps								= 0;
 	VkImage										textureImage;
 	VkDeviceMemory								textureImageMemory;
+	VkImageView									textureImageView;
 
 	void initWindow(void);
 	void initVulkan(void);
@@ -232,6 +233,8 @@ private:
 		uint32_t		height
 
 	);
+	void createTextureImageView(void);
+	VkImageView createImageView(VkImage image, VkFormat format);
 
 };
 
