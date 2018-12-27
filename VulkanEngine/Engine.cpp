@@ -2282,7 +2282,7 @@ void Engine::createDescriptorSets(void) {
 	VkDescriptorSetAllocateInfo allocInfo		= {};
 	allocInfo.sType								= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool					= descriptorPool;
-	allocInfo.descriptorSetCount				= static_cast<uint32_t>(swapChainImages.size());
+	allocInfo.descriptorSetCount				= static_cast< uint32_t >(swapChainImages.size());
 	allocInfo.pSetLayouts						= layouts.data();
 
 	descriptorSets.resize(swapChainImages.size());
