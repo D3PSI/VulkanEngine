@@ -57,18 +57,24 @@ namespace game {
 
 }
 
-const std::vector<Vertex> vertices = {
+const std::vector< Vertex > vertices = {
 
-	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-	{{ 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-	{{ 0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-	{{-0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+	{{ 0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+	{{ 0.5f,  0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+	{{-0.5f,  0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+
+	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+	{{ 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+	{{ 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+	{{-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
 
 };
 
-const std::vector<uint16_t> indices = {
+const std::vector< uint16_t > indices = {
 
-	0, 1, 2, 2, 3, 0
+	0, 1, 2, 2, 3, 0,
+	4, 5, 6, 6, 7, 4
 
 };
 
@@ -132,6 +138,9 @@ private:
 	VkDeviceMemory								textureImageMemory;
 	VkImageView									textureImageView;
 	VkSampler									textureSampler;
+	VkImage										depthImage;
+	VkDeviceMemory								depthImageMemory;
+	VkImageView									depthImageView;
 
 	void initWindow(void);
 	void initVulkan(void);
@@ -235,8 +244,24 @@ private:
 
 	);
 	void createTextureImageView(void);
-	VkImageView createImageView(VkImage image, VkFormat format);
+	VkImageView createImageView(
+
+		VkImage					image,
+		VkFormat				format,
+		VkImageAspectFlags		aspectFlags
+
+	);
 	void createTextureSampler(void);
+	void createDepthResources(void);
+	VkFormat findSupportedFormat(
+	
+		const std::vector< VkFormat >&			candidates, 
+		VkImageTiling							tiling, 
+		VkFormatFeatureFlags					features
+
+	);
+	VkFormat findDepthFormat();
+	bool hasStencilComponent(VkFormat format);
 
 };
 

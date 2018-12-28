@@ -73,6 +73,7 @@ void Engine::initVulkan() {
 	createGraphicsPipeline();
 	createFramebuffers();
 	createCommandPool();
+	createDepthResources();
 	createTextureImage();
 	createTextureImageView();
 	createTextureSampler();
@@ -1076,7 +1077,7 @@ void Engine::createImageViews(void) {
 	swapChainImageViews.resize(swapChainImages.size());
 	for (size_t i = 0; i < swapChainImages.size(); i++) {
 	
-		swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat);
+		swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 
 	}
 
@@ -2351,7 +2352,7 @@ void Engine::createTextureImage(void) {
 	int texWidth, texHeight, texChannels;
 	stbi_uc* pixels = stbi_load(
 	
-		"res/textures/texture.png",
+		"res/textures/texture.jpg",
 		&texWidth,
 		&texHeight,
 		&texChannels,
@@ -2762,23 +2763,35 @@ void Engine::copyBufferToImage(
 */
 void Engine::createTextureImageView(void) {
 
-	textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_UNORM);
+	textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
 
 }
 
 /*
-*	Function:		
-*	Purpose:		
+*	Function:		VkImageView Engine::createImageView(
+*	
+*						VkImage					image,
+*						VkFormat				format, 
+*						VkImageAspectFlags		aspectFlags
+*
+*					)
+*	Purpose:		Creates a VkImageView
 *
 */
-VkImageView Engine::createImageView(VkImage image, VkFormat format) {
+VkImageView Engine::createImageView(
+	
+	VkImage					image,
+	VkFormat				format, 
+	VkImageAspectFlags		aspectFlags
+
+) {
 
 	VkImageViewCreateInfo viewInfo					= {};
 	viewInfo.sType									= VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	viewInfo.image									= image;
 	viewInfo.viewType								= VK_IMAGE_VIEW_TYPE_2D;
 	viewInfo.format									= format;
-	viewInfo.subresourceRange.aspectMask			= VK_IMAGE_ASPECT_COLOR_BIT;
+	viewInfo.subresourceRange.aspectMask			= aspectFlags;
 	viewInfo.subresourceRange.baseMipLevel			= 0;
 	viewInfo.subresourceRange.levelCount			= 1;
 	viewInfo.subresourceRange.baseArrayLayer		= 0;
@@ -2839,5 +2852,105 @@ void Engine::createTextureSampler(void) {
 		logger.log(ERROR_LOG, "Failed to create texture sampler!");
 	
 	}
+
+}
+
+/*
+*	Function:		void createDepthResources()
+*	Purpose:		Creates depth buffer
+*	
+*/
+void Engine::createDepthResources(void) {
+
+	VkFormat depthFormat = findDepthFormat();
+
+	createImage(
+		
+		swapChainExtent.width, 
+		swapChainExtent.height,
+		depthFormat,
+		VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		depthImage, 
+		depthImageMemory
+	
+	);
+
+	depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+}
+
+/*
+*	Function:		VkFormat findSupportedFormat(
+*
+*						const std::vector< VkFormat >&			candidates,
+*						VkImageTiling							tiling,
+*						VkFormatFeatureFlags					features
+*
+*					)
+*	Purpose:		Finds device-supported formats
+*
+*/
+VkFormat Engine::findSupportedFormat(
+
+	const std::vector< VkFormat >&			candidates,
+	VkImageTiling							tiling,
+	VkFormatFeatureFlags					features
+
+) {
+
+	for (VkFormat format : candidates) {
+	
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(
+
+			physicalDevice,
+			format,
+			&props
+
+		);
+
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+
+			return format;
+
+		}
+		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+
+			return format;
+
+		}
+
+		logger.log(ERROR_LOG, "Failed to find supported format!");
+	
+	}
+
+}
+
+/*
+*	Function:		VkFormat findDepthFormat()
+*	Purpose:		Finds the best format for depth buffering
+*
+*/
+VkFormat Engine::findDepthFormat() {
+
+	return findSupportedFormat(
+	
+		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+		VK_IMAGE_TILING_OPTIMAL,
+		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+	
+	);
+}
+
+/*
+*	Function:		bool hasStencilComponent(VkFormat format)
+*	Purpose:		Checks whether a format has a stencil component
+*
+*/
+bool Engine::hasStencilComponent(VkFormat format) {
+
+	return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 
 }
