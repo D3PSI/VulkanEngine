@@ -19,9 +19,9 @@ struct Vertex {
 	
 	}
 
-	static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
+	static std::array< VkVertexInputAttributeDescription, 3 > getAttributeDescriptions() {
 
-		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions		= {};
+		std::array< VkVertexInputAttributeDescription, 3 > attributeDescriptions		= {};
 
 		attributeDescriptions[0].binding											= 0;
 		attributeDescriptions[0].location											= 0;
@@ -40,6 +40,12 @@ struct Vertex {
 
 		return attributeDescriptions;
 	
+	}
+
+	bool operator==(const Vertex& other) const {
+
+		return pos == other.pos && color == other.color && texCoord == other.texCoord;
+
 	}
 
 };

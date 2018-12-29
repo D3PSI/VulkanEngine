@@ -6,6 +6,7 @@
 */
 #include "Engine.hpp"
 #include <stb_image.h>
+#include <tiny_obj_loader.h>
 
 /*
 *	Function:		void run()
@@ -41,9 +42,9 @@ void Engine::initWindow() {
 
 	window = glfwCreateWindow(
 		
-		width,
-		height, 
-		title.c_str(), 
+		WIDTH,
+		HEIGHT, 
+		TITLE.c_str(), 
 		monitor, 
 		nullptr
 	
@@ -77,6 +78,7 @@ void Engine::initVulkan() {
 	createTextureImage();
 	createTextureImageView();
 	createTextureSampler();
+	loadModel();
 	createVertexBuffer();
 	createIndexBuffer();
 	createUniformBuffers();
@@ -103,9 +105,9 @@ void Engine::createInstance() {
 	VkApplicationInfo appInfo		= {};
 	appInfo.sType					= VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pNext					= nullptr;
-	appInfo.pApplicationName		= title.c_str();
+	appInfo.pApplicationName		= TITLE.c_str();
 	appInfo.applicationVersion		= VK_MAKE_VERSION(1, 0, 0);
-	appInfo.pEngineName				= title.c_str();
+	appInfo.pEngineName				= TITLE.c_str();
 	appInfo.engineVersion			= VK_MAKE_VERSION(1, 0, 0);
 	appInfo.apiVersion				= VK_API_VERSION_1_0;
 
@@ -2405,7 +2407,7 @@ void Engine::createTextureImage(void) {
 	int texWidth, texHeight, texChannels;
 	stbi_uc* pixels = stbi_load(
 	
-		"res/textures/texture.jpg",
+		TEXTURE_PATH.c_str(),
 		&texWidth,
 		&texHeight,
 		&texChannels,
@@ -3044,5 +3046,72 @@ VkFormat Engine::findDepthFormat() {
 bool Engine::hasStencilComponent(VkFormat format) {
 
 	return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+
+}
+
+/*
+*	Function:		void loadModel()
+*	Purpose:		Loads vertex data from file
+*
+*/
+void Engine::loadModel(void) {
+
+	tinyobj::attrib_t						attrib;
+	std::vector< tinyobj::shape_t >			shapes;
+	std::vector< tinyobj::material_t >		materials;
+	std::string								warn, err;
+
+	if (!tinyobj::LoadObj(
+
+		&attrib,
+		&shapes,
+		&materials,
+		&warn,
+		&err,
+		MODEL_PATH.c_str()
+
+	)) {
+	
+		logger.log(ERROR_LOG, warn + err);
+	
+	}
+
+	std::unordered_map< Vertex, uint32_t > uniqueVertices = {};
+
+	for (const auto& shape : shapes) {
+	
+		for (const auto& index : shape.mesh.indices) {
+		
+			Vertex vertex = {};
+
+			vertex.pos = {
+
+				attrib.vertices[3 * index.vertex_index + 0],
+				attrib.vertices[3 * index.vertex_index + 1],
+				attrib.vertices[3 * index.vertex_index + 2]
+
+			};
+
+			vertex.texCoord = {
+			
+				attrib.texcoords[2 * index.texcoord_index + 0],
+				1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+
+			};
+
+			vertex.color = {1.0f, 1.0f, 1.0f};
+
+			if (uniqueVertices.count(vertex) == 0) {
+			
+				uniqueVertices[vertex] = static_cast< uint32_t >(vertices.size());
+				vertices.push_back(vertex);
+
+			}
+
+			indices.push_back(indices.size());
+
+		}
+	
+	}
 
 }

@@ -18,10 +18,12 @@
 #include <optional>
 #include <iostream>
 #include <chrono>
+#include <unordered_map>
 
 #include "Logger.hpp"
 #include "QueueFamilyIndices.cpp"
 #include "SwapChainSupportDetails.cpp"
+#include "Hash.cpp"
 #include "Vertex.cpp"
 #include "UniformBufferObject.cpp"
 
@@ -57,27 +59,6 @@ namespace game {
 
 }
 
-const std::vector< Vertex > vertices = {
-
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{ 0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{ 0.5f,  0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f,  0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{ 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{ 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-
-};
-
-const std::vector< uint16_t > indices = {
-
-	0, 1, 2, 2, 3, 0,
-	4, 5, 6, 6, 7, 4
-
-};
-
 class Engine
 {
 public:
@@ -85,9 +66,11 @@ public:
 private:
 	VkResult									result;
 	GLFWwindow*									window;
-	const unsigned int							width							= 1280;
-	const unsigned int							height							= 780;
-	const std::string							title							= "VULKAN by D3PSI";
+	const unsigned int							WIDTH							= 1280;
+	const unsigned int							HEIGHT							= 780;
+	const std::string							MODEL_PATH						= "res/models/chalet.obj";
+	const std::string							TEXTURE_PATH					= "res/textures/chalet.jpg";
+	const std::string							TITLE							= "VULKAN by D3PSI";
 	GLFWmonitor*								monitor							= nullptr; 
 	const std::vector< const char* >			validationLayers				= {
 	
@@ -141,6 +124,8 @@ private:
 	VkImage										depthImage;
 	VkDeviceMemory								depthImageMemory;
 	VkImageView									depthImageView;
+	std::vector< Vertex >						vertices;
+	std::vector< uint16_t >						indices;
 
 	void initWindow(void);
 	void initVulkan(void);
@@ -260,8 +245,9 @@ private:
 		VkFormatFeatureFlags					features
 
 	);
-	VkFormat findDepthFormat();
+	VkFormat findDepthFormat(void);
 	bool hasStencilComponent(VkFormat format);
+	void loadModel(void);
 
 };
 
