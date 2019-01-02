@@ -111,23 +111,24 @@ private:
 	std::vector< VkFence >						inFlightFences;
 	size_t										currentFrame					= 0;
 	bool										framebufferResized				= false;
-	VkBuffer									vertexBuffer;
-	VkDeviceMemory								vertexBufferMemory;
 	VkBuffer									indexBuffer;
 	VkDeviceMemory								indexBufferMemory;
 	std::vector< VkBuffer >						uniformBuffers;
 	std::vector< VkDeviceMemory >				uniformBuffersMemory;
 	clock_t										current_ticks, delta_ticks;
 	clock_t										fps								= 0;
+	VkBuffer									vertexBuffer;
+	VkDeviceMemory								vertexBufferMemory;
+	uint32_t									mipLevels;
 	VkImage										textureImage;
 	VkDeviceMemory								textureImageMemory;
 	VkImageView									textureImageView;
 	VkSampler									textureSampler;
+	std::vector< Vertex >						vertices;
+	std::vector< uint32_t >						indices;
 	VkImage										depthImage;
 	VkDeviceMemory								depthImageMemory;
 	VkImageView									depthImageView;
-	std::vector< Vertex >						vertices;
-	std::vector< uint32_t >						indices;
 
 	void initWindow(void);
 	void initVulkan(void);
@@ -204,6 +205,7 @@ private:
 
 		uint32_t					width,
 		uint32_t					height,
+		uint32_t					mipLevels,
 		VkFormat					format,
 		VkImageTiling				tiling,
 		VkImageUsageFlags			usage,
@@ -219,7 +221,8 @@ private:
 		VkImage				image, 
 		VkFormat			format,
 		VkImageLayout		oldLayout, 
-		VkImageLayout		newLayout
+		VkImageLayout		newLayout,
+		uint32_t			mipLevels
 	
 	);
 	void copyBufferToImage(
@@ -235,7 +238,8 @@ private:
 
 		VkImage					image,
 		VkFormat				format,
-		VkImageAspectFlags		aspectFlags
+		VkImageAspectFlags		aspectFlags,
+		uint32_t				mipLevels
 
 	);
 	void createTextureSampler(void);

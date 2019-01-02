@@ -1079,7 +1079,14 @@ void Engine::createImageViews(void) {
 	swapChainImageViews.resize(swapChainImages.size());
 	for (size_t i = 0; i < swapChainImages.size(); i++) {
 	
-		swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+		swapChainImageViews[i] = createImageView(
+			
+			swapChainImages[i], 
+			swapChainImageFormat,
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			1
+		
+		);
 
 	}
 
@@ -2265,7 +2272,7 @@ void Engine::updateUniformBuffer(uint32_t currentImage) {
 	float time					= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
 
 	UniformBufferObject ubo		= {};
-	ubo.model					= glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 1.0f));
+	ubo.model					= glm::rotate(glm::mat4(1.0f), time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.view					= glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.proj					= glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 10.0f);
 	ubo.proj[1][1]				*= -1;
@@ -2416,6 +2423,9 @@ void Engine::createTextureImage(void) {
 		STBI_rgb_alpha
 
 	);
+
+	mipLevels = static_cast< uint32_t >(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
+
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 	if (!pixels) {
@@ -2465,9 +2475,10 @@ void Engine::createTextureImage(void) {
 		
 		texWidth, 
 		texHeight,
+		mipLevels,
 		VK_FORMAT_R8G8B8A8_UNORM, 
 		VK_IMAGE_TILING_OPTIMAL, 
-		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+		VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		textureImage, 
 		textureImageMemory
@@ -2479,7 +2490,8 @@ void Engine::createTextureImage(void) {
 		textureImage,
 		VK_FORMAT_R8G8B8A8_UNORM,
 		VK_IMAGE_LAYOUT_UNDEFINED,
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		mipLevels
 	
 	);
 	
@@ -2497,7 +2509,8 @@ void Engine::createTextureImage(void) {
 		textureImage,
 		VK_FORMAT_R8G8B8A8_UNORM,
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		1
 	
 	);
 
@@ -2523,6 +2536,7 @@ void Engine::createTextureImage(void) {
 *	
 *						uint32_t					width,
 *						uint32_t					height,
+*						uint32_t					mipLevels,
 *						VkFormat					format,
 *						VkImageTiling				tiling, 
 *						VkImageUsageFlags			usage, 
@@ -2535,9 +2549,10 @@ void Engine::createTextureImage(void) {
 *
 */
 void Engine::createImage(
-	
+
 	uint32_t					width,
 	uint32_t					height,
+	uint32_t					mipLevels,
 	VkFormat					format,
 	VkImageTiling				tiling, 
 	VkImageUsageFlags			usage, 
@@ -2553,7 +2568,7 @@ void Engine::createImage(
 	imageInfo.extent.width			= width;
 	imageInfo.extent.height			= height;
 	imageInfo.extent.depth			= 1;
-	imageInfo.mipLevels				= 1;
+	imageInfo.mipLevels				= mipLevels;
 	imageInfo.arrayLayers			= 1;
 	imageInfo.format				= format;
 	imageInfo.tiling				= tiling;
@@ -2686,7 +2701,8 @@ void Engine::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
 *						VkImage				image,
 *						VkFormat			format, 
 *						VkImageLayout		oldLayout,
-*						VkImageLayout		newLayout
+*						VkImageLayout		newLayout,
+*						uint32_t			mipLevels
 *
 *					)
 *	Purpose:		Handles image layout transitions
@@ -2697,7 +2713,8 @@ void Engine::transitionImageLayout(
 	VkImage				image,
 	VkFormat			format,
 	VkImageLayout		oldLayout,
-	VkImageLayout		newLayout
+	VkImageLayout		newLayout,
+	uint32_t			mipLevels
 
 ) {
 
@@ -2712,7 +2729,7 @@ void Engine::transitionImageLayout(
 	barrier.image									= image;
 	barrier.subresourceRange.aspectMask				= VK_IMAGE_ASPECT_COLOR_BIT;
 	barrier.subresourceRange.baseMipLevel			= 0;
-	barrier.subresourceRange.levelCount				= 1;
+	barrier.subresourceRange.levelCount				= mipLevels;
 	barrier.subresourceRange.baseArrayLayer			= 0;
 	barrier.subresourceRange.layerCount				= 1;
 
@@ -2850,7 +2867,14 @@ void Engine::copyBufferToImage(
 */
 void Engine::createTextureImageView(void) {
 
-	textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
+	textureImageView = createImageView(
+		
+		textureImage,
+		VK_FORMAT_R8G8B8A8_UNORM, 
+		VK_IMAGE_ASPECT_COLOR_BIT,
+		mipLevels
+	
+	);
 
 }
 
@@ -2859,17 +2883,19 @@ void Engine::createTextureImageView(void) {
 *	
 *						VkImage					image,
 *						VkFormat				format, 
-*						VkImageAspectFlags		aspectFlags
+*						VkImageAspectFlags		aspectFlags,
+*						uint32_t				mipLevels
 *
 *					)
 *	Purpose:		Creates a VkImageView
 *
 */
 VkImageView Engine::createImageView(
-	
+
 	VkImage					image,
-	VkFormat				format, 
-	VkImageAspectFlags		aspectFlags
+	VkFormat				format,
+	VkImageAspectFlags		aspectFlags,
+	uint32_t				mipLevels
 
 ) {
 
@@ -2880,7 +2906,7 @@ VkImageView Engine::createImageView(
 	viewInfo.format									= format;
 	viewInfo.subresourceRange.aspectMask			= aspectFlags;
 	viewInfo.subresourceRange.baseMipLevel			= 0;
-	viewInfo.subresourceRange.levelCount			= 1;
+	viewInfo.subresourceRange.levelCount			= mipLevels;
 	viewInfo.subresourceRange.baseArrayLayer		= 0;
 	viewInfo.subresourceRange.layerCount			= 1;
 
@@ -2955,6 +2981,7 @@ void Engine::createDepthResources(void) {
 		
 		swapChainExtent.width, 
 		swapChainExtent.height,
+		1,
 		depthFormat,
 		VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
@@ -2964,14 +2991,22 @@ void Engine::createDepthResources(void) {
 	
 	);
 
-	depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+	depthImageView = createImageView(
+		
+		depthImage,
+		depthFormat,
+		VK_IMAGE_ASPECT_DEPTH_BIT,
+		1
+
+	);
 
 	transitionImageLayout(
 	
 		depthImage, 
 		depthFormat,
 		VK_IMAGE_LAYOUT_UNDEFINED,
-		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+		1
 
 	);
 
