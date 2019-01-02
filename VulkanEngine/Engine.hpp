@@ -7,8 +7,10 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #define GLM_FORCE_RADIANS
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/hash.hpp>
 
 #include <string>
 #include <map>
@@ -23,8 +25,8 @@
 #include "Logger.hpp"
 #include "QueueFamilyIndices.cpp"
 #include "SwapChainSupportDetails.cpp"
-#include "Hash.cpp"
 #include "Vertex.cpp"
+#include "Hash.cpp"
 #include "UniformBufferObject.cpp"
 
 #ifdef NDEBUG
@@ -125,7 +127,7 @@ private:
 	VkDeviceMemory								depthImageMemory;
 	VkImageView									depthImageView;
 	std::vector< Vertex >						vertices;
-	std::vector< uint16_t >						indices;
+	std::vector< uint32_t >						indices;
 
 	void initWindow(void);
 	void initVulkan(void);
