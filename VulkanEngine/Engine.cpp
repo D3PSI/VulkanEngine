@@ -52,6 +52,7 @@ void Engine::initWindow() {
 
 	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+	glfwSetKeyCallback(window, keyboardInputCallback);
 
 }
 
@@ -1150,7 +1151,7 @@ void Engine::createGraphicsPipeline(void) {
 	auto attributeDescriptions										= Vertex::getAttributeDescriptions();
 
 	vertexInputInfo.vertexBindingDescriptionCount					= 1;
-	vertexInputInfo.vertexAttributeDescriptionCount					= static_cast<uint32_t>(attributeDescriptions.size());
+	vertexInputInfo.vertexAttributeDescriptionCount					= static_cast< uint32_t >(attributeDescriptions.size());
 	vertexInputInfo.pVertexBindingDescriptions						= &bindingDescription;
 	vertexInputInfo.pVertexAttributeDescriptions					= attributeDescriptions.data();
 
@@ -3113,6 +3114,43 @@ void Engine::loadModel(void) {
 			}
 
 			indices.push_back(uniqueVertices[vertex]);
+
+		}
+	
+	}
+
+}
+
+/*
+*	Function:		void keyboardInputCallback(
+*		
+*						GLFWwindow*			window, 
+*						int					key, 
+*						int					scancode,
+*						int					action,
+*						int					mods
+*	
+*					)
+*	Purpose:		Keyboard input callback for GLFW
+*	
+*/
+void Engine::keyboardInputCallback(
+
+	GLFWwindow*			window,
+	int					key,
+	int					scancode,
+	int					action,
+	int					mods
+
+) {
+
+	if (action == GLFW_PRESS) {
+
+		switch (key) {
+
+		case GLFW_KEY_ESCAPE:
+			glfwSetWindowShouldClose(window, GLFW_TRUE);
+			break;
 
 		}
 	
