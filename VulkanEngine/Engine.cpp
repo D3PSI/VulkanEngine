@@ -62,6 +62,8 @@ void Engine::initWindow() {
 */
 void Engine::initVulkan() {
 
+	numThreads = getNumThreads();
+
 	std::thread t1([=] {
 
 		logger.log(EVENT_LOG, "Starting thread...");
@@ -3141,5 +3143,16 @@ void Engine::loadModel(void) {
 		}
 	
 	}
+
+}
+
+/*
+*	Function:		uint32_t getNumThreads()
+*	Purpose:		Returns the maximum number of simultaneosly detachable threads
+*
+*/
+uint32_t Engine::getNumThreads(void){
+
+	return std::thread::hardware_concurrency();
 
 }
