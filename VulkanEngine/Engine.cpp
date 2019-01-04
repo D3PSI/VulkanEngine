@@ -235,35 +235,46 @@ void Engine::createInstance() {
 void Engine::mainLoop() {
 
 	double lastTime		= glfwGetTime();
+	double pastTime		= 0;
 	float nbFrames		= 0;
 	float maxfps		= 0;
 
 	while (!glfwWindowShouldClose(window)) {
 
-		double currentTime = glfwGetTime();
-		nbFrames++;
-		float seconds = 10.0f;
-		if (currentTime - lastTime >= 1.0 && nbFrames > maxfps) {
+		double currentTime		= glfwGetTime();
+		double deltaTime		= currentTime - pastTime;
+
+		if (deltaTime >= maxPeriod) {
+
+			pastTime = currentTime;
 		
-			maxfps = nbFrames;
+			nbFrames++;
+			float seconds = 10.0f;
+
+			if (currentTime - lastTime >= 1.0 && nbFrames > maxfps) {
+		
+				maxfps = nbFrames;
+		
+			}
+
+			if (currentTime - lastTime >= seconds) {
+
+				std::string fps				= "Average FPS (last " + std::to_string(seconds) + " seconds):	%f\t";
+				std::string frametime		= "Average Frametime (last " + std::to_string(seconds) + " seconds):	%f ms\t";
+				std::string maxFPS			= "Max FPS:	%f\n";
+
+				printf(fps.c_str(), double(nbFrames / seconds));
+				printf(frametime.c_str(), double((1000.0 * seconds) / nbFrames));
+				printf(maxFPS.c_str(), double(maxfps / seconds));
+				nbFrames	 = 0;
+				lastTime	+= seconds;
+
+			}
+
+			glfwPollEvents();
+			renderFrame();
 		
 		}
-		if (currentTime - lastTime >= seconds) {
-
-			std::string fps = "Average FPS (last " + std::to_string(seconds) + " seconds):	%f\t";
-			std::string frametime = "Average Frametime (last " + std::to_string(seconds) + " seconds):	%f ms\t";
-			std::string maxFPS = "Max FPS:	%f\n";
-
-			printf(fps.c_str(), double(nbFrames / seconds));
-			printf(frametime.c_str(), double((1000.0 * seconds) / nbFrames));
-			printf(maxFPS.c_str(), double(maxfps / seconds));
-			nbFrames	 = 0;
-			lastTime	+= seconds;
-
-		}
-
-		glfwPollEvents();
-		renderFrame();
 
 	}
 
