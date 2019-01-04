@@ -21,6 +21,7 @@
 #include <iostream>
 #include <chrono>
 #include <unordered_map>
+#include <thread>
 
 #include "Logger.hpp"
 #include "QueueFamilyIndices.cpp"
@@ -74,6 +75,7 @@ private:
 	const std::string							TEXTURE_PATH					= "res/textures/chalet.jpg";
 	const std::string							TITLE							= "VULKAN by D3PSI";
 	GLFWmonitor*								monitor							= nullptr; 
+	uint32_t									numThreads;
 	const std::vector< const char* >			validationLayers				= {
 	
 		"VK_LAYER_LUNARG_standard_validation"
@@ -259,6 +261,6 @@ private:
 		int					mods
 	
 	);
+	uint32_t getNumThreads(void);
 
 };
-

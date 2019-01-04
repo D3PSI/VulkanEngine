@@ -74,30 +74,56 @@ void Engine::initWindow() {
 */
 void Engine::initVulkan() {
 
-	createInstance();
-	setupDebugCallback();
-	createSurface();
-	pickPhysicalDevice();
-	createLogicalDevice();
-	createSwapChain();
-	createImageViews();
-	createRenderPass();
-	createDescriptorSetLayout();
-	createGraphicsPipeline();
-	createCommandPool();
-	createDepthResources();
-	createFramebuffers();
-	createTextureImage();
-	createTextureImageView();
-	createTextureSampler();
-	loadModel();
-	createVertexBuffer();
-	createIndexBuffer();
-	createUniformBuffers();
-	createDescriptorPool();
-	createDescriptorSets();
-	createCommandBuffers();
-	createSyncObjects();
+	numThreads = getNumThreads();
+
+	std::thread t1([=] {
+
+		logger.log(EVENT_LOG, "Starting thread...");
+		createInstance();
+		setupDebugCallback();
+		createSurface();
+		pickPhysicalDevice();
+		createLogicalDevice();
+		createSwapChain();
+		createImageViews();
+		createRenderPass();
+		createDescriptorSetLayout();
+		createGraphicsPipeline();
+		createCommandPool();
+		createDepthResources();
+		createFramebuffers();
+		createTextureImage();
+		createTextureImageView();
+		createTextureSampler(); 
+		logger.log(EVENT_LOG, "Stopping thread...");
+
+	});
+
+	std::thread t2([=] {
+
+		logger.log(EVENT_LOG, "Starting thread...");
+		loadModel();
+		logger.log(EVENT_LOG, "Stopping thread...");
+
+	});
+	
+	t1.join();
+	t2.join();
+
+	std::thread t3([=] {
+
+		logger.log(EVENT_LOG, "Starting thread...");
+		createVertexBuffer();
+		createIndexBuffer();
+		createUniformBuffers();
+		createDescriptorPool();
+		createDescriptorSets();
+		createCommandBuffers();
+		createSyncObjects();
+		logger.log(EVENT_LOG, "Stopping thread...");
+
+	});
+	t3.join();
 
 }
 
@@ -3166,5 +3192,15 @@ void Engine::keyboardInputCallback(
 		}
 	
 	}
+
+}
+/*
+*	Function:		uint32_t getNumThreads()
+*	Purpose:		Returns the maximum number of simultaneosly detachable threads
+*
+*/
+uint32_t Engine::getNumThreads(void){
+
+	return std::thread::hardware_concurrency();
 
 }
