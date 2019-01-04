@@ -34,6 +34,7 @@
 #include <optional>
 #include <vector>
 #include <cstring>
+#include <conio.h>
 
 #include "Logger.hpp"
 #include "Engine.hpp"
@@ -203,7 +204,9 @@ namespace game {
 
 			logger.log(START_STOP_LOG, "Stopping application...");
 
-			std::cin.get();
+			std::cout << "\n\nPress any key to exit...";
+
+			_getch();
 
 			return EXIT_SUCCESS;
 		
