@@ -245,6 +245,8 @@ void Engine::mainLoop() {
 		double deltaTime		= currentTime - pastTime;
 
 		if (deltaTime >= maxPeriod) {
+
+			pastTime = currentTime;
 		
 			nbFrames++;
 			float seconds = 10.0f;
