@@ -131,8 +131,6 @@ private:
 	VkImage										depthImage;
 	VkDeviceMemory								depthImageMemory;
 	VkImageView									depthImageView;
-	std::vector< Vertex >						vertices;
-	std::vector< uint32_t >						indices;
 	const float									maxFPS							= 60.0f;
 	const float									maxPeriod						= 1.0f / maxFPS;
 
