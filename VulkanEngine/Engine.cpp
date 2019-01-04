@@ -76,9 +76,9 @@ void Engine::initVulkan() {
 
 	numThreads = getNumThreads();
 
+	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t1([=] {
 
-		logger.log(EVENT_LOG, "Starting thread...");
 		createInstance();
 		setupDebugCallback();
 		createSurface();
@@ -95,24 +95,24 @@ void Engine::initVulkan() {
 		createTextureImage();
 		createTextureImageView();
 		createTextureSampler(); 
-		logger.log(EVENT_LOG, "Stopping thread...");
 
 	});
 
+	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t2([=] {
 
-		logger.log(EVENT_LOG, "Starting thread...");
 		loadModel();
-		logger.log(EVENT_LOG, "Stopping thread...");
 
 	});
 	
 	t1.join();
+	logger.log(EVENT_LOG, "Stopping thread...");
 	t2.join();
+	logger.log(EVENT_LOG, "Stopping thread...");
 
+	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t3([=] {
 
-		logger.log(EVENT_LOG, "Starting thread...");
 		createVertexBuffer();
 		createIndexBuffer();
 		createUniformBuffers();
@@ -120,10 +120,10 @@ void Engine::initVulkan() {
 		createDescriptorSets();
 		createCommandBuffers();
 		createSyncObjects();
-		logger.log(EVENT_LOG, "Stopping thread...");
 
 	});
 	t3.join();
+	logger.log(EVENT_LOG, "Stopping thread...");
 
 }
 
