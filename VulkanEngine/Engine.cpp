@@ -53,6 +53,17 @@ void Engine::initWindow() {
 	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
+	GLFWimage windowIcon[1];
+	windowIcon[0].pixels = stbi_load("res/icon/icon.png", &windowIcon[0].width, &windowIcon[0].height, 0, STBI_rgb_alpha);
+	glfwSetWindowIcon(
+		
+		window, 
+		1,
+		windowIcon
+
+	);
+	stbi_image_free(windowIcon[0].pixels);
+
 }
 
 /*
