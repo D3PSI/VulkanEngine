@@ -131,7 +131,11 @@ private:
 	VkImage										depthImage;
 	VkDeviceMemory								depthImageMemory;
 	VkImageView									depthImageView;
-	const float									maxFPS							= 60.0f;
+	VkSampleCountFlagBits						msaaSamples						= VK_SAMPLE_COUNT_64_BIT;
+	VkImage										colorImage;
+	VkDeviceMemory								colorImageMemory;
+	VkImageView									colorImageView;
+	const float									maxFPS							= 1000.0f;
 	const float									maxPeriod						= 1.0f / maxFPS;
 
 	void initWindow(void);
@@ -209,7 +213,8 @@ private:
 
 		uint32_t					width,
 		uint32_t					height,
-		uint32_t					mipLevels,
+		uint32_t					mipLevels, 
+		VkSampleCountFlagBits		numSamples,
 		VkFormat					format,
 		VkImageTiling				tiling,
 		VkImageUsageFlags			usage,
@@ -277,5 +282,7 @@ private:
 		uint32_t		mipLevels
 	
 	);
+	VkSampleCountFlagBits getMaxUsableSampleCount(void);
+	void createColorResources(void);
 
 };
