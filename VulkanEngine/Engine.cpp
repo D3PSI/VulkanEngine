@@ -681,6 +681,7 @@ void Engine::createLogicalDevice() {
 
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 	deviceFeatures.samplerAnisotropy		= VK_TRUE;
+	deviceFeatures.sampleRateShading		= VK_TRUE;
 
 	VkDeviceCreateInfo createInfo			= {};
 	createInfo.sType						= VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -1255,9 +1256,9 @@ void Engine::createGraphicsPipeline(void) {
 
 	VkPipelineMultisampleStateCreateInfo multisampling				= {};
 	multisampling.sType												= VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-	multisampling.sampleShadingEnable								= VK_FALSE;
+	multisampling.sampleShadingEnable								= VK_TRUE;
 	multisampling.rasterizationSamples								= msaaSamples;
-	multisampling.minSampleShading									= 1.0f;
+	multisampling.minSampleShading									= 0.2f;
 	multisampling.pSampleMask										= nullptr;
 	multisampling.alphaToCoverageEnable								= VK_FALSE;
 	multisampling.alphaToOneEnable									= VK_FALSE;

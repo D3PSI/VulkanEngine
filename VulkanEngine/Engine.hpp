@@ -131,7 +131,7 @@ private:
 	VkImage										depthImage;
 	VkDeviceMemory								depthImageMemory;
 	VkImageView									depthImageView;
-	VkSampleCountFlagBits						msaaSamples						= VK_SAMPLE_COUNT_8_BIT;
+	VkSampleCountFlagBits						msaaSamples						= VK_SAMPLE_COUNT_64_BIT;
 	VkImage										colorImage;
 	VkDeviceMemory								colorImageMemory;
 	VkImageView									colorImageView;
