@@ -71,8 +71,8 @@ private:
 	GLFWwindow*									window;
 	const unsigned int							WIDTH							= 1280;
 	const unsigned int							HEIGHT							= 780;
-	const std::string							MODEL_PATH						= "res/models/chalet.obj";
-	const std::string							TEXTURE_PATH					= "res/textures/chalet.jpg";
+	const std::string							MODEL_PATH						= "res/models/chalet/source/chalet.obj";
+	const std::string							TEXTURE_PATH					= "res/models/chalet/textures/chalet.jpg";
 	const std::string							TITLE							= "VULKAN by D3PSI";
 	GLFWmonitor*								monitor							= nullptr; 
 	uint32_t									numThreads;
