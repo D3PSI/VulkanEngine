@@ -35,15 +35,18 @@ void Engine::run() {
 *
 */
 void Engine::initWindow() {
+	
+	monitor = glfwGetPrimaryMonitor();
 
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); 
+	glfwWindowHint(GLFW_CURSOR_HIDDEN, GLFW_TRUE);
 
 	window = glfwCreateWindow(
 		
 		WIDTH,
-		HEIGHT, 
+		HEIGHT,
 		TITLE.c_str(), 
 		monitor, 
 		nullptr
@@ -55,7 +58,16 @@ void Engine::initWindow() {
 	glfwSetKeyCallback(window, keyboardInputCallback);
 
 	GLFWimage windowIcon[1];
-	windowIcon[0].pixels = stbi_load("res/icon/icon.png", &windowIcon[0].width, &windowIcon[0].height, 0, STBI_rgb_alpha);
+	windowIcon[0].pixels = stbi_load(
+		
+		"res/icon/icon.png",
+		&windowIcon[0].width,
+		&windowIcon[0].height,
+		0,
+		STBI_rgb_alpha
+	
+	);
+
 	glfwSetWindowIcon(
 		
 		window, 
@@ -63,6 +75,7 @@ void Engine::initWindow() {
 		windowIcon
 
 	);
+
 	stbi_image_free(windowIcon[0].pixels);
 
 }
