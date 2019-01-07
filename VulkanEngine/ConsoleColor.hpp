@@ -2,64 +2,64 @@
 #include <iostream>
 #include <windows.h>
 
-inline std::ostream& blue(std::ostream &s) {
+inline std::ostream& blue(std::ostream& s_) {
 
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE
 		| FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-	return s;
+	return s_;
 
 }
 
-inline std::ostream& red(std::ostream &s) {
+inline std::ostream& red(std::ostream& s_) {
 
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hStdout,
 		FOREGROUND_RED | FOREGROUND_INTENSITY);
-	return s;
+	return s_;
 
 }
 
-inline std::ostream& green(std::ostream &s) {
+inline std::ostream& green(std::ostream& s_) {
 
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hStdout,
 		FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-	return s;
+	return s_;
 
 }
 
-inline std::ostream& yellow(std::ostream &s) {
+inline std::ostream& yellow(std::ostream& s_) {
 
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hStdout,
 		FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY);
-	return s;
+	return s_;
 
 }
 
-inline std::ostream& white(std::ostream &s) {
+inline std::ostream& white(std::ostream& s_) {
 
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hStdout,
 		FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-	return s;
+	return s_;
 
 }
 
 struct color {
 
-	color(WORD attribute) :m_color(attribute) {};
+	color(WORD attribute_) :m_color(attribute_) {};
 	WORD m_color;
 
 };
 
 template <class _Elem, class _Traits>
 std::basic_ostream<_Elem, _Traits>&
-operator<<(std::basic_ostream<_Elem, _Traits>& i, color& c) {
+operator<<(std::basic_ostream<_Elem, _Traits>& i_, color& c_) {
 
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hStdout, c.m_color);
-	return i;
+	SetConsoleTextAttribute(hStdout, c_.m_color);
+	return i_;
 
 }

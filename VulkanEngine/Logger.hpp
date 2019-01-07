@@ -9,19 +9,19 @@
 #include <fstream>
 #include <time.h>
 
-typedef enum LogNr {
+enum LogNr {
 
-	ERROR_LOG = 0,
-	START_STOP_LOG = 1,
-	EVENT_LOG = 2
+	ERROR_LOG			= 0,
+	START_STOP_LOG		= 1,
+	EVENT_LOG			= 2
 
-} LogNr;
+};
 
 class Logger
 {
 public:
-	Logger(std::string directory = "logs/");
-	void log(LogNr logNr, std::string text);
+	Logger(std::string directory_ = "logs/");
+	void log(LogNr logNr_, std::string text_);
 	~Logger();
 private:
 	std::string directory;

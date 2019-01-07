@@ -31,7 +31,7 @@ void Engine::run() {
 
 /*	
 *	Function:		void initWindow()
-*	Purpose:		Initializes GLFW and its window
+*	Purpose:		Initializes GLFW and its window_
 *
 */
 void Engine::initWindow() {
@@ -531,10 +531,10 @@ std::vector< const char* > Engine::getRequiredExtensions() {
 /*
 *	Function:		VKAPI_ATTR VkBool32 VKAPI_CALL Engine::debugCallback(
 *
-*						VkDebugUtilsMessageSeverityFlagBitsEXT			messageSeverity,
-*						VkDebugUtilsMessageTypeFlagsEXT					messageType,
-*						const VkDebugUtilsMessengerCallbackDataEXT*		pCallbackData,
-*						void*											pUserData
+*						VkDebugUtilsMessageSeverityFlagBitsEXT			messageSeverity_,
+*						VkDebugUtilsMessageTypeFlagsEXT					messageType_,
+*						const VkDebugUtilsMessengerCallbackDataEXT*		pCallbackData_,
+*						void*											pUserData_
 *							
 *						)
 *	Purpose:		Callback function for VULKAN validation layers
@@ -542,14 +542,14 @@ std::vector< const char* > Engine::getRequiredExtensions() {
 */
 VKAPI_ATTR VkBool32 VKAPI_CALL Engine::debugCallback(
 
-	VkDebugUtilsMessageSeverityFlagBitsEXT			messageSeverity,
-	VkDebugUtilsMessageTypeFlagsEXT					messageType,
-	const VkDebugUtilsMessengerCallbackDataEXT*		pCallbackData,
-	void*											pUserData
+	VkDebugUtilsMessageSeverityFlagBitsEXT			messageSeverity_,
+	VkDebugUtilsMessageTypeFlagsEXT					messageType_,
+	const VkDebugUtilsMessengerCallbackDataEXT*		pCallbackData_,
+	void*											pUserData_
 
 	) {
 
-	std::string msg = pCallbackData->pMessage;
+	std::string msg = pCallbackData_->pMessage;
 
 	std::cerr << "Validation layer: " << msg << std::endl;
 
@@ -643,26 +643,26 @@ void Engine::pickPhysicalDevice() {
 }
 
 /*
-*	Function:		bool isDeviceSuitable(VkPhysicalDevice device)
-*	Purpose:		Checks whether the device supports VULKAN by giving each device a score and picking the highest one
+*	Function:		bool isDeviceSuitable(VkPhysicalDevice device_)
+*	Purpose:		Checks whether the device_ supports VULKAN by giving each device_ a score and picking the highest one
 *
 */
-bool Engine::isDeviceSuitable(VkPhysicalDevice device) {
+bool Engine::isDeviceSuitable(VkPhysicalDevice device_) {
 
-	QueueFamilyIndices indices = findQueueFamilies(device);
+	QueueFamilyIndices indices = findQueueFamilies(device_);
 
-	bool extensionsSupported = checkDeviceExtensionSupport(device);
+	bool extensionsSupported = checkDeviceExtensionSupport(device_);
 
 	bool swapChainAdequate = false;
 	if (extensionsSupported) {
 	
-		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device_);
 		swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 
 	}
 
 	VkPhysicalDeviceFeatures supportedFeatures;
-	vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+	vkGetPhysicalDeviceFeatures(device_, &supportedFeatures);
 
 	return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 
@@ -670,7 +670,7 @@ bool Engine::isDeviceSuitable(VkPhysicalDevice device) {
 
 /*
 *	Function:		void createLogicalDevice()
-*	Purpose:		Creates the logical device from previously selected physical device
+*	Purpose:		Creates the logical device_ from previously selected physical device_
 *
 */
 void Engine::createLogicalDevice() {
@@ -772,18 +772,18 @@ void Engine::createSurface() {
 }
 
 /*
-	*	Function:		QueueFamilyIndices game::findQueueFamilies(VkPhysicalDevice device)
-	*	Purpose:		Finds the indices for the correct queue families for the physical device
+	*	Function:		QueueFamilyIndices game::findQueueFamilies(VkPhysicalDevice device_)
+	*	Purpose:		Finds the indices for the correct queue families for the physical device_
 	*
 	*/
-QueueFamilyIndices Engine::findQueueFamilies(VkPhysicalDevice device) {
+QueueFamilyIndices Engine::findQueueFamilies(VkPhysicalDevice device_) {
 
 	QueueFamilyIndices indices;
 
 	uint32_t queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(
 
-		device,
+		device_,
 		&queueFamilyCount,
 		nullptr
 
@@ -792,7 +792,7 @@ QueueFamilyIndices Engine::findQueueFamilies(VkPhysicalDevice device) {
 	std::vector< VkQueueFamilyProperties > queueFamilies(queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(
 
-		device,
+		device_,
 		&queueFamilyCount,
 		queueFamilies.data()
 
@@ -804,7 +804,7 @@ QueueFamilyIndices Engine::findQueueFamilies(VkPhysicalDevice device) {
 		VkBool32 presentSupport = false;
 		vkGetPhysicalDeviceSurfaceSupportKHR(
 
-			device,
+			device_,
 			i,
 			surface,
 			&presentSupport
@@ -838,16 +838,16 @@ QueueFamilyIndices Engine::findQueueFamilies(VkPhysicalDevice device) {
 }
 
 /*
-*	Function:		bool checkDeviceExtensionSupport(VkPhysicalDevice device)
-*	Purpose:		Check whether the target device has support for swapchains
+*	Function:		bool checkDeviceExtensionSupport(VkPhysicalDevice device_)
+*	Purpose:		Check whether the target device_ has support for swapchains
 *
 */
-bool Engine::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+bool Engine::checkDeviceExtensionSupport(VkPhysicalDevice device_) {
 
 	uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(
 		
-		device,
+		device_,
 		nullptr,
 		&extensionCount,
 		nullptr
@@ -857,7 +857,7 @@ bool Engine::checkDeviceExtensionSupport(VkPhysicalDevice device) {
 	std::vector< VkExtensionProperties > availableExtensions(extensionCount);
 	vkEnumerateDeviceExtensionProperties(
 		
-		device,
+		device_,
 		nullptr,
 		&extensionCount,
 		availableExtensions.data()
@@ -877,17 +877,17 @@ bool Engine::checkDeviceExtensionSupport(VkPhysicalDevice device) {
 }
 
 /*
-*	Function:		SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device)
+*	Function:		SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device_)
 *	Purpose:		Querys the system for swapchain support
 *
 */
-SwapChainSupportDetails Engine::querySwapChainSupport(VkPhysicalDevice device) {
+SwapChainSupportDetails Engine::querySwapChainSupport(VkPhysicalDevice device_) {
 	
 	SwapChainSupportDetails details;
 
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
 	
-		device,
+		device_,
 		surface,
 		&details.capabilities
 	
@@ -896,7 +896,7 @@ SwapChainSupportDetails Engine::querySwapChainSupport(VkPhysicalDevice device) {
 	uint32_t formatCount;
 	vkGetPhysicalDeviceSurfaceFormatsKHR(
 		
-		device,
+		device_,
 		surface,
 		&formatCount, 
 		nullptr
@@ -908,7 +908,7 @@ SwapChainSupportDetails Engine::querySwapChainSupport(VkPhysicalDevice device) {
 		details.formats.resize(formatCount);
 		vkGetPhysicalDeviceSurfaceFormatsKHR(
 
-			device,
+			device_,
 			surface,
 			&formatCount,
 			details.formats.data()
@@ -920,7 +920,7 @@ SwapChainSupportDetails Engine::querySwapChainSupport(VkPhysicalDevice device) {
 	uint32_t presentModeCount;
 	vkGetPhysicalDeviceSurfacePresentModesKHR(
 	
-		device,
+		device_,
 		surface,
 		&presentModeCount,
 		nullptr
@@ -932,7 +932,7 @@ SwapChainSupportDetails Engine::querySwapChainSupport(VkPhysicalDevice device) {
 		details.presentModes.resize(presentModeCount);
 		vkGetPhysicalDeviceSurfacePresentModesKHR(
 		
-			device,
+			device_,
 			surface,
 			&presentModeCount,
 			details.presentModes.data()
@@ -946,19 +946,19 @@ SwapChainSupportDetails Engine::querySwapChainSupport(VkPhysicalDevice device) {
 }
 
 /*
-*	Function:		VkSurfaceFormatKHR chooseSwapSurfaceFormat(cosnt std::vector< VkSurfaceFormatKHR >& availableFormats)
-*	Purpose:		Finds the optimal surface format for the specified logical device
+*	Function:		VkSurfaceFormatKHR chooseSwapSurfaceFormat(cosnt std::vector< VkSurfaceFormatKHR >& availableFormats_)
+*	Purpose:		Finds the optimal surface format_ for the specified logical device_
 *
 */
-VkSurfaceFormatKHR Engine::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
+VkSurfaceFormatKHR Engine::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats_) {
 
-	if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED) {
+	if (availableFormats_.size() == 1 && availableFormats_[0].format == VK_FORMAT_UNDEFINED) {
 	
 		return { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
 	
 	}
 
-	for (const auto& availableFormat : availableFormats) {
+	for (const auto& availableFormat : availableFormats_) {
 	
 		if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
 		
@@ -968,19 +968,19 @@ VkSurfaceFormatKHR Engine::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFo
 	
 	}
 
-	return availableFormats[0];
+	return availableFormats_[0];
 }
 
 /*
-*	Function:		VkPresentModeKHR chooseSwapPresentMode(const std::vector< VkPresentModeKHR > availablePresentModes)
+*	Function:		VkPresentModeKHR chooseSwapPresentMode(const std::vector< VkPresentModeKHR > availablePresentModes_)
 *	Purpose:		Enumerates best present mode for swapchain
 *
 */
-VkPresentModeKHR Engine::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes) {
+VkPresentModeKHR Engine::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes_) {
 	
 	VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
 
-	for (const auto& availablePresentMode : availablePresentModes) {
+	for (const auto& availablePresentMode : availablePresentModes_) {
 	
 		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
 		
@@ -1000,15 +1000,15 @@ VkPresentModeKHR Engine::chooseSwapPresentMode(const std::vector<VkPresentModeKH
 }
 
 /*
-*	Function:		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
-*	Purpose:		Enumerates best image size for swapchain
+*	Function:		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities_)
+*	Purpose:		Enumerates best image_ size_ for swapchain
 *
 */
-VkExtent2D Engine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
+VkExtent2D Engine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities_) {
 
-	if (capabilities.currentExtent.width != std::numeric_limits< uint32_t >::max()) {
+	if (capabilities_.currentExtent.width != std::numeric_limits< uint32_t >::max()) {
 	
-		return capabilities.currentExtent;
+		return capabilities_.currentExtent;
 	
 	}
 	else {
@@ -1030,14 +1030,14 @@ VkExtent2D Engine::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities
 		};
 		actualExtent.width = std::max(
 			
-			capabilities.minImageExtent.width, 
-			std::min(capabilities.maxImageExtent.width, actualExtent.width)
+			capabilities_.minImageExtent.width, 
+			std::min(capabilities_.maxImageExtent.width, actualExtent.width)
 		
 		);
 		actualExtent.height = std::max(
 		
-			capabilities.minImageExtent.width,
-			std::min(capabilities.maxImageExtent.width, actualExtent.height)
+			capabilities_.minImageExtent.width,
+			std::min(capabilities_.maxImageExtent.width, actualExtent.height)
 
 		);
 		
@@ -1164,16 +1164,16 @@ void Engine::createImageViews(void) {
 }
 
 /*
-*	Function:		VkShaderModule createShaderModule(const std::vector< char >& code)
-*	Purpose:		Creates a shader module from a given byte array of SPIR-V compiled GLSL-shading code
+*	Function:		VkShaderModule createShaderModule(const std::vector< char >& code_)
+*	Purpose:		Creates a shader module from a given byte array of SPIR-V compiled GLSL-shading code_
 *
 */
-VkShaderModule Engine::createShaderModule(const std::vector<char>& code) {
+VkShaderModule Engine::createShaderModule(const std::vector<char>& code_) {
 
 	VkShaderModuleCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	createInfo.codeSize = code.size();
-	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+	createInfo.codeSize = code_.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(code_.data());
 	VkShaderModule shaderModule;
 	if (vkCreateShaderModule(
 	
@@ -1820,7 +1820,7 @@ void Engine::renderFrame(void) {
 
 /*
 *	Function:		void recreateSwapChain()
-*	Purpose:		Recreates the swapchain on window resize events and more
+*	Purpose:		Recreates the swapchain on window_ resize events and more
 *
 */
 void Engine::recreateSwapChain(void) {
@@ -1977,26 +1977,26 @@ void Engine::cleanupSwapChain(void) {
 /*
 *	Function:		static void framebufferResizeCallback(
 *
-*						GLFWwindow*		window, 
-*						int				width,
-*						int				height
+*						GLFWwindow*		window_, 
+*						int				width_,
+*						int				height_
 *	
 *					)
-*	Purpose:		GLFW-callback function on window resize event
+*	Purpose:		GLFW-callback function on window_ resize event
 *
 */
 void Engine::framebufferResizeCallback(
 	
-	GLFWwindow*		window,
-	int				width,
-	int				height
+	GLFWwindow*		window_,
+	int				width_,
+	int				height_
 
 ) {
 
-	auto app = reinterpret_cast< Engine* >(glfwGetWindowUserPointer(window));
+	auto app = reinterpret_cast< Engine* >(glfwGetWindowUserPointer(window_));
 	app->framebufferResized = true;
 
-	std::string log = "Framebuffer resized to: " + std::to_string(width) + " / " + std::to_string(height);
+	std::string log = "Framebuffer resized to: " + std::to_string(width_) + " / " + std::to_string(height_);
 
 	logger.log(EVENT_LOG, log);
 
@@ -2004,7 +2004,7 @@ void Engine::framebufferResizeCallback(
 
 /*
 *	Function:		void createVertexBuffer()
-*	Purpose:		Creates vertex buffer
+*	Purpose:		Creates vertex buffer_
 *
 */
 void Engine::createVertexBuffer(void) {
@@ -2080,18 +2080,18 @@ void Engine::createVertexBuffer(void) {
 }
 
 /*
-*	Function:		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+*	Function:		uint32_t findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags properties_)
 *	Purpose:		Find memory type to use for vertex data
 *
 */
-uint32_t Engine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+uint32_t Engine::findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags properties_) {
 
 	VkPhysicalDeviceMemoryProperties memProperties;
 	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
 	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
 	
-		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+		if ((typeFilter_ & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties_) == properties_) {
 		
 			return i;
 		
@@ -2108,11 +2108,11 @@ uint32_t Engine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
 /*
 *	Function:		void createBuffer(
 *			
-*						VkDeviceSize				size,
-*						VkBufferUsageFlags			usage,
-*						VkMemoryPropertyFlags		properties,
-*						VkBuffer&					buffer, 
-*						VkDeviceMemory&				bufferMemory
+*						VkDeviceSize				size_,
+*						VkBufferUsageFlags			usage_,
+*						VkMemoryPropertyFlags		properties_,
+*						VkBuffer&					buffer_, 
+*						VkDeviceMemory&				bufferMemory_
 *
 *					)
 *	Purpose:		
@@ -2120,18 +2120,18 @@ uint32_t Engine::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
 */
 void Engine::createBuffer(
 	
-	VkDeviceSize				size,
-	VkBufferUsageFlags			usage,
-	VkMemoryPropertyFlags		properties,
-	VkBuffer&					buffer, 
-	VkDeviceMemory&				bufferMemory
+	VkDeviceSize				size_,
+	VkBufferUsageFlags			usage_,
+	VkMemoryPropertyFlags		properties_,
+	VkBuffer&					buffer_, 
+	VkDeviceMemory&				bufferMemory_
 
 ) {
 
 	VkBufferCreateInfo bufferInfo		= {};
 	bufferInfo.sType					= VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size						= size;
-	bufferInfo.usage					= usage;
+	bufferInfo.size						= size_;
+	bufferInfo.usage					= usage_;
 	bufferInfo.sharingMode				= VK_SHARING_MODE_EXCLUSIVE;
 
 	if (vkCreateBuffer(
@@ -2139,7 +2139,7 @@ void Engine::createBuffer(
 		device,
 		&bufferInfo,
 		nullptr, 
-		&buffer
+		&buffer_
 	
 	) != VK_SUCCESS) {
 
@@ -2151,7 +2151,7 @@ void Engine::createBuffer(
 	vkGetBufferMemoryRequirements(
 		
 		device,
-		buffer,
+		buffer_,
 		&memRequirements
 	
 	);
@@ -2159,14 +2159,14 @@ void Engine::createBuffer(
 	VkMemoryAllocateInfo allocInfo		= {};
 	allocInfo.sType						= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize			= memRequirements.size;
-	allocInfo.memoryTypeIndex			= findMemoryType(memRequirements.memoryTypeBits, properties);
+	allocInfo.memoryTypeIndex			= findMemoryType(memRequirements.memoryTypeBits, properties_);
 
 	if (vkAllocateMemory(
 		
 		device,
 		&allocInfo,
 		nullptr,
-		&bufferMemory
+		&bufferMemory_
 	
 	) != VK_SUCCESS) {
 
@@ -2177,8 +2177,8 @@ void Engine::createBuffer(
 	vkBindBufferMemory(
 		
 		device,
-		buffer,
-		bufferMemory,
+		buffer_,
+		bufferMemory_,
 		0
 	
 	);
@@ -2188,30 +2188,30 @@ void Engine::createBuffer(
 /*
 *	Function:		void copyBuffer(
 *	
-*						VkBuffer srcBuffer
-*						VkBuffer dstBuffer
-*						VkDeviceSize size
+*						VkBuffer srcBuffer_
+*						VkBuffer dstBuffer_
+*						VkDeviceSize size_
 *					)
-*	Purpose:		Copies a source buffer to a destination buffer
+*	Purpose:		Copies a source buffer_ to a destination buffer_
 *
 */
 void Engine::copyBuffer(
 
-	VkBuffer		srcBuffer,
-	VkBuffer		dstBuffer,
-	VkDeviceSize	size
+	VkBuffer		srcBuffer_,
+	VkBuffer		dstBuffer_,
+	VkDeviceSize	size_
 
 ) {
 
 	VkCommandBuffer commandBuffer		= beginSingleTimeCommands();
 
 	VkBufferCopy copyRegion				= {};
-	copyRegion.size						= size;
+	copyRegion.size						= size_;
 	vkCmdCopyBuffer(
 		
 		commandBuffer, 
-		srcBuffer, 
-		dstBuffer,
+		srcBuffer_, 
+		dstBuffer_,
 		1, 
 		&copyRegion
 	
@@ -2223,7 +2223,7 @@ void Engine::copyBuffer(
 
 /*
 *	Function:		void createIndexBuffer()
-*	Purpose:		Creates the index buffer for the vertices
+*	Purpose:		Creates the index buffer_ for the vertices
 *
 */
 void Engine::createIndexBuffer() {
@@ -2370,11 +2370,11 @@ void Engine::createUniformBuffers(void) {
 }
 
 /*
-*	Function:		void updateUniformBuffers(uint32_t currentImage)
+*	Function:		void updateUniformBuffers(uint32_t currentImage_)
 *	Purpose:		Updates uniform buffers (transformation matrices) every frame
 *
 */
-void Engine::updateUniformBuffer(uint32_t currentImage) {
+void Engine::updateUniformBuffer(uint32_t currentImage_) {
 
 	static auto startTime		= std::chrono::high_resolution_clock::now();
 	auto currentTime			= std::chrono::high_resolution_clock::now();
@@ -2391,7 +2391,7 @@ void Engine::updateUniformBuffer(uint32_t currentImage) {
 	vkMapMemory(
 		
 		device, 
-		uniformBuffersMemory[currentImage], 
+		uniformBuffersMemory[currentImage_], 
 		0,
 		sizeof(ubo),
 		0,
@@ -2407,7 +2407,7 @@ void Engine::updateUniformBuffer(uint32_t currentImage) {
 	
 	);
 
-	vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
+	vkUnmapMemory(device, uniformBuffersMemory[currentImage_]);
 
 }
 
@@ -2447,7 +2447,7 @@ void Engine::createDescriptorPool(void) {
 
 /*
 *	Function:		void createDescriptorSets()
-*	Purpose:		Finally creates the descriptor sets (for each image in the swapchain)
+*	Purpose:		Finally creates the descriptor sets (for each image_ in the swapchain)
 *	
 */
 void Engine::createDescriptorSets(void) {
@@ -2517,7 +2517,7 @@ void Engine::createDescriptorSets(void) {
 
 /*
 *	Function:		void createTextureImage()
-*	Purpose:		Generates a texture image
+*	Purpose:		Generates a texture image_
 *
 */
 void Engine::createTextureImage(void) {
@@ -2644,49 +2644,49 @@ void Engine::createTextureImage(void) {
 /*
 *	Function:		void createImage(
 *	
-*						uint32_t					width,
-*						uint32_t					height,
-*						uint32_t					mipLevels, 
-*						VkSampleCountFlagBits		numSamples,
-*						VkFormat					format,
-*						VkImageTiling				tiling, 
-*						VkImageUsageFlags			usage, 
-*						VkMemoryPropertyFlags		properties,
-*						VkImage&					image, 
-*						VkDeviceMemory&				imageMemory
+*						uint32_t					width_,
+*						uint32_t					height_,
+*						uint32_t					mipLevels_, 
+*						VkSampleCountFlagBits		numSamples_,
+*						VkFormat					format_,
+*						VkImageTiling				tiling_, 
+*						VkImageUsageFlags			usage_, 
+*						VkMemoryPropertyFlags		properties_,
+*						VkImage&					image_, 
+*						VkDeviceMemory&				imageMemory_
 *
 *					)
-*	Purpose:		Creates a texture image handle
+*	Purpose:		Creates a texture image_ handle
 *
 */
 void Engine::createImage(
 
-	uint32_t					width,
-	uint32_t					height,
-	uint32_t					mipLevels,
-	VkSampleCountFlagBits		numSamples,
-	VkFormat					format,
-	VkImageTiling				tiling, 
-	VkImageUsageFlags			usage, 
-	VkMemoryPropertyFlags		properties,
-	VkImage&					image, 
-	VkDeviceMemory&				imageMemory
+	uint32_t					width_,
+	uint32_t					height_,
+	uint32_t					mipLevels_,
+	VkSampleCountFlagBits		numSamples_,
+	VkFormat					format_,
+	VkImageTiling				tiling_, 
+	VkImageUsageFlags			usage_, 
+	VkMemoryPropertyFlags		properties_,
+	VkImage&					image_, 
+	VkDeviceMemory&				imageMemory_
 
 ) {
 
 	VkImageCreateInfo imageInfo		= {};
 	imageInfo.sType					= VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	imageInfo.imageType				= VK_IMAGE_TYPE_2D;
-	imageInfo.extent.width			= width;
-	imageInfo.extent.height			= height;
+	imageInfo.extent.width			= width_;
+	imageInfo.extent.height			= height_;
 	imageInfo.extent.depth			= 1;
-	imageInfo.mipLevels				= mipLevels;
+	imageInfo.mipLevels				= mipLevels_;
 	imageInfo.arrayLayers			= 1;
-	imageInfo.format				= format;
-	imageInfo.tiling				= tiling;
+	imageInfo.format				= format_;
+	imageInfo.tiling				= tiling_;
 	imageInfo.initialLayout			= VK_IMAGE_LAYOUT_UNDEFINED;
-	imageInfo.usage					= usage;
-	imageInfo.samples				= numSamples;
+	imageInfo.usage					= usage_;
+	imageInfo.samples				= numSamples_;
 	imageInfo.sharingMode			= VK_SHARING_MODE_EXCLUSIVE;
 
 	if (vkCreateImage(
@@ -2694,7 +2694,7 @@ void Engine::createImage(
 		device, 
 		&imageInfo,
 		nullptr, 
-		&image
+		&image_
 	
 	) != VK_SUCCESS) {
 
@@ -2706,7 +2706,7 @@ void Engine::createImage(
 	vkGetImageMemoryRequirements(
 		
 		device, 
-		image,
+		image_,
 		&memRequirements
 	
 	);
@@ -2714,14 +2714,14 @@ void Engine::createImage(
 	VkMemoryAllocateInfo allocInfo		= {};
 	allocInfo.sType						= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize			= memRequirements.size;
-	allocInfo.memoryTypeIndex			= findMemoryType(memRequirements.memoryTypeBits, properties);
+	allocInfo.memoryTypeIndex			= findMemoryType(memRequirements.memoryTypeBits, properties_);
 
 	if (vkAllocateMemory(
 		
 		device, 
 		&allocInfo, 
 		nullptr,
-		&imageMemory
+		&imageMemory_
 	
 	) != VK_SUCCESS) {
 
@@ -2732,8 +2732,8 @@ void Engine::createImage(
 	vkBindImageMemory(
 		
 		device,
-		image, 
-		imageMemory, 
+		image_, 
+		imageMemory_, 
 		0
 	
 	);
@@ -2741,8 +2741,8 @@ void Engine::createImage(
 }
 
 /*
-*	Function:		
-*	Purpose:		
+*	Function:		VkCommandBuffer beginSingleTimeCommands()
+*	Purpose:		Creates a one time use command buffer_
 *
 */
 VkCommandBuffer Engine::beginSingleTimeCommands() {
@@ -2773,18 +2773,18 @@ VkCommandBuffer Engine::beginSingleTimeCommands() {
 }
 
 /*
-*	Function:		
-*	Purpose:		
+*	Function:		void endSingleTimeCommands(VkCommandBuffer commandBuffer_)
+*	Purpose:		Ends execution of command buffer_
 *	
 */
-void Engine::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
+void Engine::endSingleTimeCommands(VkCommandBuffer commandBuffer_) {
 
-	vkEndCommandBuffer(commandBuffer);
+	vkEndCommandBuffer(commandBuffer_);
 
 	VkSubmitInfo submitInfo			= {};
 	submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.commandBufferCount	= 1;
-	submitInfo.pCommandBuffers		= &commandBuffer;
+	submitInfo.pCommandBuffers		= &commandBuffer_;
 
 	vkQueueSubmit(
 		
@@ -2801,7 +2801,7 @@ void Engine::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
 		device,
 		commandPool,
 		1, 
-		&commandBuffer
+		&commandBuffer_
 	
 	);
 
@@ -2810,23 +2810,23 @@ void Engine::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
 /*
 *	Function:		void transitionImageLayout(
 *
-*						VkImage				image,
-*						VkFormat			format, 
-*						VkImageLayout		oldLayout,
-*						VkImageLayout		newLayout,
-*						uint32_t			mipLevels
+*						VkImage				image_,
+*						VkFormat			format_, 
+*						VkImageLayout		oldLayout_,
+*						VkImageLayout		newLayout_,
+*						uint32_t			mipLevels_
 *
 *					)
-*	Purpose:		Handles image layout transitions
+*	Purpose:		Handles image_ layout transitions
 *
 */
 void Engine::transitionImageLayout(
 	
-	VkImage				image,
-	VkFormat			format,
-	VkImageLayout		oldLayout,
-	VkImageLayout		newLayout,
-	uint32_t			mipLevels
+	VkImage				image_,
+	VkFormat			format_,
+	VkImageLayout		oldLayout_,
+	VkImageLayout		newLayout_,
+	uint32_t			mipLevels_
 
 ) {
 
@@ -2834,25 +2834,25 @@ void Engine::transitionImageLayout(
 
 	VkImageMemoryBarrier barrier					= {};
 	barrier.sType									= VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.oldLayout								= oldLayout;
-	barrier.newLayout								= newLayout;
+	barrier.oldLayout								= oldLayout_;
+	barrier.newLayout								= newLayout_;
 	barrier.srcQueueFamilyIndex						= VK_QUEUE_FAMILY_IGNORED;
 	barrier.dstQueueFamilyIndex						= VK_QUEUE_FAMILY_IGNORED;
-	barrier.image									= image;
+	barrier.image									= image_;
 	barrier.subresourceRange.aspectMask				= VK_IMAGE_ASPECT_COLOR_BIT;
 	barrier.subresourceRange.baseMipLevel			= 0;
-	barrier.subresourceRange.levelCount				= mipLevels;
+	barrier.subresourceRange.levelCount				= mipLevels_;
 	barrier.subresourceRange.baseArrayLayer			= 0;
 	barrier.subresourceRange.layerCount				= 1;
 
 	VkPipelineStageFlags sourceStage;
 	VkPipelineStageFlags destinationStage;
 
-	if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+	if (newLayout_ == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
 	
 		barrier.subresourceRange.aspectMask			= VK_IMAGE_ASPECT_DEPTH_BIT;
 
-		if (hasStencilComponent(format)) {
+		if (hasStencilComponent(format_)) {
 		
 			barrier.subresourceRange.aspectMask	   |= VK_IMAGE_ASPECT_STENCIL_BIT;
 
@@ -2865,7 +2865,7 @@ void Engine::transitionImageLayout(
 
 	}
 
-	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+	if (oldLayout_ == VK_IMAGE_LAYOUT_UNDEFINED && newLayout_ == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
 
 		barrier.srcAccessMask		= 0;
 		barrier.dstAccessMask		= VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -2874,7 +2874,7 @@ void Engine::transitionImageLayout(
 		destinationStage			= VK_PIPELINE_STAGE_TRANSFER_BIT;
 
 	}
-	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+	else if (oldLayout_ == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout_ == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
 
 		barrier.srcAccessMask		= VK_ACCESS_TRANSFER_WRITE_BIT;
 		barrier.dstAccessMask		= VK_ACCESS_SHADER_READ_BIT;
@@ -2883,7 +2883,7 @@ void Engine::transitionImageLayout(
 		destinationStage			= VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 
 	}
-	else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+	else if (oldLayout_ == VK_IMAGE_LAYOUT_UNDEFINED && newLayout_ == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
 	
 		barrier.srcAccessMask		= 0;
 		barrier.dstAccessMask		= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
@@ -2892,7 +2892,7 @@ void Engine::transitionImageLayout(
 		destinationStage			= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 
 	}
-	else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+	else if (oldLayout_ == VK_IMAGE_LAYOUT_UNDEFINED && newLayout_ == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
 	
 		barrier.srcAccessMask		= 0;
 		barrier.dstAccessMask		= VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -2929,21 +2929,21 @@ void Engine::transitionImageLayout(
 /*
 *	Function:		copyBufferToImage(
 *	
-*						VkBuffer		buffer,
-*						VkImage			image,
-*						uint32_t		width, 
-*						uint32_t		height
+*						VkBuffer		buffer_,
+*						VkImage			image_,
+*						uint32_t		width_, 
+*						uint32_t		height_
 *
 *					)
-*	Purpose:		Copies image info from buffer into image
+*	Purpose:		Copies image_ info from buffer_ into image_
 *
 */
 void Engine::copyBufferToImage(
 	
-	VkBuffer		buffer,
-	VkImage			image,
-	uint32_t		width, 
-	uint32_t		height
+	VkBuffer		buffer_,
+	VkImage			image_,
+	uint32_t		width_, 
+	uint32_t		height_
 
 ) {
 
@@ -2960,8 +2960,8 @@ void Engine::copyBufferToImage(
 	region.imageOffset = { 0, 0, 0 };
 	region.imageExtent = {
 
-		width,
-		height,
+		width_,
+		height_,
 		1
 
 	};
@@ -2969,8 +2969,8 @@ void Engine::copyBufferToImage(
 	vkCmdCopyBufferToImage(
 
 		commandBuffer,
-		buffer,
-		image,
+		buffer_,
+		image_,
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 		1,
 		&region
@@ -2983,7 +2983,7 @@ void Engine::copyBufferToImage(
 
 /*
 *	Function:		void createTextureImageView()
-*	Purpose:		Creates image view for texture
+*	Purpose:		Creates image_ view for texture
 *
 */
 void Engine::createTextureImageView(void) {
@@ -3002,10 +3002,10 @@ void Engine::createTextureImageView(void) {
 /*
 *	Function:		VkImageView Engine::createImageView(
 *	
-*						VkImage					image,
-*						VkFormat				format, 
-*						VkImageAspectFlags		aspectFlags,
-*						uint32_t				mipLevels
+*						VkImage					image_,
+*						VkFormat				format_, 
+*						VkImageAspectFlags		aspectFlags_,
+*						uint32_t				mipLevels_
 *
 *					)
 *	Purpose:		Creates a VkImageView
@@ -3013,21 +3013,21 @@ void Engine::createTextureImageView(void) {
 */
 VkImageView Engine::createImageView(
 
-	VkImage					image,
-	VkFormat				format,
-	VkImageAspectFlags		aspectFlags,
-	uint32_t				mipLevels
+	VkImage					image_,
+	VkFormat				format_,
+	VkImageAspectFlags		aspectFlags_,
+	uint32_t				mipLevels_
 
 ) {
 
 	VkImageViewCreateInfo viewInfo					= {};
 	viewInfo.sType									= VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	viewInfo.image									= image;
+	viewInfo.image									= image_;
 	viewInfo.viewType								= VK_IMAGE_VIEW_TYPE_2D;
-	viewInfo.format									= format;
-	viewInfo.subresourceRange.aspectMask			= aspectFlags;
+	viewInfo.format									= format_;
+	viewInfo.subresourceRange.aspectMask			= aspectFlags_;
 	viewInfo.subresourceRange.baseMipLevel			= 0;
-	viewInfo.subresourceRange.levelCount			= mipLevels;
+	viewInfo.subresourceRange.levelCount			= mipLevels_;
 	viewInfo.subresourceRange.baseArrayLayer		= 0;
 	viewInfo.subresourceRange.layerCount			= 1;
 
@@ -3091,7 +3091,7 @@ void Engine::createTextureSampler(void) {
 
 /*
 *	Function:		void createDepthResources()
-*	Purpose:		Creates depth buffer
+*	Purpose:		Creates depth buffer_
 *	
 */
 void Engine::createDepthResources(void) {
@@ -3137,23 +3137,23 @@ void Engine::createDepthResources(void) {
 /*
 *	Function:		VkFormat findSupportedFormat(
 *
-*						const std::vector< VkFormat >&			candidates,
-*						VkImageTiling							tiling,
-*						VkFormatFeatureFlags					features
+*						const std::vector< VkFormat >&			candidates_,
+*						VkImageTiling							tiling_,
+*						VkFormatFeatureFlags					features_
 *
 *					)
-*	Purpose:		Finds device-supported formats
+*	Purpose:		Finds device_-supported formats
 *
 */
 VkFormat Engine::findSupportedFormat(
 
-	const std::vector< VkFormat >&			candidates,
-	VkImageTiling							tiling,
-	VkFormatFeatureFlags					features
+	const std::vector< VkFormat >&			candidates_,
+	VkImageTiling							tiling_,
+	VkFormatFeatureFlags					features_
 
 ) {
 
-	for (VkFormat format : candidates) {
+	for (VkFormat format : candidates_) {
 	
 		VkFormatProperties props;
 		vkGetPhysicalDeviceFormatProperties(
@@ -3164,12 +3164,12 @@ VkFormat Engine::findSupportedFormat(
 
 		);
 
-		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+		if (tiling_ == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features_) == features_) {
 
 			return format;
 
 		}
-		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+		else if (tiling_ == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features_) == features_) {
 
 			return format;
 
@@ -3185,7 +3185,7 @@ VkFormat Engine::findSupportedFormat(
 
 /*
 *	Function:		VkFormat findDepthFormat()
-*	Purpose:		Finds the best format for depth buffering
+*	Purpose:		Finds the best format_ for depth buffering
 *
 */
 VkFormat Engine::findDepthFormat() {
@@ -3200,13 +3200,13 @@ VkFormat Engine::findDepthFormat() {
 }
 
 /*
-*	Function:		bool hasStencilComponent(VkFormat format)
-*	Purpose:		Checks whether a format has a stencil component
+*	Function:		bool hasStencilComponent(VkFormat format_)
+*	Purpose:		Checks whether a format_ has a stencil component
 *
 */
-bool Engine::hasStencilComponent(VkFormat format) {
+bool Engine::hasStencilComponent(VkFormat format_) {
 
-	return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+	return format_ == VK_FORMAT_D32_SFLOAT_S8_UINT || format_ == VK_FORMAT_D24_UNORM_S8_UINT;
 
 }
 
@@ -3280,11 +3280,11 @@ void Engine::loadModel(void) {
 /*
 *	Function:		void keyboardInputCallback(
 *		
-*						GLFWwindow*			window, 
-*						int					key, 
-*						int					scancode,
-*						int					action,
-*						int					mods
+*						GLFWwindow*			window_, 
+*						int					key_, 
+*						int					scancode_,
+*						int					action_,
+*						int					mods_
 *	
 *					)
 *	Purpose:		Keyboard input callback for GLFW
@@ -3292,20 +3292,20 @@ void Engine::loadModel(void) {
 */
 void Engine::keyboardInputCallback(
 
-	GLFWwindow*			window,
-	int					key,
-	int					scancode,
-	int					action,
-	int					mods
+	GLFWwindow*			window_,
+	int					key_,
+	int					scancode_,
+	int					action_,
+	int					mods_
 
 ) {
 
-	if (action == GLFW_PRESS) {
+	if (action_ == GLFW_PRESS) {
 
-		switch (key) {
+		switch (key_) {
 
 		case GLFW_KEY_ESCAPE:
-			glfwSetWindowShouldClose(window, GLFW_TRUE);
+			glfwSetWindowShouldClose(window_, GLFW_TRUE);
 			break;
 
 		}
@@ -3328,11 +3328,11 @@ uint32_t Engine::getNumThreads(void){
 /*
 *	Function:		void generateMipmaps(
 *	
-*						VkImage			image,
-*						VkFormat		imageFormat,
-*						int32_t			texWidth,
-*						int32_t			texHeight,
-*						uint32_t		mipLevels
+*						VkImage			image_,
+*						VkFormat		imageFormat_,
+*						int32_t			texWidth_,
+*						int32_t			texHeight_,
+*						uint32_t		mipLevels_
 *	
 *					)
 *	Purpose:		Generates MipMaps of a VkImage
@@ -3340,11 +3340,11 @@ uint32_t Engine::getNumThreads(void){
 */
 void Engine::generateMipmaps(
 
-	VkImage			image,
-	VkFormat		imageFormat,
-	int32_t			texWidth,
-	int32_t			texHeight,
-	uint32_t		mipLevels
+	VkImage			image_,
+	VkFormat		imageFormat_,
+	int32_t			texWidth_,
+	int32_t			texHeight_,
+	uint32_t		mipLevels_
 
 ) {
 
@@ -3352,7 +3352,7 @@ void Engine::generateMipmaps(
 	vkGetPhysicalDeviceFormatProperties(
 		
 		physicalDevice, 
-		imageFormat,
+		imageFormat_,
 		&formatProperties
 	
 	);
@@ -3367,7 +3367,7 @@ void Engine::generateMipmaps(
 
 	VkImageMemoryBarrier barrier					= {};
 	barrier.sType									= VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.image									= image;
+	barrier.image									= image_;
 	barrier.srcQueueFamilyIndex						= VK_QUEUE_FAMILY_IGNORED;
 	barrier.dstQueueFamilyIndex						= VK_QUEUE_FAMILY_IGNORED;
 	barrier.subresourceRange.aspectMask				= VK_IMAGE_ASPECT_COLOR_BIT;
@@ -3375,10 +3375,10 @@ void Engine::generateMipmaps(
 	barrier.subresourceRange.layerCount				= 1;
 	barrier.subresourceRange.levelCount				= 1;
 
-	int32_t mipWidth								= texWidth;
-	int32_t mipHeight								= texHeight;
+	int32_t mipWidth								= texWidth_;
+	int32_t mipHeight								= texHeight_;
 
-	for (uint32_t i = 1; i < mipLevels; i++) {
+	for (uint32_t i = 1; i < mipLevels_; i++) {
 
 		barrier.subresourceRange.baseMipLevel		= i - 1;
 		barrier.oldLayout							= VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -3418,9 +3418,9 @@ void Engine::generateMipmaps(
 		vkCmdBlitImage(
 			
 			commandBuffer,
-			image,
+			image_,
 			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			image,
+			image_,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			1, 
 			&blit,
@@ -3453,7 +3453,7 @@ void Engine::generateMipmaps(
 
 	}
 
-	barrier.subresourceRange.baseMipLevel		= mipLevels - 1;
+	barrier.subresourceRange.baseMipLevel		= mipLevels_ - 1;
 	barrier.oldLayout							= VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 	barrier.newLayout							= VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	barrier.srcAccessMask						= VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -3502,7 +3502,7 @@ VkSampleCountFlagBits Engine::getMaxUsableSampleCount(void) {
 
 /*
 *	Function:		void createColorResources()
-*	Purpose:		Creates a multisampled color buffer
+*	Purpose:		Creates a multisampled color buffer_
 *
 */
 void Engine::createColorResources(void) {

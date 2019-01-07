@@ -44,20 +44,20 @@ namespace game {
 
 	VkResult CreateDebugUtilsMessengerEXT(
 
-		VkInstance instance,
-		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-		const VkAllocationCallbacks* pAllocator,
-		VkDebugUtilsMessengerEXT* pCallback
+		VkInstance										instance_,
+		const VkDebugUtilsMessengerCreateInfoEXT*		pCreateInfo_,
+		const VkAllocationCallbacks*					pAllocator_,
+		VkDebugUtilsMessengerEXT*						pCallback_
 
 	);
 	void DestroyDebugUtilsMessengerEXT(
 
-		VkInstance instance,
-		VkDebugUtilsMessengerEXT callback,
-		const VkAllocationCallbacks* pAllocator
+		VkInstance										instance_,
+		VkDebugUtilsMessengerEXT						callback_,
+		const VkAllocationCallbacks*					pAllocator_
 
 	);
-	std::vector< char > readFile(const std::string& filename);
+	std::vector< char > readFile(const std::string& filename_);
 	int init();
 
 }
@@ -148,26 +148,26 @@ private:
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 
-		VkDebugUtilsMessageSeverityFlagBitsEXT			messageSeverity,
-		VkDebugUtilsMessageTypeFlagsEXT					messageType,
-		const VkDebugUtilsMessengerCallbackDataEXT*		pCallbackData,
-		void*											pUserData
+		VkDebugUtilsMessageSeverityFlagBitsEXT			messageSeverity_,
+		VkDebugUtilsMessageTypeFlagsEXT					messageType_,
+		const VkDebugUtilsMessengerCallbackDataEXT*		pCallbackData_,
+		void*											pUserData_
 
 	);
 	void setupDebugCallback(void);
 	void pickPhysicalDevice(void);
-	bool isDeviceSuitable(VkPhysicalDevice device);
+	bool isDeviceSuitable(VkPhysicalDevice device_);
 	void createLogicalDevice(void);
 	void createSurface(void);
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector< VkSurfaceFormatKHR >& availableFormats);
-	VkPresentModeKHR chooseSwapPresentMode(const std::vector< VkPresentModeKHR > availablePresentModes);
-	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilites);
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device_);
+	bool checkDeviceExtensionSupport(VkPhysicalDevice device_);
+	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device_);
+	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector< VkSurfaceFormatKHR >& availableFormats_);
+	VkPresentModeKHR chooseSwapPresentMode(const std::vector< VkPresentModeKHR > availablePresentModes_);
+	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilites_);
 	void createSwapChain(void);
 	void createImageViews(void);
-	VkShaderModule createShaderModule(const std::vector< char >& code);
+	VkShaderModule createShaderModule(const std::vector< char >& code_);
 	void createGraphicsPipeline(void);
 	void createRenderPass(void);
 	void createFramebuffers(void);
@@ -179,107 +179,107 @@ private:
 	void cleanupSwapChain(void);
 	static void framebufferResizeCallback(
 		
-		GLFWwindow*		window, 
-		int				width, 
-		int				eight
+		GLFWwindow*		window_, 
+		int				width_, 
+		int				eight_
 	
 	);
 	void createVertexBuffer(void);
-	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	uint32_t findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags properties_);
 	void createBuffer(
 		
-		VkDeviceSize				size, 
-		VkBufferUsageFlags			usage, 
-		VkMemoryPropertyFlags		properties,
-		VkBuffer&					buffer, 
-		VkDeviceMemory&				bufferMemory
+		VkDeviceSize				size_, 
+		VkBufferUsageFlags			usage_, 
+		VkMemoryPropertyFlags		properties_,
+		VkBuffer&					buffer_, 
+		VkDeviceMemory&				bufferMemory_
 	
 	);
 	void copyBuffer(
 	
-		VkBuffer		srcBuffer,
-		VkBuffer		dstBuffer,
-		VkDeviceSize	size
+		VkBuffer		srcBuffer_,
+		VkBuffer		dstBuffer_,
+		VkDeviceSize	size_
 	
 	);
 	void createIndexBuffer(void);
 	void createDescriptorSetLayout(void);
 	void createUniformBuffers(void);
-	void updateUniformBuffer(uint32_t currentImage);
+	void updateUniformBuffer(uint32_t currentImage_);
 	void createDescriptorPool(void);
 	void createDescriptorSets(void);
 	void createTextureImage(void);
 	void createImage(
 
-		uint32_t					width,
-		uint32_t					height,
-		uint32_t					mipLevels, 
-		VkSampleCountFlagBits		numSamples,
-		VkFormat					format,
-		VkImageTiling				tiling,
-		VkImageUsageFlags			usage,
-		VkMemoryPropertyFlags		properties,
-		VkImage&					image,
-		VkDeviceMemory&				imageMemory
+		uint32_t					width_,
+		uint32_t					height_,
+		uint32_t					mipLevels_, 
+		VkSampleCountFlagBits		numSamples_,
+		VkFormat					format_,
+		VkImageTiling				tiling_,
+		VkImageUsageFlags			usage_,
+		VkMemoryPropertyFlags		properties_,
+		VkImage&					image_,
+		VkDeviceMemory&				imageMemory_
 
 	);
 	VkCommandBuffer beginSingleTimeCommands(void);
-	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+	void endSingleTimeCommands(VkCommandBuffer commandBuffer_);
 	void transitionImageLayout(
 		
-		VkImage				image, 
-		VkFormat			format,
-		VkImageLayout		oldLayout, 
-		VkImageLayout		newLayout,
-		uint32_t			mipLevels
+		VkImage				image_, 
+		VkFormat			format_,
+		VkImageLayout		oldLayout_, 
+		VkImageLayout		newLayout_,
+		uint32_t			mipLevels_
 	
 	);
 	void copyBufferToImage(
 
-		VkBuffer		buffer,
-		VkImage			image,
-		uint32_t		width,
-		uint32_t		height
+		VkBuffer		buffer_,
+		VkImage			image_,
+		uint32_t		width_,
+		uint32_t		height_
 
 	);
 	void createTextureImageView(void);
 	VkImageView createImageView(
 
-		VkImage					image,
-		VkFormat				format,
-		VkImageAspectFlags		aspectFlags,
-		uint32_t				mipLevels
+		VkImage					image_,
+		VkFormat				format_,
+		VkImageAspectFlags		aspectFlags_,
+		uint32_t				mipLevels_
 
 	);
 	void createTextureSampler(void);
 	void createDepthResources(void);
 	VkFormat findSupportedFormat(
 	
-		const std::vector< VkFormat >&			candidates, 
-		VkImageTiling							tiling, 
-		VkFormatFeatureFlags					features
+		const std::vector< VkFormat >&			candidates_, 
+		VkImageTiling							tiling_, 
+		VkFormatFeatureFlags					features_
 
 	);
 	VkFormat findDepthFormat(void);
-	bool hasStencilComponent(VkFormat format);
+	bool hasStencilComponent(VkFormat format_);
 	void loadModel(void);
 	static void keyboardInputCallback(
 		
-		GLFWwindow*			window, 
-		int					key, 
-		int					scancode,
-		int					action,
-		int					mods
+		GLFWwindow*			window_, 
+		int					key_, 
+		int					scancode_,
+		int					action_,
+		int					mods_
 	
 	);
 	uint32_t getNumThreads(void);
 	void generateMipmaps(
 	
-		VkImage			image,
-		VkFormat		imageFormat,
-		int32_t			texWidth,
-		int32_t			texHeight,
-		uint32_t		mipLevels
+		VkImage			image_,
+		VkFormat		imageFormat_,
+		int32_t			texWidth_,
+		int32_t			texHeight_,
+		uint32_t		mipLevels_
 	
 	);
 	VkSampleCountFlagBits getMaxUsableSampleCount(void);
