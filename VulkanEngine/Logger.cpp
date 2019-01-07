@@ -4,6 +4,7 @@
 *
 */
 #include "Logger.hpp"
+#include "ConsoleColor.hpp"
 
 /*
 *	Function:		Logger()
@@ -51,23 +52,23 @@ void Logger::log(LogNr logNr, std::string text) {
 			stream.open(directory + errorLogStreamFileName, std::ios::trunc);
 			countError++;
 
-			stream << Day << ":"
-				<< Month << ":"
-				<< Year << "   "
-				<< Hour << ":"
-				<< Min << ":"
-				<< Sec << "		===		"
-				<< text << std::endl;
+			stream << green << Day << white << ":"
+				<< green << Month << white << ":"
+				<< green << Year << white << "   "
+				<< green << Hour << white << ":"
+				<< green << Min << white << ":"
+				<< green << Sec << white << "		===		"
+				<< blue << text << std::endl;
 
 			stream.close();
 
-			std::cerr << Day << ":"
-				<< Month << ":"
-				<< Year << "   "
-				<< Hour << ":"
-				<< Min << ":"
-				<< Sec << "		===		"
-				<< text << std::endl;
+			std::cerr << green << Day << white << ":"
+				<< green << Month << white << ":"
+				<< green << Year << white << "   "
+				<< green << Hour << white << ":"
+				<< green << Min << white << ":"
+				<< green << Sec << white << "		===		"
+				<< blue << text << std::endl;
 
 
 		}
@@ -75,21 +76,21 @@ void Logger::log(LogNr logNr, std::string text) {
 
 			stream.open(directory + errorLogStreamFileName, std::ios::app);
 
-			stream << Day << ":"
-				<< Month << ":"
-				<< Year << "   "
-				<< Hour << ":"
-				<< Min << ":"
-				<< Sec << "		===		"
-				<< text << std::endl;
+			stream<< green << Day << white << ":"
+				<< green << Month << white << ":"
+				<< green << Year << white << "   "
+				<< green << Hour << white << ":"
+				<< green << Min << white << ":"
+				<< green << Sec << white << "		===		"
+				<< blue << text << std::endl;
 
-			std::cerr << Day << ":"
-				<< Month << ":"
-				<< Year << "   "
-				<< Hour << ":"
-				<< Min << ":"
-				<< Sec << "		===		"
-				<< text << std::endl;
+			std::cerr << green << Day << white << ":"
+				<< green << Month << white << ":"
+				<< green << Year << white << "   "
+				<< green << Hour << white << ":"
+				<< green << Min << white << ":"
+				<< green << Sec << white << "		===		"
+				<< blue << text << std::endl;
 
 			stream.close();
 
@@ -97,13 +98,13 @@ void Logger::log(LogNr logNr, std::string text) {
 	case START_STOP_LOG:
 		stream.open(directory + startStopStreamFileName, std::ios::app);
 
-		stream << Day << ":"
-			<< Month << ":"
-			<< Year << "   "
-			<< Hour << ":"
-			<< Min << ":"
-			<< Sec << "		===		"
-			<< text << std::endl;
+		stream << green << Day << white << ":"
+			<< green << Month << white << ":"
+			<< green << Year << white << "   "
+			<< green << Hour << white << ":"
+			<< green << Min << white << ":"
+			<< green << Sec << white << "		===		"
+			<< blue << text << std::endl;
 
 		stream.close();
 	case EVENT_LOG:
@@ -112,46 +113,46 @@ void Logger::log(LogNr logNr, std::string text) {
 			stream.open(directory + eventLogStreamFileName, std::ios::trunc);
 			countEvent++;
 
-			stream << Day << ":"
-				<< Month << ":"
-				<< Year << "   "
-				<< Hour << ":"
-				<< Min << ":"
-				<< Sec << "		===		"
-				<< text << std::endl;
+			stream << green << Day << white << ":"
+				<< green << Month << white << ":"
+				<< green << Year << white << "   "
+				<< green << Hour << white << ":"
+				<< green << Min << white << ":"
+				<< green << Sec << white << "		===		"
+				<< blue << text << std::endl;
 			
 			stream.close();
 
-			std::cout << Day << ":"
-				<< Month << ":"
-				<< Year << "   "
-				<< Hour << ":"
-				<< Min << ":"
-				<< Sec << "		===		"
-				<< text << std::endl;
+			std::cout << green << Day << white << ":"
+				<< green << Month << white << ":"
+				<< green << Year << white << "   "
+				<< green << Hour << white << ":"
+				<< green << Min << white << ":"
+				<< green << Sec << white << "		===		"
+				<< blue << text << std::endl;
 
 		}
 		else {
 
 			stream.open(directory + eventLogStreamFileName, std::ios::app);
 
-			stream << Day << ":"
-				<< Month << ":"
-				<< Year << "   "
-				<< Hour << ":"
-				<< Min << ":"
-				<< Sec << "		===		"
-				<< text << std::endl;
+			stream << green << Day << white << ":"
+				<< green << Month << white << ":"
+				<< green << Year << white << "   "
+				<< green << Hour << white << ":"
+				<< green << Min << white << ":"
+				<< green << Sec << white << "		===		"
+				<< blue << text << std::endl;
 
 			stream.close();
 
-			std::cout << Day << ":"
-				<< Month << ":"
-				<< Year << "   "
-				<< Hour << ":"
-				<< Min << ":"
-				<< Sec << "		===		"
-				<< text << std::endl;
+			std::cout << green << Day << white << ":"
+				<< green << Month << white << ":"
+				<< green << Year << white << "   "
+				<< green << Hour << white << ":"
+				<< green << Min << white << ":"
+				<< green << Sec << white << "		===		"
+				<< blue << text << std::endl;
 
 		}
 		break;
