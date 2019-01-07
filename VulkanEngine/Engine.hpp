@@ -46,9 +46,9 @@ namespace game {
 
 	extern Camera										camera;
 	extern bool											firstMouse;
-	extern float										lastX;
-	extern float										lastY;
-	extern float										DELTATIME;
+	extern double										lastX;
+	extern double										lastY;
+	extern double										DELTATIME;
 	extern GLFWwindow*									pWindow;
 	extern const unsigned int							MAX_FRAMES_IN_FLIGHT;
 

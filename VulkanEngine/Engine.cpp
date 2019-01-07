@@ -3205,6 +3205,8 @@ VkFormat Engine::findSupportedFormat(
 
 	}
 
+	return VK_FORMAT_UNDEFINED;
+
 }
 
 /*
@@ -3629,12 +3631,12 @@ void Engine::mouseCallback(
 	
 	}
 
-	float xOffset		= xPos_ - game::lastX;
-	float yOffset		= -(yPos_ - game::lastY);
+	double xOffset		= xPos_ - game::lastX;
+	double yOffset		= -(yPos_ - game::lastY);
 	game::lastX			= xPos_;
 	game::lastY			= yPos_;
 
-	game::camera.processMouseMovement(xOffset, yOffset);
+	game::camera.processMouseMovement(static_cast< float >(xOffset), static_cast< float >(yOffset));
 
 }
 
@@ -3657,7 +3659,7 @@ void Engine::scrollCallback(
 
 ) {
 
-	game::camera.processMouseScroll(yOffset_);
+	game::camera.processMouseScroll(static_cast< float >(yOffset_));
 
 }
 
@@ -3697,14 +3699,26 @@ void Engine::createCamera(void) {
 */
 void Engine::queryKeyboardGLFW(void) {
 
-	if (glfwGetKey(game::pWindow, GLFW_KEY_W) == GLFW_PRESS)
-		game::camera.processKeyboard(FORWARD, game::DELTATIME);
-	if (glfwGetKey(game::pWindow, GLFW_KEY_S) == GLFW_PRESS)
-		game::camera.processKeyboard(BACKWARD, game::DELTATIME);
-	if (glfwGetKey(game::pWindow, GLFW_KEY_A) == GLFW_PRESS)
-		game::camera.processKeyboard(LEFT, game::DELTATIME);
-	if (glfwGetKey(game::pWindow, GLFW_KEY_D) == GLFW_PRESS)
-		game::camera.processKeyboard(RIGHT, game::DELTATIME);
+	if (glfwGetKey(game::pWindow, GLFW_KEY_W) == GLFW_PRESS) {
+
+		game::camera.processKeyboard(FORWARD, static_cast< float >(game::DELTATIME));
+
+	}
+	if (glfwGetKey(game::pWindow, GLFW_KEY_S) == GLFW_PRESS) {
+
+		game::camera.processKeyboard(BACKWARD, static_cast<float>(game::DELTATIME));
+
+	}
+	if (glfwGetKey(game::pWindow, GLFW_KEY_A) == GLFW_PRESS) {
+
+		game::camera.processKeyboard(LEFT, static_cast<float>(game::DELTATIME));
+
+	}
+	if (glfwGetKey(game::pWindow, GLFW_KEY_D) == GLFW_PRESS) {
+
+		game::camera.processKeyboard(RIGHT, static_cast<float>(game::DELTATIME));
+
+	}
 
 
 }
