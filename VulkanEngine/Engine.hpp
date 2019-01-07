@@ -135,7 +135,7 @@ private:
 	VkImage										colorImage;
 	VkDeviceMemory								colorImageMemory;
 	VkImageView									colorImageView;
-	const float									maxFPS							= 1000.0f;
+	const float									maxFPS							= 60.0f;
 	const float									maxPeriod						= 1.0f / maxFPS;
 
 	void initWindow(void);

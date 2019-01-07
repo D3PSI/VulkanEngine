@@ -58,7 +58,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << std::endl;
+				<< blue << text << white << std::endl;
 
 			stream.close();
 
@@ -68,7 +68,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << std::endl;
+				<< blue << text << white << std::endl;
 
 
 		}
@@ -82,7 +82,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << std::endl;
+				<< blue << text << white << std::endl;
 
 			std::cerr << green << Day << white << ":"
 				<< green << Month << white << ":"
@@ -90,7 +90,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << std::endl;
+				<< blue << text << white << std::endl;
 
 			stream.close();
 
@@ -104,7 +104,7 @@ void Logger::log(LogNr logNr, std::string text) {
 			<< green << Hour << white << ":"
 			<< green << Min << white << ":"
 			<< green << Sec << white << "		===		"
-			<< blue << text << std::endl;
+			<< blue << text << white << std::endl;
 
 		stream.close();
 	case EVENT_LOG:
@@ -119,7 +119,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << std::endl;
+				<< blue << text << white << std::endl;
 			
 			stream.close();
 
@@ -129,7 +129,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << std::endl;
+				<< blue << text << white << std::endl;
 
 		}
 		else {
@@ -142,7 +142,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << std::endl;
+				<< blue << text << white << std::endl;
 
 			stream.close();
 
@@ -152,7 +152,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << std::endl;
+				<< blue << text << white << std::endl;
 
 		}
 		break;
