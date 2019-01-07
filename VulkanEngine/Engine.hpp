@@ -29,6 +29,7 @@
 #include "Vertex.cpp"
 #include "Hash.cpp"
 #include "UniformBufferObject.cpp"
+#include "Camera.hpp"
 
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
@@ -36,9 +37,17 @@
 	const bool enableValidationLayers = true;
 #endif
 
-extern Logger									logger;
+#define WIDTH 1280
+#define HEIGHT 780
+
+extern Logger											logger;
 
 namespace game {
+
+	extern Camera										camera;
+	extern bool											firstMouse;
+	extern float										lastX;
+	extern float										lastY;
 
 	extern const unsigned int MAX_FRAMES_IN_FLIGHT;
 
@@ -69,8 +78,6 @@ public:
 private:
 	VkResult									result;
 	GLFWwindow*									window;
-	const unsigned int							WIDTH							= 1280;
-	const unsigned int							HEIGHT							= 780;
 	const std::string							MODEL_PATH						= "res/models/chalet/source/chalet.obj";
 	const std::string							TEXTURE_PATH					= "res/models/chalet/textures/chalet.jpg";
 	const std::string							TITLE							= "VULKAN by D3PSI";
@@ -284,5 +291,20 @@ private:
 	);
 	VkSampleCountFlagBits getMaxUsableSampleCount(void);
 	void createColorResources(void);
+	static void mouseCallback(
+
+		GLFWwindow*			window_,
+		double				xPos_,
+		double				yPos_
+
+	);
+	static void scrollCallback(
+	
+		GLFWwindow*			window_,
+		double				xOffset_,
+		double				yOffset_
+	
+	);
+	void createCamera(void);
 
 };

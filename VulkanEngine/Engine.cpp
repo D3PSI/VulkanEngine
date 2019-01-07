@@ -55,7 +55,17 @@ void Engine::initWindow() {
 
 	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+	glfwSetCursorPosCallback(window, mouseCallback);
+	glfwSetScrollCallback(window, scrollCallback);
 	glfwSetKeyCallback(window, keyboardInputCallback);
+
+	glfwSetInputMode(
+	
+		window,
+		GLFW_CURSOR,
+		GLFW_CURSOR_DISABLED
+	
+	);
 
 	GLFWimage windowIcon[1];
 	windowIcon[0].pixels = stbi_load(
@@ -88,6 +98,13 @@ void Engine::initWindow() {
 void Engine::initVulkan() {
 
 	numThreads = getNumThreads();
+
+	logger.log(EVENT_LOG, "Starting thread...");
+	std::thread t([=] {
+	
+		createCamera();
+	
+	});
 
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t1([=] {
@@ -137,6 +154,8 @@ void Engine::initVulkan() {
 
 	});
 	t3.join();
+	logger.log(EVENT_LOG, "Stopping thread...");
+	t.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
 
 }
@@ -2382,7 +2401,7 @@ void Engine::updateUniformBuffer(uint32_t currentImage_) {
 
 	UniformBufferObject ubo		= {};
 	ubo.model					= glm::rotate(glm::mat4(1.0f), time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view					= glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view					= game::camera.getViewMatrix();
 	ubo.proj					= glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 10.0f);
 	ubo.proj[1][1]				*= -1;
 
@@ -3541,6 +3560,94 @@ void Engine::createColorResources(void) {
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 		1
 
+	);
+
+}
+
+/*
+*	Function:		void mouseCallback(
+*	
+*						GLFWwindow*			window_,
+*						double				xPos_,
+*						double				yPos_
+*
+*					)
+*	Purpose:		Mouse movement callback function for GLFW
+*
+*/
+void Engine::mouseCallback(
+	
+	GLFWwindow*			window_,
+	double				xPos_,
+	double				yPos_
+
+) {
+
+	if (game::firstMouse) {
+	
+		game::lastX			= xPos_;
+		game::lastY			= yPos_;
+		game::firstMouse		= false;
+	
+	}
+
+	float xOffset		= xPos_ - game::lastX;
+	float yOffset		= -(yPos_ - game::lastY);
+	game::lastX			= xPos_;
+	game::lastY			= yPos_;
+
+	game::camera.processMouseMovement(xOffset, yOffset);
+
+}
+
+/*
+*	Function:		void scrollCallback(
+*
+*						GLFWwindow*			window_,
+*						double				xOffset_,
+*						double				yOffset_
+*
+*					)
+*	Purpose:		Scroll callback function for GLFW
+*
+*/
+void Engine::scrollCallback(
+	
+	GLFWwindow*			window_,
+	double				xOffset_,
+	double				yOffset_
+
+) {
+
+
+
+}
+
+/*
+*	Function:		void createCamera()
+*	Purpose:		Creates the camera object
+*
+*/
+void Engine::createCamera(void) {
+	
+	game::camera = Camera(
+
+		glm::vec3(
+			
+			0.0f,
+			0.0f, 
+			3.0f
+		
+		),
+		glm::vec3(
+
+			0.0f,
+			1.0f,
+			0.0f
+		
+		),
+		-90.0f,
+		0.0f
 	);
 
 }

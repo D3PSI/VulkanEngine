@@ -86,6 +86,10 @@ namespace game {
 	*
 	*/
 	Engine												engine;
+	Camera												camera;
+	bool												firstMouse							= true;
+	float												lastX								= WIDTH / 2;
+	float												lastY								= HEIGHT / 2;
 	const unsigned int									MAX_FRAMES_IN_FLIGHT				= 2;
 
 	/*

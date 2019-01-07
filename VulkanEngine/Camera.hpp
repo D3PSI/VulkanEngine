@@ -12,10 +12,10 @@
 
 enum CameraMovement {
 
-	FORWARD,
-	BACKWARD,
-	LEFT,
-	RIGHT
+	FORWARD			= 0,
+	BACKWARD		= 1,
+	LEFT			= 2,
+	RIGHT			= 3
 
 };
 
@@ -59,8 +59,30 @@ public:
 		float			pitch_			= PITCH
 
 	);
+	Camera(
+	
+		float		posX_,
+		float		posY_,
+		float		posZ_,
+		float		upX_,
+		float		upY_,
+		float		upZ_,
+		float		yaw_,
+		float		pitch_
+	
+	);
+	glm::mat4 getViewMatrix(void);
+	void processKeyboard(CameraMovement direction_, float deltaTime_);
+	void processMouseMovement(
+		
+		float			xOffset_,
+		float			yOffset_,
+		VkBool32		constrainPitch = VK_TRUE
+	
+	);
+	void processMouseScroll(float yOffset_);
 	~Camera();
 private:
-
+	void updateCameraVectors(void);
 };
 
