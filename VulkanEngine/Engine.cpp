@@ -2407,7 +2407,7 @@ void Engine::updateUniformBuffer(uint32_t currentImage_) {
 	ubo.model					= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	ubo.model					= glm::rotate(ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.view					= game::camera.getViewMatrix();
-	ubo.proj					= glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 10.0f);
+	ubo.proj					= glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
 	ubo.proj[1][1]				*= -1;
 
 	void* data;
@@ -3324,24 +3324,22 @@ void Engine::keyboardInputCallback(
 
 ) {
 
-	/*if (action_ == GLFW_PRESS) {
+	if (action_ == GLFW_PRESS) {
 
 		switch (key_) {
 
 			case GLFW_KEY_ESCAPE:
 				glfwSetWindowShouldClose(window_, GLFW_TRUE);
 				break;
-			case GLFW_KEY_W:
-				game::camera.processKeyboard(FORWARD, game::DELTATIME);
-				break;
-			case GLFW_KEY_A:
-				game::camera.processKeyboard(LEFT, game::DELTATIME);
-				break;
-			case GLFW_KEY_S:
-				game::camera.processKeyboard(BACKWARD, game::DELTATIME);
-				break;
-			case GLFW_KEY_D:
-				game::camera.processKeyboard(RIGHT, game::DELTATIME);
+			case GLFW_KEY_LEFT_CONTROL:
+				game::camera.disableInput();
+				glfwSetInputMode(
+
+					game::pWindow,
+					GLFW_CURSOR,
+					GLFW_CURSOR_NORMAL
+
+				);
 				break;
 			default:
 				break;
@@ -3349,7 +3347,27 @@ void Engine::keyboardInputCallback(
 		}
 
 	
-	}*/
+	}
+	else if (action_ == GLFW_RELEASE) {
+	
+		switch(key_) {
+		
+			case GLFW_KEY_LEFT_CONTROL:
+				game::camera.enableInput();
+				glfwSetInputMode(
+
+					game::pWindow,
+					GLFW_CURSOR,
+					GLFW_CURSOR_DISABLED
+
+				);
+				break;
+			default:
+				break;
+
+		}
+	
+	}
 
 }
 
@@ -3679,8 +3697,6 @@ void Engine::createCamera(void) {
 */
 void Engine::queryKeyboardGLFW(void) {
 
-	if (glfwGetKey(game::pWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(game::pWindow, true);
 	if (glfwGetKey(game::pWindow, GLFW_KEY_W) == GLFW_PRESS)
 		game::camera.processKeyboard(FORWARD, game::DELTATIME);
 	if (glfwGetKey(game::pWindow, GLFW_KEY_S) == GLFW_PRESS)
@@ -3689,5 +3705,6 @@ void Engine::queryKeyboardGLFW(void) {
 		game::camera.processKeyboard(LEFT, game::DELTATIME);
 	if (glfwGetKey(game::pWindow, GLFW_KEY_D) == GLFW_PRESS)
 		game::camera.processKeyboard(RIGHT, game::DELTATIME);
+
 
 }

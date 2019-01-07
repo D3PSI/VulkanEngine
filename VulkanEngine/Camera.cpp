@@ -45,10 +45,11 @@ Camera::Camera(
 
 )), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
 
-	position		= position_;
-	worldUp			= up_;
-	yaw				= yaw_;
-	pitch			= pitch_;
+	position			= position_;
+	worldUp				= up_;
+	yaw					= yaw_;
+	pitch				= pitch_;
+	inputEnabled		= true;
 	updateCameraVectors();
 
 }
@@ -82,7 +83,7 @@ Camera::Camera(
 
 ) {
 
-	position		= glm::vec3(
+	position			= glm::vec3(
 		
 		posX_,
 		posY_,
@@ -90,7 +91,7 @@ Camera::Camera(
 	
 	);
 
-	worldUp			= glm::vec3(
+	worldUp				= glm::vec3(
 	
 		upX_,
 		upY_,
@@ -98,8 +99,9 @@ Camera::Camera(
 	
 	);
 
-	yaw				= yaw_;
-	pitch			= pitch_;
+	yaw					= yaw_;
+	pitch				= pitch_;
+	inputEnabled		= true;
 	updateCameraVectors();
 
 }
@@ -130,23 +132,32 @@ void Camera::processKeyboard(CameraMovement direction_, float deltaTime_) {
 
 	float velocity = movementSpeed * deltaTime_;
 
-	switch (direction_) {
-	
-		case FORWARD:
-			position += front * velocity;
-			break;
-		case BACKWARD:
-			position -= front * velocity;
-			break;
-		case LEFT:
-			position -= right * velocity;
-			break;
-		case RIGHT:
-			position += right * velocity;
-			break;
-		default:
-			break;
+	if (inputEnabled) {
 
+		switch (direction_) {
+
+			case FORWARD:
+				position += front * velocity;
+				break;
+			case BACKWARD:
+				position -= front * velocity;
+				break;
+			case LEFT:
+				position -= right * velocity;
+				break;
+			case RIGHT:
+				position += right * velocity;
+				break;
+			default:
+				break;
+
+		}
+
+	}
+	else {
+	
+		return;
+	
 	}
 
 }
@@ -170,27 +181,36 @@ void Camera::processMouseMovement(
 
 ) {
 
-	xOffset_		*= mouseSensitivity;
-	yOffset_		*= mouseSensitivity;
+	if (inputEnabled) {
 
-	yaw				+= xOffset_;
-	pitch			+= yOffset_;
+		xOffset_ *= mouseSensitivity;
+		yOffset_ *= mouseSensitivity;
 
-	if (constrainPitch) {
-	
-		if (pitch > 89.0f) {
-		
-			pitch = 89.0f;
-		
+		yaw += xOffset_;
+		pitch += yOffset_;
+
+		if (constrainPitch) {
+
+			if (pitch > 89.0f) {
+
+				pitch = 89.0f;
+
+			}
+			else if (pitch < -89.0f) {
+
+				pitch = -89.0f;
+
+			}
+
+			updateCameraVectors();
+
 		}
-		else if (pitch < -89.0f) {
-		
-			pitch = -89.0f;
-		
-		}
 	
-		updateCameraVectors();
-
+	}
+	else { 
+		
+		return;
+	
 	}
 
 }
@@ -202,23 +222,54 @@ void Camera::processMouseMovement(
 */
 void Camera::processMouseScroll(float yOffset_) {
 
-	if (zoom >= 1.0f && zoom <= 45.0f) {
-	
-		zoom -= yOffset_;
+	if (inputEnabled) {
+
+		if (zoom >= 1.0f && zoom <= 45.0f) {
+
+			zoom -= yOffset_;
+
+		}
+		else if (zoom <= 1.0f) {
+
+			zoom = 1.0f;
+
+		}
+		else if (zoom >= 45.0f) {
+
+			zoom = 45.0f;
+
+		}
 
 	}
-	else if (zoom <= 1.0f) {
+	else {
 	
-		zoom = 1.0f;
-	
-	}
-	else if (zoom >= 45.0f) {
-	
-		zoom = 45.0f;
+		return;
 	
 	}
 
 	updateCameraVectors();
+
+}
+
+/*
+*	Function:		void enableInput()
+*	Purpose:		Enables camera to look around and move
+*
+*/
+void Camera::enableInput(void) {
+
+	inputEnabled = true;
+
+}
+
+/*
+*	Function:		void disableInput()
+*	Purpose:		Disables cameras ability to look around and move
+*
+*/
+void Camera::disableInput(void) {
+
+	inputEnabled = false;
 
 }
 
@@ -240,12 +291,21 @@ Camera::~Camera() {
 */
 void Camera::updateCameraVectors(void) {
 
-	glm::vec3 front_;
-	front_.x		= cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front_.y		= sin(glm::radians(pitch));
-	front_.z		= sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front			= glm::normalize(front_);
-	right			= glm::normalize(glm::cross(front, worldUp));
-	up				= glm::normalize(glm::cross(right, front));
+	if (inputEnabled) {
+
+		glm::vec3 front_;
+		front_.x		= cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+		front_.y		= sin(glm::radians(pitch));
+		front_.z		= sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		front			= glm::normalize(front_);
+		right			= glm::normalize(glm::cross(front, worldUp));
+		up				= glm::normalize(glm::cross(right, front));
+
+	}
+	else {
+	
+		return;
+
+	}
 
 }

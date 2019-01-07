@@ -81,8 +81,11 @@ public:
 	
 	);
 	void processMouseScroll(float yOffset_);
+	void enableInput(void);
+	void disableInput(void);
 	~Camera();
 private:
+	bool inputEnabled;
 	void updateCameraVectors(void);
 };
 
