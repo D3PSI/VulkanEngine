@@ -218,6 +218,8 @@ void Camera::processMouseScroll(float yOffset_) {
 	
 	}
 
+	updateCameraVectors();
+
 }
 
 /*

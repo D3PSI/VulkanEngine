@@ -90,6 +90,8 @@ namespace game {
 	bool												firstMouse							= true;
 	float												lastX								= WIDTH / 2;
 	float												lastY								= HEIGHT / 2;
+	float												DELTATIME;
+	GLFWwindow*											pWindow;
 	const unsigned int									MAX_FRAMES_IN_FLIGHT				= 2;
 
 	/*

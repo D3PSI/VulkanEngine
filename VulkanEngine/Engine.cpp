@@ -53,6 +53,8 @@ void Engine::initWindow() {
 	
 	);
 
+	game::pWindow = window;
+
 	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 	glfwSetCursorPosCallback(window, mouseCallback);
@@ -276,6 +278,7 @@ void Engine::mainLoop() {
 
 		double currentTime		= glfwGetTime();
 		double deltaTime		= currentTime - pastTime;
+		game::DELTATIME			= deltaTime;
 
 		if (deltaTime >= maxPeriod) {
 
@@ -305,6 +308,7 @@ void Engine::mainLoop() {
 			}
 
 			glfwPollEvents();
+			queryKeyboardGLFW();
 			renderFrame();
 		
 		}
@@ -2394,13 +2398,14 @@ void Engine::createUniformBuffers(void) {
 *
 */
 void Engine::updateUniformBuffer(uint32_t currentImage_) {
-
+	
 	static auto startTime		= std::chrono::high_resolution_clock::now();
 	auto currentTime			= std::chrono::high_resolution_clock::now();
 	float time					= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
 
 	UniformBufferObject ubo		= {};
-	ubo.model					= glm::rotate(glm::mat4(1.0f), time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.model					= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	ubo.model					= glm::rotate(ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.view					= game::camera.getViewMatrix();
 	ubo.proj					= glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 10.0f);
 	ubo.proj[1][1]				*= -1;
@@ -3319,17 +3324,32 @@ void Engine::keyboardInputCallback(
 
 ) {
 
-	if (action_ == GLFW_PRESS) {
+	/*if (action_ == GLFW_PRESS) {
 
 		switch (key_) {
 
-		case GLFW_KEY_ESCAPE:
-			glfwSetWindowShouldClose(window_, GLFW_TRUE);
-			break;
+			case GLFW_KEY_ESCAPE:
+				glfwSetWindowShouldClose(window_, GLFW_TRUE);
+				break;
+			case GLFW_KEY_W:
+				game::camera.processKeyboard(FORWARD, game::DELTATIME);
+				break;
+			case GLFW_KEY_A:
+				game::camera.processKeyboard(LEFT, game::DELTATIME);
+				break;
+			case GLFW_KEY_S:
+				game::camera.processKeyboard(BACKWARD, game::DELTATIME);
+				break;
+			case GLFW_KEY_D:
+				game::camera.processKeyboard(RIGHT, game::DELTATIME);
+				break;
+			default:
+				break;
 
 		}
+
 	
-	}
+	}*/
 
 }
 
@@ -3619,7 +3639,7 @@ void Engine::scrollCallback(
 
 ) {
 
-
+	game::camera.processMouseScroll(yOffset_);
 
 }
 
@@ -3649,5 +3669,25 @@ void Engine::createCamera(void) {
 		-90.0f,
 		0.0f
 	);
+
+}
+
+/*
+*	Function:		void queryKeyboardGLFW()
+*	Purpose:		Checks each frame whether movement key are pressed
+*
+*/
+void Engine::queryKeyboardGLFW(void) {
+
+	if (glfwGetKey(game::pWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(game::pWindow, true);
+	if (glfwGetKey(game::pWindow, GLFW_KEY_W) == GLFW_PRESS)
+		game::camera.processKeyboard(FORWARD, game::DELTATIME);
+	if (glfwGetKey(game::pWindow, GLFW_KEY_S) == GLFW_PRESS)
+		game::camera.processKeyboard(BACKWARD, game::DELTATIME);
+	if (glfwGetKey(game::pWindow, GLFW_KEY_A) == GLFW_PRESS)
+		game::camera.processKeyboard(LEFT, game::DELTATIME);
+	if (glfwGetKey(game::pWindow, GLFW_KEY_D) == GLFW_PRESS)
+		game::camera.processKeyboard(RIGHT, game::DELTATIME);
 
 }

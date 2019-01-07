@@ -48,8 +48,9 @@ namespace game {
 	extern bool											firstMouse;
 	extern float										lastX;
 	extern float										lastY;
-
-	extern const unsigned int MAX_FRAMES_IN_FLIGHT;
+	extern float										DELTATIME;
+	extern GLFWwindow*									pWindow;
+	extern const unsigned int							MAX_FRAMES_IN_FLIGHT;
 
 	VkResult CreateDebugUtilsMessengerEXT(
 
@@ -306,5 +307,6 @@ private:
 	
 	);
 	void createCamera(void);
+	void queryKeyboardGLFW(void);
 
 };
