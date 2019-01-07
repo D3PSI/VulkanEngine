@@ -632,7 +632,7 @@ void Engine::pickPhysicalDevice() {
 
 	if (deviceCount == 0) {
 
-		logger.log(ERROR_LOG, "Failed to fing GPU's with Vulkan support!");
+		logger.log(ERROR_LOG, "Failed to find GPU's with Vulkan support!");
 
 	}
 
