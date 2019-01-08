@@ -37,13 +37,13 @@ void Logger::log(LogNr logNr_, std::string text_) {
 	time(&current_time);
 	localtime_s(&local_time, &current_time);
 
-	int Year = local_time.tm_year + 1900;
-	int Month = local_time.tm_mon + 1;
-	int Day = local_time.tm_mday;
+	int Year		= local_time.tm_year + 1900;
+	int Month		= local_time.tm_mon + 1;
+	int Day			= local_time.tm_mday;
 
-	int Hour = local_time.tm_hour;
-	int Min = local_time.tm_min;
-	int Sec = local_time.tm_sec;
+	int Hour		= local_time.tm_hour;
+	int Min			= local_time.tm_min;
+	int Sec			= local_time.tm_sec;
 
 	switch (logNr_) {
 	case ERROR_LOG:
@@ -58,6 +58,7 @@ void Logger::log(LogNr logNr_, std::string text_) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
+				<< red << "CRITICAL:"
 				<< blue << text_ << white << std::endl;
 
 			stream.close();
@@ -68,6 +69,7 @@ void Logger::log(LogNr logNr_, std::string text_) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
+				<< red << "CRITICAL:"
 				<< blue << text_ << white << std::endl;
 
 
@@ -82,6 +84,7 @@ void Logger::log(LogNr logNr_, std::string text_) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
+				<< red << "CRITICAL:"
 				<< blue << text_ << white << std::endl;
 
 			std::cerr << green << Day << white << ":"
@@ -90,6 +93,7 @@ void Logger::log(LogNr logNr_, std::string text_) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
+				<< red << "CRITICAL:"
 				<< blue << text_ << white << std::endl;
 
 			stream.close();
@@ -162,7 +166,10 @@ void Logger::log(LogNr logNr_, std::string text_) {
 	}
 
 	if (logNr_ == ERROR_LOG) {
-	
+
+		std::cout << "\n\nPress any key to exit...";
+		_getch();
+
 		throw std::runtime_error(text_);
 	
 	}

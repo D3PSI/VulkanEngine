@@ -21,6 +21,7 @@
 #include <iostream>
 #include <chrono>
 #include <unordered_map>
+#include <conio.h>
 #include <thread>
 
 #include "Logger.hpp"

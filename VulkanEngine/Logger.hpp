@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <time.h>
+#include <conio.h>
 
 enum LogNr {
 
