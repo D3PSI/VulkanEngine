@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Hash.cpp" />
     <ClCompile Include="Logger.cpp" />
@@ -135,6 +136,7 @@
     <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ConsoleColor.hpp" />
     <ClInclude Include="Engine.hpp" />
     <ClInclude Include="Logger.hpp" />

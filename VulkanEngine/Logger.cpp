@@ -13,7 +13,7 @@
 */
 Logger::Logger(std::string directory_) {
 
-	directory = directory_;
+	directory					= directory_;
 	eventLogStreamFileName		= "event.log";
 	errorLogStreamFileName		= "error.log";
 	startStopStreamFileName		= "startup.log";
@@ -21,11 +21,11 @@ Logger::Logger(std::string directory_) {
 }
 
 /*
-*	Function:		void log(LogNr logNr, std::string text)
+*	Function:		void log(LogNr logNr_, std::string text_)
 *	Purpose:		Writes to selected Log-File
 *
 */
-void Logger::log(LogNr logNr, std::string text) {
+void Logger::log(LogNr logNr_, std::string text_) {
 
 	static int countEvent = 0;
 	static int countError = 0;
@@ -37,15 +37,15 @@ void Logger::log(LogNr logNr, std::string text) {
 	time(&current_time);
 	localtime_s(&local_time, &current_time);
 
-	int Year = local_time.tm_year + 1900;
-	int Month = local_time.tm_mon + 1;
-	int Day = local_time.tm_mday;
+	int Year		= local_time.tm_year + 1900;
+	int Month		= local_time.tm_mon + 1;
+	int Day			= local_time.tm_mday;
 
-	int Hour = local_time.tm_hour;
-	int Min = local_time.tm_min;
-	int Sec = local_time.tm_sec;
+	int Hour		= local_time.tm_hour;
+	int Min			= local_time.tm_min;
+	int Sec			= local_time.tm_sec;
 
-	switch (logNr) {
+	switch (logNr_) {
 	case ERROR_LOG:
 		if (countError == 0) {
 
@@ -58,7 +58,8 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << white << std::endl;
+				<< red << "CRITICAL: "
+				<< blue << text_ << white << std::endl;
 
 			stream.close();
 
@@ -68,7 +69,8 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << white << std::endl;
+				<< red << "CRITICAL: "
+				<< blue << text_ << white << std::endl;
 
 
 		}
@@ -82,7 +84,8 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << white << std::endl;
+				<< red << "CRITICAL: "
+				<< blue << text_ << white << std::endl;
 
 			std::cerr << green << Day << white << ":"
 				<< green << Month << white << ":"
@@ -90,7 +93,8 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << white << std::endl;
+				<< red << "CRITICAL: "
+				<< blue << text_ << white << std::endl;
 
 			stream.close();
 
@@ -104,7 +108,7 @@ void Logger::log(LogNr logNr, std::string text) {
 			<< green << Hour << white << ":"
 			<< green << Min << white << ":"
 			<< green << Sec << white << "		===		"
-			<< blue << text << white << std::endl;
+			<< blue << text_ << white << std::endl;
 
 		stream.close();
 	case EVENT_LOG:
@@ -119,7 +123,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << white << std::endl;
+				<< blue << text_ << white << std::endl;
 			
 			stream.close();
 
@@ -129,7 +133,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << white << std::endl;
+				<< blue << text_ << white << std::endl;
 
 		}
 		else {
@@ -142,7 +146,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << white << std::endl;
+				<< blue << text_ << white << std::endl;
 
 			stream.close();
 
@@ -152,7 +156,7 @@ void Logger::log(LogNr logNr, std::string text) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< blue << text << white << std::endl;
+				<< blue << text_ << white << std::endl;
 
 		}
 		break;
@@ -161,9 +165,12 @@ void Logger::log(LogNr logNr, std::string text) {
 
 	}
 
-	if (logNr == ERROR_LOG) {
-	
-		throw std::runtime_error(text);
+	if (logNr_ == ERROR_LOG) {
+
+		std::cout << "\n\nPress any key to exit...";
+		_getch();
+
+		throw std::runtime_error(text_);
 	
 	}
 

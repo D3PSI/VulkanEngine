@@ -55,20 +55,20 @@ namespace game {
 
 	VkResult CreateDebugUtilsMessengerEXT(
 
-		VkInstance										instance,
-		const VkDebugUtilsMessengerCreateInfoEXT*		pCreateInfo,
-		const VkAllocationCallbacks*					pAllocator,
-		VkDebugUtilsMessengerEXT*						pCallback
+		VkInstance										instance_,
+		const VkDebugUtilsMessengerCreateInfoEXT*		pCreateInfo_,
+		const VkAllocationCallbacks*					pAllocator_,
+		VkDebugUtilsMessengerEXT*						pCallback_
 
 	);
 	void DestroyDebugUtilsMessengerEXT(
 
-		VkInstance										instance,
-		VkDebugUtilsMessengerEXT						callback,
-		const VkAllocationCallbacks*					pAllocator
+		VkInstance										instance_,
+		VkDebugUtilsMessengerEXT						callback_,
+		const VkAllocationCallbacks*					pAllocator_
 
 	);
-	std::vector< char > readFile(const std::string& filename);
+	std::vector< char > readFile(const std::string& filename_);
 	int init();
 
 }
@@ -86,38 +86,44 @@ namespace game {
 	*
 	*/
 	Engine												engine;
+	Camera												camera;
+	bool												firstMouse							= true;
+	double												lastX								= WIDTH / 2;
+	double												lastY								= HEIGHT / 2;
+	double												DELTATIME;
+	GLFWwindow*											pWindow;
 	const unsigned int									MAX_FRAMES_IN_FLIGHT				= 2;
 
 	/*
 	*	Function:		VkResult game::CreateDebugUtilsMessengerEXT(
 	*
-	*						VkInstance instance,
-	*						const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-	*						const VkAllocationCallbacks* pAllocator,
-	*						VkDebugUtilsMessengerEXT* pCallback
+	*						VkInstance										instance_,
+	*						const VkDebugUtilsMessengerCreateInfoEXT*		pCreateInfo_,
+	*						const VkAllocationCallbacks*					pAllocator_,
+	*						VkDebugUtilsMessengerEXT*						pCallback_
 	*
 	*					)
-	*	Purpose:		Sets up the callback messenger
+	*	Purpose:		Sets up the callback_ messenger
 	*
 	*/
 	VkResult CreateDebugUtilsMessengerEXT(
 	
-		VkInstance										instance,
-		const VkDebugUtilsMessengerCreateInfoEXT*		pCreateInfo,
-		const VkAllocationCallbacks*					pAllocator, 
-		VkDebugUtilsMessengerEXT*						pCallback
+		VkInstance										instance_,
+		const VkDebugUtilsMessengerCreateInfoEXT*		pCreateInfo_,
+		const VkAllocationCallbacks*					pAllocator_, 
+		VkDebugUtilsMessengerEXT*						pCallback_
 
 	) {
 	
-		auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+		auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance_, "vkCreateDebugUtilsMessengerEXT");
 		if (func != nullptr) {
 		
 			return func(
 				
-				instance,
-				pCreateInfo, 
-				pAllocator, 
-				pCallback
+				instance_,
+				pCreateInfo_, 
+				pAllocator_, 
+				pCallback_
 			
 			);
 		
@@ -133,9 +139,9 @@ namespace game {
 	/*
 	*	Function:		void game::DestroyDebugUtilsMessengerEXT(
 	*	
-	*						VkInstance instance,
-	*						VkDebugUtilsMessengerEXT callback,
-	*						const VkAllocationCallbacks* pAllocator
+	*						VkInstance							instance_,
+	*						VkDebugUtilsMessengerEXT			callback_,
+	*						const VkAllocationCallbacks*		pAllocator_
 	*
 	*					)
 	*	Purpose:		Destroys the messenger handle
@@ -143,20 +149,20 @@ namespace game {
 	*/
 	void DestroyDebugUtilsMessengerEXT(
 		
-		VkInstance										instance,
-		VkDebugUtilsMessengerEXT						callback,
-		const VkAllocationCallbacks*					pAllocator
+		VkInstance										instance_,
+		VkDebugUtilsMessengerEXT						callback_,
+		const VkAllocationCallbacks*					pAllocator_
 
 		) {
 	
-		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance_, "vkDestroyDebugUtilsMessengerEXT");
 		if (func != nullptr) {
 		
 			func(
 				
-				instance,
-				callback,
-				pAllocator
+				instance_,
+				callback_,
+				pAllocator_
 			
 			);
 		
@@ -165,13 +171,13 @@ namespace game {
 	}
 
 	/*
-	*	Function:		static std::vector< char > game::readFile(const std::string& filename)
+	*	Function:		static std::vector< char > game::readFile(const std::string& filename_)
 	*	Purpose:		Reads (shader) files to binary handled by std::vector< char >
 	*
 	*/
-	std::vector< char > readFile(const std::string& filename) {
+	std::vector< char > readFile(const std::string& filename_) {
 	
-		std::ifstream file(filename, std::ios::ate | std::ios::binary);
+		std::ifstream file(filename_, std::ios::ate | std::ios::binary);
 		if (!file.is_open()) {
 		
 			logger.log(ERROR_LOG, "Failed to open (shader?) file!");
