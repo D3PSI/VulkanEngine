@@ -16,6 +16,10 @@
 *	
 *
 */
+#include "VERSION.cpp"
+#ifdef GAME_RELEASE
+	#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+#endif
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #define GLM_FORCE_RADIANS
@@ -210,10 +214,13 @@ namespace game {
 
 			logger.log(START_STOP_LOG, "Stopping application...");
 
+#ifdef GAME_DEVELOPMENT
+			logger.showConsoleWindow();
+
 			std::cout << "\n\nPress any key to exit...";
 
 			_getch();
-
+#endif
 			return EXIT_SUCCESS;
 		
 		} 

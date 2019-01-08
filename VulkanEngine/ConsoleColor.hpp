@@ -1,4 +1,5 @@
 #pragma once
+#include "VERSION.cpp"
 #include <iostream>
 #include <windows.h>
 
