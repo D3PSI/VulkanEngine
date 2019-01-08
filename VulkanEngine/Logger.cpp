@@ -3,6 +3,7 @@
 *
 *
 */
+#include <Windows.h>
 #include "Logger.hpp"
 #include "ConsoleColor.hpp"
 
@@ -166,13 +167,48 @@ void Logger::log(LogNr logNr_, std::string text_) {
 	}
 
 	if (logNr_ == ERROR_LOG) {
-
+#ifdef GAME_DEVELOPMENT
+		showConsoleWindow();
 		std::cout << "\n\nPress any key to exit...";
 		_getch();
+#endif
 
 		throw std::runtime_error(text_);
 	
 	}
+
+}
+
+/*
+*	Function:		void showConsoleWindow()
+*	Purpose:		Shows the console window
+*
+*/
+void Logger::showConsoleWindow(void) {
+
+	::ShowWindow(::GetConsoleWindow(), SW_SHOW);
+
+}
+
+/*
+*	Function:		void hideConsoleWindow();
+*	Purpose:		Hides the console window
+*
+*/
+void Logger::hideConsoleWindow(void) {
+
+	::ShowWindow(::GetConsoleWindow(), SW_HIDE);
+
+}
+
+/*
+*	Function:		bool isConsoleWindowVisible()
+*	Purpose:		Checks whether the console window is visible
+*
+*/
+bool Logger::isConsoleWindowVisible(void) {
+
+	return (::IsWindowVisible(::GetConsoleWindow()) != false);
 
 }
 

@@ -82,6 +82,8 @@
     <Link>
       <AdditionalLibraryDirectories>C:\VulkanSDK\1.1.85.0\Lib32;$(SolutionDir)\..\External Resources\glfw\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>
+      </SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -108,6 +110,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>C:\VulkanSDK\1.1.85.0\Lib32;$(SolutionDir)\..\External Resources\glfw\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>
+      </SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,6 +137,7 @@
     <ClCompile Include="QueueFamilyIndices.cpp" />
     <ClCompile Include="SwapChainSupportDetails.cpp" />
     <ClCompile Include="UniformBufferObject.cpp" />
+    <ClCompile Include="VERSION.cpp" />
     <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>

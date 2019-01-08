@@ -1,4 +1,5 @@
 #pragma once
+#include "VERSION.cpp"
 #include <glm/glm.hpp>
 struct UniformBufferObject {
 

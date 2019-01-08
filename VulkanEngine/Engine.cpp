@@ -36,6 +36,7 @@ void Engine::run() {
 */
 void Engine::initWindow() {
 	
+	logger.hideConsoleWindow();
 	monitor = glfwGetPrimaryMonitor();
 
 	glfwInit();
@@ -2563,7 +2564,7 @@ void Engine::createTextureImage(void) {
 
 	if (!pixels) {
 	
-		logger.log(ERROR_LOG, "Failed to load texture image!");
+		logger.log(ERROR_LOG, "Failed to load texture image at path " + TEXTURE_PATH + "!");
 	
 	}
 
@@ -3326,6 +3327,8 @@ void Engine::keyboardInputCallback(
 
 ) {
 
+	static unsigned int consoleCount = 0;
+
 	if (action_ == GLFW_PRESS) {
 
 		switch (key_) {
@@ -3343,11 +3346,26 @@ void Engine::keyboardInputCallback(
 
 				);
 				break;
+#ifdef GAME_DEVELOPMENT
+			case GLFW_KEY_C:
+				if (consoleCount == 0) {
+				
+					logger.showConsoleWindow();
+					consoleCount++;
+				
+				}
+				else if (consoleCount == 1) {
+				
+					logger.hideConsoleWindow();
+					consoleCount = 0;
+				
+				}
+				break;
+#endif
 			default:
 				break;
 
 		}
-
 	
 	}
 	else if (action_ == GLFW_RELEASE) {
@@ -3706,19 +3724,18 @@ void Engine::queryKeyboardGLFW(void) {
 	}
 	if (glfwGetKey(game::pWindow, GLFW_KEY_S) == GLFW_PRESS) {
 
-		game::camera.processKeyboard(BACKWARD, static_cast<float>(game::DELTATIME));
+		game::camera.processKeyboard(BACKWARD, static_cast< float >(game::DELTATIME));
 
 	}
 	if (glfwGetKey(game::pWindow, GLFW_KEY_A) == GLFW_PRESS) {
 
-		game::camera.processKeyboard(LEFT, static_cast<float>(game::DELTATIME));
+		game::camera.processKeyboard(LEFT, static_cast< float >(game::DELTATIME));
 
 	}
 	if (glfwGetKey(game::pWindow, GLFW_KEY_D) == GLFW_PRESS) {
 
-		game::camera.processKeyboard(RIGHT, static_cast<float>(game::DELTATIME));
+		game::camera.processKeyboard(RIGHT, static_cast< float >(game::DELTATIME));
 
 	}
-
 
 }
