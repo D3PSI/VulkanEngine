@@ -58,7 +58,7 @@ void Logger::log(LogNr logNr_, std::string text_) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< red << "CRITICAL:"
+				<< red << "CRITICAL: "
 				<< blue << text_ << white << std::endl;
 
 			stream.close();
@@ -69,7 +69,7 @@ void Logger::log(LogNr logNr_, std::string text_) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< red << "CRITICAL:"
+				<< red << "CRITICAL: "
 				<< blue << text_ << white << std::endl;
 
 
@@ -84,7 +84,7 @@ void Logger::log(LogNr logNr_, std::string text_) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< red << "CRITICAL:"
+				<< red << "CRITICAL: "
 				<< blue << text_ << white << std::endl;
 
 			std::cerr << green << Day << white << ":"
@@ -93,7 +93,7 @@ void Logger::log(LogNr logNr_, std::string text_) {
 				<< green << Hour << white << ":"
 				<< green << Min << white << ":"
 				<< green << Sec << white << "		===		"
-				<< red << "CRITICAL:"
+				<< red << "CRITICAL: "
 				<< blue << text_ << white << std::endl;
 
 			stream.close();
