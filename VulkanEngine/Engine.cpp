@@ -36,6 +36,11 @@ void Engine::run() {
 */
 void Engine::initWindow() {
 	
+	splash1 = CSplash(TEXT(".\\about.bmp"), RGB(128, 128, 128));
+
+	//  Display the splash
+	splash1.ShowSplash();
+
 	logger.hideConsoleWindow();
 	monitor = glfwGetPrimaryMonitor();
 
@@ -103,7 +108,7 @@ void Engine::initVulkan() {
 	numThreads = getNumThreads();
 
 	logger.log(EVENT_LOG, "Starting thread...");
-	std::thread t([=] {
+	std::thread t0([=] {
 	
 		createCamera();
 	
@@ -158,8 +163,11 @@ void Engine::initVulkan() {
 	});
 	t3.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
-	t.join();
+	t0.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
+
+	// Close the splash screen
+	splash1.CloseSplash();
 
 }
 

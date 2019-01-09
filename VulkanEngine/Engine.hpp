@@ -5,6 +5,8 @@
 */
 #pragma once
 #include "VERSION.cpp"
+#define NOMINMAX
+#include "Splash.h"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #define GLM_FORCE_RADIANS
@@ -147,6 +149,7 @@ private:
 	VkImageView									colorImageView;
 	const float									maxFPS							= 60.0f;
 	const float									maxPeriod						= 1.0f / maxFPS;
+	CSplash										splash1;
 
 	void initWindow(void);
 	void initVulkan(void);

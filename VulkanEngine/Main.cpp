@@ -17,6 +17,7 @@
 *
 */
 #include "VERSION.cpp"
+#define NOMINMAX
 #ifdef GAME_RELEASE
 	#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #endif
@@ -42,6 +43,7 @@
 
 #include "Logger.hpp"
 #include "Engine.hpp"
+#include "splash.h"
 
 /*
 *	Global variables
