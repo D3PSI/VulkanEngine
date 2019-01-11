@@ -6,9 +6,10 @@
 #pragma once
 #include "VERSION.cpp"
 #define NOMINMAX
-#include "Splash.h"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <SDL.h>
+#undef main
 #define GLM_FORCE_RADIANS
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -149,8 +150,13 @@ private:
 	VkImageView									colorImageView;
 	const float									maxFPS							= 60.0f;
 	const float									maxPeriod						= 1.0f / maxFPS;
-	CSplash										splash1;
+	SDL_Window*									startWindow;
+	SDL_Surface*								imageSurface					= nullptr;
+	SDL_Surface*								windowSurface					= nullptr;
+	bool										alreadyDestroyedStartWindow		= false;;
 
+	void initStartWindow(void);
+	void stopStartWindow(void);
 	void initWindow(void);
 	void initVulkan(void);
 	void createInstance(void);

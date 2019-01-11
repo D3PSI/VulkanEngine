@@ -43,7 +43,6 @@
 
 #include "Logger.hpp"
 #include "Engine.hpp"
-#include "splash.h"
 
 /*
 *	Global variables
