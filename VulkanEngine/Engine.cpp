@@ -16,6 +16,7 @@
 void Engine::run() {
 
 	initStartWindow();
+	std::this_thread::sleep_for(std::chrono::seconds(5));
 	logger.log(EVENT_LOG, "Initializing GLFW-window...");
 	initWindow();
 	logger.log(EVENT_LOG, "Successfully initialized GLFW-window!");
@@ -45,14 +46,14 @@ void Engine::initStartWindow(void) {
 	}
 
 	startWindow = SDL_CreateWindow(
-		
-		TITLE.c_str(), 
+
+		TITLE.c_str(),
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
-		320, 
-		240,
+		600,
+		600,
 		SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS
-	
+
 	);
 	windowSurface = SDL_GetWindowSurface(startWindow);
 
@@ -62,43 +63,16 @@ void Engine::initStartWindow(void) {
 
 	}
 
-	SDL_Event windowEvent;
-
-	imageSurface = SDL_LoadBMP("res/textures/startwindow/hello_world.bmp");
+	imageSurface = SDL_LoadBMP("res/textures/startwindow/infinity.bmp");
 	if (imageSurface == NULL) {
 
 		std::cout << "SDL could not load image! SDL Error: " << SDL_GetError() << std::endl;
 
 	}
 
-	while (true) {
-
-		if (SDL_PollEvent(&windowEvent)) {
-
-			if (windowEvent.type == SDL_QUIT) {
-
-				break;
-
-			}
-
-		}
-
-		SDL_BlitSurface(
-			
-			imageSurface, 
-			NULL,
-			windowSurface,
-			NULL
-		
-		);
-
-		//Update the surface
-		SDL_UpdateWindowSurface(startWindow);
-
-	}
-
-	stopStartWindow();
-	alreadyDestroyedStartWindow = true;
+	SDL_BlitSurface(imageSurface, NULL, windowSurface, NULL);
+	
+	SDL_UpdateWindowSurface(startWindow);
 
 }
 
@@ -143,13 +117,13 @@ void Engine::initWindow() {
 	glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-	/*const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+	monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	/*glfwWindowHint(GLFW_RED_BITS, mode->redBits);
 	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
 	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
 	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 	
-	monitor = glfwGetPrimaryMonitor();
 
 	// Create a fullscreen window
 	window = glfwCreateWindow(
@@ -168,8 +142,16 @@ void Engine::initWindow() {
 		WIDTH,
 		HEIGHT,
 		TITLE.c_str(),
-		monitor,
+		nullptr,
 		nullptr
+
+	);
+
+	glfwSetWindowPos(
+		
+		window,
+		mode->width / 2 - WIDTH / 2,
+		mode->height / 2 - HEIGHT / 2
 
 	);
 
