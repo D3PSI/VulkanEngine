@@ -15,11 +15,14 @@
 */
 void Engine::run() {
 
+	initStartWindow();
+	std::this_thread::sleep_for(std::chrono::seconds(5));
 	logger.log(EVENT_LOG, "Initializing GLFW-window...");
 	initWindow();
 	logger.log(EVENT_LOG, "Successfully initialized GLFW-window!");
 	logger.log(EVENT_LOG, "Initializing Vulkan...");
 	initVulkan();
+	stopStartWindow();
 	logger.log(EVENT_LOG, "Successfully initialized VULKAN!");
 	logger.log(EVENT_LOG, "Entering main game loop...");
 	mainLoop();	
@@ -29,7 +32,73 @@ void Engine::run() {
 
 }
 
-/*	
+/*
+*	Function:		void initStartWindow()
+*	Purpose:		Creates another GLFW context that will be used as a splash / startup screen
+*	
+*/
+void Engine::initStartWindow(void) {
+
+	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+
+		std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
+
+	}
+
+	startWindow = SDL_CreateWindow(
+
+		TITLE.c_str(),
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		600,
+		600,
+		SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS
+
+	);
+	windowSurface = SDL_GetWindowSurface(startWindow);
+
+	if (startWindow == nullptr) {
+
+		std::cout << "Could not create window: " << SDL_GetError() << std::endl;
+
+	}
+
+	imageSurface = SDL_LoadBMP("res/textures/startwindow/infinity.bmp");
+	if (imageSurface == NULL) {
+
+		std::cout << "SDL could not load image! SDL Error: " << SDL_GetError() << std::endl;
+
+	}
+
+	SDL_BlitSurface(imageSurface, NULL, windowSurface, NULL);
+	
+	SDL_UpdateWindowSurface(startWindow);
+
+}
+
+/*
+*	Function:		void stopStartWindow()
+*	Purpose:		Cleans resources from start window
+*
+*/
+void Engine::stopStartWindow() {
+
+	if (!alreadyDestroyedStartWindow) {
+
+		SDL_FreeSurface(imageSurface);
+		SDL_FreeSurface(windowSurface);
+
+		imageSurface = nullptr;
+		windowSurface = nullptr;
+
+		SDL_DestroyWindow(startWindow);
+		SDL_Quit();
+
+	}
+
+}
+
+/*
 *	Function:		void initWindow()
 *	Purpose:		Initializes GLFW and its window_
 *
@@ -37,22 +106,72 @@ void Engine::run() {
 void Engine::initWindow() {
 	
 	logger.hideConsoleWindow();
-	monitor = glfwGetPrimaryMonitor();
 
 	glfwInit();
+	
+
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); 
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
 	glfwWindowHint(GLFW_CURSOR_HIDDEN, GLFW_TRUE);
+	glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+
+	monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+	// Create a fullscreen window
+	// !!! IMPORTANT !!!
+	// TEARING ISSUES
+	/*glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+	
 
 	window = glfwCreateWindow(
 		
-		WIDTH,
-		HEIGHT,
-		TITLE.c_str(), 
-		monitor, 
+		mode->width,
+		mode->height, 
+		TITLE.c_str(),
+		monitor,
 		nullptr
 	
+	);*/
+
+	// Create a windowed window
+	/*window = glfwCreateWindow(
+
+		WIDTH,
+		HEIGHT,
+		TITLE.c_str(),
+		nullptr,
+		nullptr
+
 	);
+
+	glfwSetWindowPos(
+
+		window,
+		mode->width / 2 - WIDTH / 2,
+		mode->height / 2 - HEIGHT / 2
+
+	);*/
+
+	// Create a borderless fullscreen window 
+	// !!! IMPORTANT !!!
+	// TEARING ISSUES
+	window = glfwCreateWindow(
+
+		mode->width,
+		mode->height,
+		TITLE.c_str(),
+		monitor,
+		nullptr
+
+	);
+
+	glfwMakeContextCurrent(window);
 
 	game::pWindow = window;
 
@@ -103,7 +222,7 @@ void Engine::initVulkan() {
 	numThreads = getNumThreads();
 
 	logger.log(EVENT_LOG, "Starting thread...");
-	std::thread t([=] {
+	std::thread t0([=] {
 	
 		createCamera();
 	
@@ -158,8 +277,11 @@ void Engine::initVulkan() {
 	});
 	t3.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
-	t.join();
+	t0.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
+
+	glfwShowWindow(window); 
+	glfwFocusWindow(window);
 
 }
 
@@ -787,7 +909,7 @@ void Engine::createSurface() {
 			nullptr,
 			&surface
 	
-		) != VK_SUCCESS) {
+	) != VK_SUCCESS) {
 
 		logger.log(ERROR_LOG, "Failed to create window surface!");
 	
