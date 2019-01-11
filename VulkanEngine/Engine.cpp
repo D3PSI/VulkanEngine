@@ -119,13 +119,16 @@ void Engine::initWindow() {
 
 	monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+	// Create a fullscreen window
+	// !!! IMPORTANT !!!
+	// TEARING ISSUES
 	/*glfwWindowHint(GLFW_RED_BITS, mode->redBits);
 	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
 	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
 	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 	
 
-	// Create a fullscreen window
 	window = glfwCreateWindow(
 		
 		mode->width,
@@ -137,7 +140,7 @@ void Engine::initWindow() {
 	);*/
 
 	// Create a windowed window
-	window = glfwCreateWindow(
+	/*window = glfwCreateWindow(
 
 		WIDTH,
 		HEIGHT,
@@ -148,10 +151,23 @@ void Engine::initWindow() {
 	);
 
 	glfwSetWindowPos(
-		
+
 		window,
 		mode->width / 2 - WIDTH / 2,
 		mode->height / 2 - HEIGHT / 2
+
+	);*/
+
+	// Create a borderless fullscreen window 
+	// !!! IMPORTANT !!!
+	// TEARING ISSUES
+	window = glfwCreateWindow(
+
+		mode->width,
+		mode->height,
+		TITLE.c_str(),
+		monitor,
+		nullptr
 
 	);
 
