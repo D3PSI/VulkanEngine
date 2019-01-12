@@ -153,8 +153,6 @@ private:
 	SDL_Window*									startWindow;
 	SDL_Surface*								imageSurface					= nullptr;
 	SDL_Surface*								windowSurface					= nullptr;
-	bool										alreadyDestroyedStartWindow		= false;
-	bool										alreadyInitialized				= false;
 
 	void initStartWindow(void);
 	void stopStartWindow(void);

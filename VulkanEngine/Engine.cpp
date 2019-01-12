@@ -15,14 +15,11 @@
 */
 void Engine::run() {
 
-	initStartWindow();
-	std::this_thread::sleep_for(std::chrono::seconds(5));
 	logger.log(EVENT_LOG, "Initializing GLFW-window...");
 	initWindow();
 	logger.log(EVENT_LOG, "Successfully initialized GLFW-window!");
 	logger.log(EVENT_LOG, "Initializing Vulkan...");
 	initVulkan();
-	stopStartWindow();
 	logger.log(EVENT_LOG, "Successfully initialized VULKAN!");
 	logger.log(EVENT_LOG, "Entering main game loop...");
 	mainLoop();	
@@ -83,18 +80,14 @@ void Engine::initStartWindow(void) {
 */
 void Engine::stopStartWindow() {
 
-	if (!alreadyDestroyedStartWindow) {
+	SDL_FreeSurface(imageSurface);
+	SDL_FreeSurface(windowSurface);
 
-		SDL_FreeSurface(imageSurface);
-		SDL_FreeSurface(windowSurface);
+	imageSurface = nullptr;
+	windowSurface = nullptr;
 
-		imageSurface = nullptr;
-		windowSurface = nullptr;
-
-		SDL_DestroyWindow(startWindow);
-		SDL_Quit();
-
-	}
+	SDL_DestroyWindow(startWindow);
+	SDL_Quit();
 
 }
 
@@ -105,6 +98,9 @@ void Engine::stopStartWindow() {
 */
 void Engine::initWindow() {
 	
+	initStartWindow();
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+
 	logger.hideConsoleWindow();
 
 	glfwInit();
@@ -140,7 +136,7 @@ void Engine::initWindow() {
 	);*/
 
 	// Create a windowed window
-	/*window = glfwCreateWindow(
+	window = glfwCreateWindow(
 
 		WIDTH,
 		HEIGHT,
@@ -156,12 +152,12 @@ void Engine::initWindow() {
 		mode->width / 2 - WIDTH / 2,
 		mode->height / 2 - HEIGHT / 2
 
-	);*/
+	);
 
 	// Create a borderless fullscreen window 
 	// !!! IMPORTANT !!!
 	// TEARING ISSUES
-	window = glfwCreateWindow(
+	/*window = glfwCreateWindow(
 
 		mode->width,
 		mode->height,
@@ -169,7 +165,7 @@ void Engine::initWindow() {
 		monitor,
 		nullptr
 
-	);
+	);*/
 
 	glfwMakeContextCurrent(window);
 
@@ -282,6 +278,8 @@ void Engine::initVulkan() {
 
 	glfwShowWindow(window); 
 	glfwFocusWindow(window);
+
+	stopStartWindow();
 
 }
 
