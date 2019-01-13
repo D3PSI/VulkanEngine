@@ -1211,39 +1211,39 @@ void Engine::createSwapChain(void) {
 	
 	}
 
-	VkSwapchainCreateInfoKHR createInfo	= {};
-	createInfo.sType					= VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	createInfo.surface					= surface;
-	createInfo.minImageCount			= imageCount;
-	createInfo.imageFormat				= surfaceFormat.format;
-	createInfo.imageColorSpace			= surfaceFormat.colorSpace;
-	createInfo.imageExtent				= extent;
-	createInfo.imageArrayLayers			= 1;
-	createInfo.imageUsage				= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	VkSwapchainCreateInfoKHR createInfo			= {};
+	createInfo.sType							= VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	createInfo.surface							= surface;
+	createInfo.minImageCount					= imageCount;
+	createInfo.imageFormat						= surfaceFormat.format;
+	createInfo.imageColorSpace					= surfaceFormat.colorSpace;
+	createInfo.imageExtent						= extent;
+	createInfo.imageArrayLayers					= 1;
+	createInfo.imageUsage						= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	QueueFamilyIndices indices			= findQueueFamilies(physicalDevice);
-	uint32_t queueFamilyIndices[]		= {indices.graphicsFamily.value(), indices.presentFamily.value()};
+	QueueFamilyIndices indices					= findQueueFamilies(physicalDevice);
+	uint32_t queueFamilyIndices[]				= {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
 	if (indices.graphicsFamily != indices.presentFamily) {
 	
-		createInfo.imageSharingMode			= VK_SHARING_MODE_CONCURRENT;
-		createInfo.queueFamilyIndexCount	= 2;
-		createInfo.pQueueFamilyIndices		= queueFamilyIndices;
+		createInfo.imageSharingMode				= VK_SHARING_MODE_CONCURRENT;
+		createInfo.queueFamilyIndexCount		= 2;
+		createInfo.pQueueFamilyIndices			= queueFamilyIndices;
 
 	}
 	else {
 	
-		createInfo.imageSharingMode			= VK_SHARING_MODE_EXCLUSIVE;
-		createInfo.queueFamilyIndexCount	= 0;
-		createInfo.pQueueFamilyIndices		= nullptr;
+		createInfo.imageSharingMode				= VK_SHARING_MODE_EXCLUSIVE;
+		createInfo.queueFamilyIndexCount		= 0;
+		createInfo.pQueueFamilyIndices			= nullptr;
 	
 	}
 
-	createInfo.preTransform			= swapChainSupport.capabilities.currentTransform;
-	createInfo.compositeAlpha		= VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	createInfo.presentMode			= presentMode;
-	createInfo.clipped				= VK_TRUE;
-	createInfo.oldSwapchain			= VK_NULL_HANDLE;
+	createInfo.preTransform						= swapChainSupport.capabilities.currentTransform;
+	createInfo.compositeAlpha					= VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	createInfo.presentMode						= presentMode;
+	createInfo.clipped							= VK_TRUE;
+	createInfo.oldSwapchain						= VK_NULL_HANDLE;
 
 	if (vkCreateSwapchainKHR(
 			
@@ -1312,12 +1312,12 @@ void Engine::createImageViews(void) {
 *	Purpose:		Creates a shader module from a given byte array of SPIR-V compiled GLSL-shading code_
 *
 */
-VkShaderModule Engine::createShaderModule(const std::vector<char>& code_) {
+VkShaderModule Engine::createShaderModule(const std::vector< char >& code_) {
 
-	VkShaderModuleCreateInfo createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	createInfo.codeSize = code_.size();
-	createInfo.pCode = reinterpret_cast<const uint32_t*>(code_.data());
+	VkShaderModuleCreateInfo createInfo			= {};
+	createInfo.sType							= VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize							= code_.size();
+	createInfo.pCode							= reinterpret_cast<const uint32_t*>(code_.data());
 	VkShaderModule shaderModule;
 	if (vkCreateShaderModule(
 	
