@@ -126,9 +126,9 @@ void StartWindow::loop() {
 		SDL_SetRenderDrawColor(
 		
 			renderer,
-			23,
-			166,
-			255,
+			150,
+			82,
+			104,
 			SDL_ALPHA_OPAQUE
 
 		);

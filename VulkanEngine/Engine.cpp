@@ -74,10 +74,15 @@ void Engine::initWindow() {
 	monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
+#if !defined GAME_WINDOW_MODE_WINDOWED && !defined GAME_WINDOW_MODE_FULLSCREEN && !defined GAME_WINDOW_MODE_BORDERLESS
+#define GAME_WINDOW_MODE_UNDEFINED
+#endif
+
 	// Create a fullscreen window
 	// !!! IMPORTANT !!!
 	// TEARING ISSUES
-	/*glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+#ifdef GAME_WINDOW_MODE_FULLSCREEN
+	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
 	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
 	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
 	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
@@ -91,8 +96,9 @@ void Engine::initWindow() {
 		monitor,
 		nullptr
 	
-	);*/
-
+	);
+#endif
+#if defined GAME_WINDOW_MODE_WINDOWED || defined GAME_WINDOW_MODE_UNDEFINED
 	// Create a windowed window
 	window = glfwCreateWindow(
 
@@ -111,11 +117,12 @@ void Engine::initWindow() {
 		mode->height / 2 - HEIGHT / 2
 
 	);
-
+#endif
+#ifdef GAME_WINDOW_MODE_BORDERLESS
 	// Create a borderless fullscreen window 
 	// !!! IMPORTANT !!!
 	// TEARING ISSUES
-	/*window = glfwCreateWindow(
+	window = glfwCreateWindow(
 
 		mode->width,
 		mode->height,
@@ -123,7 +130,8 @@ void Engine::initWindow() {
 		monitor,
 		nullptr
 
-	);*/
+	);
+#endif
 
 	glfwMakeContextCurrent(window);
 
@@ -210,7 +218,7 @@ void Engine::initVulkan() {
 
 	});
 	game::loadingProgress += 0.1f;
-	std::this_thread::sleep_for(std::chrono::seconds(5));		// JUST TO SHOW LOADING SCREEN A LITTLE BIT LONGER!!!
+	//std::this_thread::sleep_for(std::chrono::seconds(5));		// JUST TO SHOW LOADING SCREEN A LITTLE BIT LONGER!!!
 
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t2([=] {
