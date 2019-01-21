@@ -36,58 +36,16 @@ void Engine::run() {
 */
 void Engine::initStartWindow(void) {
 
-	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+	startWindow = new StartWindow();
 
-		std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
+	logger.log(EVENT_LOG, "Starting thread...");
+	std::thread t0([=] () {
 
-	}
+		startWindow->loop();
+		logger.log(EVENT_LOG, "Stopping thread...");
 
-	startWindow = SDL_CreateWindow(
-
-		TITLE.c_str(),
-		SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED,
-		600,
-		600,
-		SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS
-
-	);
-	windowSurface = SDL_GetWindowSurface(startWindow);
-
-	if (startWindow == nullptr) {
-
-		std::cout << "Could not create window: " << SDL_GetError() << std::endl;
-
-	}
-
-	imageSurface = SDL_LoadBMP("res/textures/startwindow/infinity.bmp");
-	if (imageSurface == NULL) {
-
-		std::cout << "SDL could not load image! SDL Error: " << SDL_GetError() << std::endl;
-
-	}
-
-	SDL_BlitSurface(imageSurface, NULL, windowSurface, NULL);
-	
-	SDL_UpdateWindowSurface(startWindow);
-
-}
-
-/*
-*	Function:		void stopStartWindow()
-*	Purpose:		Cleans resources from start window
-*
-*/
-void Engine::stopStartWindow() {
-
-	SDL_FreeSurface(imageSurface);
-	SDL_FreeSurface(windowSurface);
-
-	imageSurface = nullptr;
-	windowSurface = nullptr;
-
-	SDL_DestroyWindow(startWindow);
-	SDL_Quit();
+	});
+	t0.detach();
 
 }
 
@@ -104,7 +62,6 @@ void Engine::initWindow() {
 	logger.hideConsoleWindow();
 
 	glfwInit();
-	
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -129,7 +86,7 @@ void Engine::initWindow() {
 		
 		mode->width,
 		mode->height, 
-		TITLE.c_str(),
+		game::TITLE.c_str(),
 		monitor,
 		nullptr
 	
@@ -140,7 +97,7 @@ void Engine::initWindow() {
 
 		WIDTH,
 		HEIGHT,
-		TITLE.c_str(),
+		game::TITLE.c_str(),
 		nullptr,
 		nullptr
 
@@ -161,7 +118,7 @@ void Engine::initWindow() {
 
 		mode->width,
 		mode->height,
-		TITLE.c_str(),
+		game::TITLE.c_str(),
 		monitor,
 		nullptr
 
@@ -279,7 +236,11 @@ void Engine::initVulkan() {
 	glfwShowWindow(window); 
 	glfwFocusWindow(window);
 
-	stopStartWindow();
+	game::closeStartWindow.lock();
+	startWindow->closeVar = true;
+	game::closeStartWindow.unlock();
+
+	delete startWindow;
 
 }
 
@@ -299,9 +260,9 @@ void Engine::createInstance() {
 	VkApplicationInfo appInfo		= {};
 	appInfo.sType					= VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pNext					= nullptr;
-	appInfo.pApplicationName		= TITLE.c_str();
+	appInfo.pApplicationName		= game::TITLE.c_str();
 	appInfo.applicationVersion		= VK_MAKE_VERSION(1, 0, 0);
-	appInfo.pEngineName				= TITLE.c_str();
+	appInfo.pEngineName				= game::TITLE.c_str();
 	appInfo.engineVersion			= VK_MAKE_VERSION(1, 0, 0);
 	appInfo.apiVersion				= VK_API_VERSION_1_0;
 
@@ -1317,7 +1278,7 @@ VkShaderModule Engine::createShaderModule(const std::vector< char >& code_) {
 	VkShaderModuleCreateInfo createInfo			= {};
 	createInfo.sType							= VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	createInfo.codeSize							= code_.size();
-	createInfo.pCode							= reinterpret_cast<const uint32_t*>(code_.data());
+	createInfo.pCode							= reinterpret_cast< const uint32_t* >(code_.data());
 	VkShaderModule shaderModule;
 	if (vkCreateShaderModule(
 	
