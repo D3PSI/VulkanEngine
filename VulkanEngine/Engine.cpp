@@ -17,9 +17,11 @@ void Engine::run() {
 
 	logger.log(EVENT_LOG, "Initializing GLFW-window...");
 	initWindow();
+	game::loadingProgress += 0.1f;
 	logger.log(EVENT_LOG, "Successfully initialized GLFW-window!");
 	logger.log(EVENT_LOG, "Initializing Vulkan...");
 	initVulkan();
+	game::loadingProgress += 0.1f;
 	logger.log(EVENT_LOG, "Successfully initialized VULKAN!");
 	logger.log(EVENT_LOG, "Entering main game loop...");
 	mainLoop();	
@@ -57,7 +59,6 @@ void Engine::initStartWindow(void) {
 void Engine::initWindow() {
 	
 	initStartWindow();
-	//std::this_thread::sleep_for(std::chrono::seconds(5));
 
 	logger.hideConsoleWindow();
 
@@ -209,6 +210,7 @@ void Engine::initVulkan() {
 
 	});
 	game::loadingProgress += 0.1f;
+	std::this_thread::sleep_for(std::chrono::seconds(5));		// JUST TO SHOW LOADING SCREEN A LITTLE BIT LONGER!!!
 
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t2([=] {

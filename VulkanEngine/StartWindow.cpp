@@ -7,7 +7,9 @@
 */
 StartWindow::StartWindow() {
 
+	game::closeStartWindow.lock();
 	closeVar = false;
+	game::closeStartWindow.unlock();
 
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 
@@ -110,30 +112,29 @@ void StartWindow::loop() {
 			NULL,
 			NULL
 		
+		); 
+		SDL_SetRenderDrawColor(
+
+			renderer,
+			255,
+			255,
+			255,
+			SDL_ALPHA_OPAQUE
+
 		);
+		SDL_RenderFillRect(renderer, &rect);
 		SDL_SetRenderDrawColor(
 		
 			renderer,
 			23,
 			166,
 			255,
-			1
+			SDL_ALPHA_OPAQUE
 
 		);
 		SDL_RenderDrawRect(renderer, &rect);
 		SDL_RenderFillRect(renderer, &rectProgress);
 		SDL_RenderPresent(renderer);
-
-		/*SDL_BlitSurface(
-			
-			imageSurface,
-			NULL,
-			windowSurface, 
-			NULL
-		
-		);
-
-		SDL_UpdateWindowSurface(window);*/
 	
 	}
 
