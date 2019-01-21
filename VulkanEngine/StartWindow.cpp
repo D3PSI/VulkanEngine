@@ -25,7 +25,14 @@ StartWindow::StartWindow() {
 		SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS
 
 	);
-	windowSurface = SDL_GetWindowSurface(window);
+
+	renderer = SDL_CreateRenderer(
+		
+		window,
+		-1,
+		SDL_RENDERER_ACCELERATED
+	
+	);
 
 	if (window == nullptr) {
 
@@ -40,6 +47,8 @@ StartWindow::StartWindow() {
 
 	}
 
+	background = SDL_CreateTextureFromSurface(renderer, imageSurface);
+
 }
 
 /*
@@ -50,10 +59,10 @@ StartWindow::StartWindow() {
 void StartWindow::destroy() {
 
 	SDL_FreeSurface(imageSurface);
-	SDL_FreeSurface(windowSurface);
+	SDL_DestroyTexture(background);
+	SDL_DestroyRenderer(renderer);
 
 	imageSurface = nullptr;
-	windowSurface = nullptr;
 
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -68,6 +77,11 @@ void StartWindow::destroy() {
 void StartWindow::loop() {
 
 	SDL_Event e;
+	SDL_Rect rect;
+	rect.x = 100;
+	rect.y = 500;
+	rect.w = 400;
+	rect.h = 20;
 
 	while (!closeVar) {
 
@@ -83,7 +97,34 @@ void StartWindow::loop() {
 
 		}
 
-		SDL_BlitSurface(
+		SDL_Rect rectProgress;
+		rectProgress.x = 100;
+		rectProgress.y = 500;
+		rectProgress.w = static_cast< int >(game::loadingProgress * 400);
+		rectProgress.h = 20;
+
+		SDL_RenderCopy(
+			
+			renderer, 
+			background,
+			NULL,
+			NULL
+		
+		);
+		SDL_SetRenderDrawColor(
+		
+			renderer,
+			23,
+			166,
+			255,
+			1
+
+		);
+		SDL_RenderDrawRect(renderer, &rect);
+		SDL_RenderFillRect(renderer, &rectProgress);
+		SDL_RenderPresent(renderer);
+
+		/*SDL_BlitSurface(
 			
 			imageSurface,
 			NULL,
@@ -92,7 +133,7 @@ void StartWindow::loop() {
 		
 		);
 
-		SDL_UpdateWindowSurface(window);
+		SDL_UpdateWindowSurface(window);*/
 	
 	}
 

@@ -57,7 +57,7 @@ void Engine::initStartWindow(void) {
 void Engine::initWindow() {
 	
 	initStartWindow();
-	std::this_thread::sleep_for(std::chrono::seconds(5));
+	//std::this_thread::sleep_for(std::chrono::seconds(5));
 
 	logger.hideConsoleWindow();
 
@@ -126,6 +126,8 @@ void Engine::initWindow() {
 
 	glfwMakeContextCurrent(window);
 
+	game::loadingProgress += 0.1f;
+
 	game::pWindow = window;
 
 	glfwSetWindowUserPointer(window, this);
@@ -163,6 +165,8 @@ void Engine::initWindow() {
 
 	stbi_image_free(windowIcon[0].pixels);
 
+	game::loadingProgress += 0.1f;
+
 }
 
 /*
@@ -180,6 +184,7 @@ void Engine::initVulkan() {
 		createCamera();
 	
 	});
+	game::loadingProgress += 0.1f;
 
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t1([=] {
@@ -203,6 +208,7 @@ void Engine::initVulkan() {
 		createTextureSampler(); 
 
 	});
+	game::loadingProgress += 0.1f;
 
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t2([=] {
@@ -210,11 +216,13 @@ void Engine::initVulkan() {
 		loadModel();
 
 	});
+	game::loadingProgress += 0.1f;
 	
 	t1.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
 	t2.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
+	game::loadingProgress += 0.1f;
 
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t3([=] {
@@ -228,10 +236,13 @@ void Engine::initVulkan() {
 		createSyncObjects();
 
 	});
+	game::loadingProgress += 0.1f;
 	t3.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
+	game::loadingProgress += 0.1f;
 	t0.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
+	game::loadingProgress = 1.0f;
 
 	glfwShowWindow(window); 
 	glfwFocusWindow(window);

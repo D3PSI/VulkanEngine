@@ -13,6 +13,7 @@ namespace game {
 
 	extern std::mutex									closeStartWindow;
 	extern const std::string							TITLE;
+	extern float										loadingProgress;
 
 }
 
@@ -24,8 +25,10 @@ public:
 	StartWindow();
 private:
 	SDL_Window*				window;
-	SDL_Surface*			windowSurface;
 	SDL_Surface*			imageSurface;
+	SDL_Texture*			background;
+	SDL_Renderer*			renderer;
+
 	void destroy();
 };
 

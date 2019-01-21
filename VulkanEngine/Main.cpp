@@ -100,6 +100,7 @@ namespace game {
 	double												DELTATIME;
 	GLFWwindow*											pWindow;
 	const unsigned int									MAX_FRAMES_IN_FLIGHT				= 2;
+	float												loadingProgress						= 0.0f;
 
 	/*
 	*	Function:		VkResult game::CreateDebugUtilsMessengerEXT(
