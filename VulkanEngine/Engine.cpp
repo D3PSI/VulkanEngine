@@ -382,10 +382,28 @@ void Engine::mainLoop() {
 
 	std::thread t0([=]() {
 
-		audioEngine->play2D("res/sounds/bgmusic.wav", true);
+		bgmusic = audioEngine->play3D(
+			
+			"res/sounds/bgmusic.wav",
+			irrklang::vec3df(0, 0, 0),
+			true, 
+			false, 
+			true
+		
+		);
+
+		if (bgmusic) {
+		
+			bgmusic->setMinDistance(5.0f);
+			bgmusic->setMaxDistance(50.0f);
+		
+		}
 
 	});
 	t0.detach();
+
+	float posOnCircle		= 0;
+	const float radius		= 5;
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -420,6 +438,16 @@ void Engine::mainLoop() {
 
 			}
 
+			posOnCircle += 0.04f;
+			irrklang::vec3df pos3d(radius * cosf(posOnCircle),
+				0, radius * sinf(posOnCircle * 0.5f));
+
+			audioEngine->setListenerPosition(irrklang::vec3df(0, 0, 0),
+				irrklang::vec3df(0, 0, 1));
+
+			if (bgmusic)
+				bgmusic->setPosition(pos3d);
+
 			glfwPollEvents();
 			queryKeyboardGLFW();
 			renderFrame();
@@ -439,6 +467,8 @@ void Engine::mainLoop() {
 */
 void Engine::cleanup() {
 
+	//effect->drop();
+	bgmusic->drop();
 	audioEngine->drop();
 
 	cleanupSwapChain();
