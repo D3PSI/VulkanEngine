@@ -91,7 +91,7 @@ namespace game {
 	*
 	*/
 	std::mutex											closeStartWindow;
-	const std::string									TITLE								= "VULKAN by D3PSI";
+	const std::string									TITLE								= "VULKAN by D3PSI\0";
 	Engine												engine;
 	Camera												camera;
 	bool												firstMouse							= true;

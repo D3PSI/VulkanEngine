@@ -405,6 +405,8 @@ void Engine::mainLoop() {
 				std::string frametime		= "Average Frametime (last " + std::to_string(seconds) + " seconds):	%f ms\t";
 				std::string maxFPS			= "Max FPS:	%f\n";
 
+				audioEngine->play2D("res/sounds/test.wav");
+
 				printf(fps.c_str(), double(nbFrames / seconds));
 				printf(frametime.c_str(), double((1000.0 * seconds) / nbFrames));
 				printf(maxFPS.c_str(), double(maxfps / seconds));
@@ -3847,61 +3849,16 @@ void Engine::queryKeyboardGLFW(void) {
 
 /*
 *	Function:		void init3DAudio()
-*	Purpose:		Initializes the 3D audio library (OpenAL)
+*	Purpose:		Initializes the 3D audio library (irrKlang)
 *
 */
 void Engine::init3DAudio(void) {
 
-	audioDevice = alcOpenDevice(NULL);
-	if (!audioDevice) {
+	audioEngine = irrklang::createIrrKlangDevice();
+	if (!audioEngine) {
 	
-		logger.log(ERROR_LOG, "Failed to open an audio device handle!");
-	
-	}
-
-	ALboolean enumeration;
-
-	enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
-	if (enumeration == AL_FALSE) {
-
-		logger.log(ERROR_LOG, "Enumeration not supported!");
+		logger.log(ERROR_LOG, "Failed to find audio device!");
 	
 	}
-	else {
-	
-		list_audio_devices(alcGetString(NULL, ALC_DEVICE_SPECIFIER));
-	
-	}
-
-	context = alcCreateContext(audioDevice, NULL);
-	if (!alcMakeContextCurrent(context)) {
-	
-		logger.log(ERROR_LOG, "Failed to create audio context!");
-	
-	}
-
-}
-
-/*
-*	Function:		void list_audio_devices(const ALCchar* devices)
-*	Purpose:		Enumerates all available audio devices
-*
-*/
-void Engine::list_audio_devices(const ALCchar* devices) {
-
-	const ALCchar* device = devices, *next = devices + 1;
-	size_t len = 0;
-
-	fprintf(stdout, "Devices list:\n");
-	fprintf(stdout, "----------\n");
-	while (device && *device != '\0' && next && *next != '\0') {
-
-		fprintf(stdout, "%s\n", device);
-		len = strlen(device);
-		device += (len + 1);
-		next += (len + 2);
-	
-	}
-	fprintf(stdout, "----------\n");
 
 }
