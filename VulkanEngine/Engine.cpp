@@ -156,7 +156,7 @@ void Engine::initWindow() {
 	GLFWimage windowIcon[1];
 	windowIcon[0].pixels = stbi_load(
 		
-		"res/icon/icon.png",
+		"res/icon/infinity.jpg",
 		&windowIcon[0].width,
 		&windowIcon[0].height,
 		0,

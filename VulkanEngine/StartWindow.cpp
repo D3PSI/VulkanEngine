@@ -51,6 +51,8 @@ StartWindow::StartWindow() {
 
 	background = SDL_CreateTextureFromSurface(renderer, imageSurface);
 
+	SDL_SetWindowIcon(window, imageSurface);
+
 }
 
 /*
