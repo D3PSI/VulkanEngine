@@ -394,16 +394,13 @@ void Engine::mainLoop() {
 
 		if (bgmusic) {
 		
-			bgmusic->setMinDistance(5.0f);
-			bgmusic->setMaxDistance(50.0f);
+			bgmusic->setMinDistance(1.0f);
+			bgmusic->setVolume(1.0f);
 		
 		}
 
 	});
 	t0.detach();
-
-	float posOnCircle		= 0;
-	const float radius		= 5;
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -438,15 +435,24 @@ void Engine::mainLoop() {
 
 			}
 
-			posOnCircle += 0.04f;
-			irrklang::vec3df pos3d(radius * cosf(posOnCircle),
-				0, radius * sinf(posOnCircle * 0.5f));
-
-			audioEngine->setListenerPosition(irrklang::vec3df(0, 0, 0),
-				irrklang::vec3df(0, 0, 1));
-
-			if (bgmusic)
-				bgmusic->setPosition(pos3d);
+			audioEngine->setListenerPosition(
+				
+				irrklang::vec3df(
+					
+					game::camera.position.x, 
+					game::camera.position.y, 
+					game::camera.position.z
+				
+				),
+				irrklang::vec3df(
+					
+					-game::camera.front.x,
+					-game::camera.front.y,
+					-game::camera.front.z
+				
+				)
+			
+			);
 
 			glfwPollEvents();
 			queryKeyboardGLFW();
