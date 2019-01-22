@@ -380,6 +380,13 @@ void Engine::mainLoop() {
 	float nbFrames		= 0;
 	float maxfps		= 0;
 
+	std::thread t0([=]() {
+
+		audioEngine->play2D("res/sounds/bgmusic.wav", true);
+
+	});
+	t0.detach();
+
 	while (!glfwWindowShouldClose(window)) {
 
 		double currentTime		= glfwGetTime();
@@ -404,8 +411,6 @@ void Engine::mainLoop() {
 				std::string fps				= "Average FPS (last " + std::to_string(seconds) + " seconds):	%f\t";
 				std::string frametime		= "Average Frametime (last " + std::to_string(seconds) + " seconds):	%f ms\t";
 				std::string maxFPS			= "Max FPS:	%f\n";
-
-				audioEngine->play2D("res/sounds/test.wav");
 
 				printf(fps.c_str(), double(nbFrames / seconds));
 				printf(frametime.c_str(), double((1000.0 * seconds) / nbFrames));
@@ -433,6 +438,8 @@ void Engine::mainLoop() {
 *
 */
 void Engine::cleanup() {
+
+	audioEngine->drop();
 
 	cleanupSwapChain();
 

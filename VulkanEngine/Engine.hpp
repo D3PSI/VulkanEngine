@@ -157,7 +157,7 @@ private:
 	const float									maxFPS							= 60.0f;
 	const float									maxPeriod						= 1.0f / maxFPS; 
 
-	irrklang::ISoundEngine*								audioEngine;
+	irrklang::ISoundEngine*						audioEngine;
 
 	void initStartWindow(void);
 	void initWindow(void);

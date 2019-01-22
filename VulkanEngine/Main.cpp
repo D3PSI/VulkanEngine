@@ -18,6 +18,9 @@
 */
 #include "VERSION.cpp"
 #define NOMINMAX
+#if !defined GAME_RELEASE || !defined GAME_DEVELOPMENT
+	#define GAME_RELEASE
+#endif
 #ifdef GAME_RELEASE
 	#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #endif
