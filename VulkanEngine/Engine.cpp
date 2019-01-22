@@ -17,9 +17,11 @@ void Engine::run() {
 
 	logger.log(EVENT_LOG, "Initializing GLFW-window...");
 	initWindow();
+	game::loadingProgress += 0.1f;
 	logger.log(EVENT_LOG, "Successfully initialized GLFW-window!");
 	logger.log(EVENT_LOG, "Initializing Vulkan...");
 	initVulkan();
+	game::loadingProgress += 0.1f;
 	logger.log(EVENT_LOG, "Successfully initialized VULKAN!");
 	logger.log(EVENT_LOG, "Entering main game loop...");
 	mainLoop();	
@@ -36,58 +38,16 @@ void Engine::run() {
 */
 void Engine::initStartWindow(void) {
 
-	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+	startWindow = new StartWindow();
 
-		std::cout << "SDL could not initialize! SDL Error: " << SDL_GetError() << std::endl;
+	logger.log(EVENT_LOG, "Starting thread...");
+	std::thread t0([=] () {
 
-	}
+		startWindow->loop();
+		logger.log(EVENT_LOG, "Stopping thread...");
 
-	startWindow = SDL_CreateWindow(
-
-		TITLE.c_str(),
-		SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED,
-		600,
-		600,
-		SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS
-
-	);
-	windowSurface = SDL_GetWindowSurface(startWindow);
-
-	if (startWindow == nullptr) {
-
-		std::cout << "Could not create window: " << SDL_GetError() << std::endl;
-
-	}
-
-	imageSurface = SDL_LoadBMP("res/textures/startwindow/infinity.bmp");
-	if (imageSurface == NULL) {
-
-		std::cout << "SDL could not load image! SDL Error: " << SDL_GetError() << std::endl;
-
-	}
-
-	SDL_BlitSurface(imageSurface, NULL, windowSurface, NULL);
-	
-	SDL_UpdateWindowSurface(startWindow);
-
-}
-
-/*
-*	Function:		void stopStartWindow()
-*	Purpose:		Cleans resources from start window
-*
-*/
-void Engine::stopStartWindow() {
-
-	SDL_FreeSurface(imageSurface);
-	SDL_FreeSurface(windowSurface);
-
-	imageSurface = nullptr;
-	windowSurface = nullptr;
-
-	SDL_DestroyWindow(startWindow);
-	SDL_Quit();
+	});
+	t0.detach();
 
 }
 
@@ -99,27 +59,30 @@ void Engine::stopStartWindow() {
 void Engine::initWindow() {
 	
 	initStartWindow();
-	std::this_thread::sleep_for(std::chrono::seconds(5));
 
 	logger.hideConsoleWindow();
 
 	glfwInit();
-	
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
-	glfwWindowHint(GLFW_CURSOR_HIDDEN, GLFW_TRUE);
+	glfwWindowHint(GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
 	monitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
+#if !defined GAME_WINDOW_MODE_WINDOWED && !defined GAME_WINDOW_MODE_FULLSCREEN && !defined GAME_WINDOW_MODE_BORDERLESS
+#define GAME_WINDOW_MODE_UNDEFINED
+#endif
+
 	// Create a fullscreen window
 	// !!! IMPORTANT !!!
 	// TEARING ISSUES
-	/*glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+#ifdef GAME_WINDOW_MODE_FULLSCREEN
+	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
 	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
 	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
 	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
@@ -129,18 +92,19 @@ void Engine::initWindow() {
 		
 		mode->width,
 		mode->height, 
-		TITLE.c_str(),
+		game::TITLE.c_str(),
 		monitor,
 		nullptr
 	
-	);*/
-
+	);
+#endif
+#if defined GAME_WINDOW_MODE_WINDOWED || defined GAME_WINDOW_MODE_UNDEFINED
 	// Create a windowed window
 	window = glfwCreateWindow(
 
 		WIDTH,
 		HEIGHT,
-		TITLE.c_str(),
+		game::TITLE.c_str(),
 		nullptr,
 		nullptr
 
@@ -153,21 +117,25 @@ void Engine::initWindow() {
 		mode->height / 2 - HEIGHT / 2
 
 	);
-
+#endif
+#ifdef GAME_WINDOW_MODE_BORDERLESS
 	// Create a borderless fullscreen window 
 	// !!! IMPORTANT !!!
 	// TEARING ISSUES
-	/*window = glfwCreateWindow(
+	window = glfwCreateWindow(
 
 		mode->width,
 		mode->height,
-		TITLE.c_str(),
+		game::TITLE.c_str(),
 		monitor,
 		nullptr
 
-	);*/
+	);
+#endif
 
 	glfwMakeContextCurrent(window);
+
+	game::loadingProgress += 0.1f;
 
 	game::pWindow = window;
 
@@ -206,6 +174,8 @@ void Engine::initWindow() {
 
 	stbi_image_free(windowIcon[0].pixels);
 
+	game::loadingProgress += 0.1f;
+
 }
 
 /*
@@ -223,6 +193,7 @@ void Engine::initVulkan() {
 		createCamera();
 	
 	});
+	game::loadingProgress += 0.1f;
 
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t1([=] {
@@ -246,6 +217,8 @@ void Engine::initVulkan() {
 		createTextureSampler(); 
 
 	});
+	game::loadingProgress += 0.1f;
+	//std::this_thread::sleep_for(std::chrono::seconds(5));		// JUST TO SHOW LOADING SCREEN A LITTLE BIT LONGER!!!
 
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t2([=] {
@@ -253,11 +226,13 @@ void Engine::initVulkan() {
 		loadModel();
 
 	});
+	game::loadingProgress += 0.1f;
 	
 	t1.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
 	t2.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
+	game::loadingProgress += 0.1f;
 
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t3([=] {
@@ -271,15 +246,22 @@ void Engine::initVulkan() {
 		createSyncObjects();
 
 	});
+	game::loadingProgress += 0.1f;
 	t3.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
+	game::loadingProgress += 0.1f;
 	t0.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
+	game::loadingProgress = 1.0f;
 
 	glfwShowWindow(window); 
 	glfwFocusWindow(window);
 
-	stopStartWindow();
+	game::closeStartWindow.lock();
+	startWindow->closeVar = true;
+	game::closeStartWindow.unlock();
+
+	delete startWindow;
 
 }
 
@@ -299,9 +281,9 @@ void Engine::createInstance() {
 	VkApplicationInfo appInfo		= {};
 	appInfo.sType					= VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pNext					= nullptr;
-	appInfo.pApplicationName		= TITLE.c_str();
+	appInfo.pApplicationName		= game::TITLE.c_str();
 	appInfo.applicationVersion		= VK_MAKE_VERSION(1, 0, 0);
-	appInfo.pEngineName				= TITLE.c_str();
+	appInfo.pEngineName				= game::TITLE.c_str();
 	appInfo.engineVersion			= VK_MAKE_VERSION(1, 0, 0);
 	appInfo.apiVersion				= VK_API_VERSION_1_0;
 
@@ -1317,7 +1299,7 @@ VkShaderModule Engine::createShaderModule(const std::vector< char >& code_) {
 	VkShaderModuleCreateInfo createInfo			= {};
 	createInfo.sType							= VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	createInfo.codeSize							= code_.size();
-	createInfo.pCode							= reinterpret_cast<const uint32_t*>(code_.data());
+	createInfo.pCode							= reinterpret_cast< const uint32_t* >(code_.data());
 	VkShaderModule shaderModule;
 	if (vkCreateShaderModule(
 	

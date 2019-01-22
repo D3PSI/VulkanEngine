@@ -35,6 +35,7 @@
 #include "Hash.cpp"
 #include "UniformBufferObject.cpp"
 #include "Camera.hpp"
+#include "StartWindow.hpp"
 
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
@@ -49,6 +50,9 @@ extern Logger											logger;
 
 namespace game {
 
+	extern std::mutex									closeStartWindow;
+	extern const std::string							TITLE;
+
 	extern Camera										camera;
 	extern bool											firstMouse;
 	extern double										lastX;
@@ -56,6 +60,7 @@ namespace game {
 	extern double										DELTATIME;
 	extern GLFWwindow*									pWindow;
 	extern const unsigned int							MAX_FRAMES_IN_FLIGHT;
+	extern float										loadingProgress;
 
 	VkResult CreateDebugUtilsMessengerEXT(
 
@@ -84,9 +89,9 @@ public:
 private:
 	VkResult									result;
 	GLFWwindow*									window;
+	StartWindow*								startWindow;
 	const std::string							MODEL_PATH						= "res/models/chalet/source/chalet.obj";
 	const std::string							TEXTURE_PATH					= "res/models/chalet/textures/chalet.jpg";
-	const std::string							TITLE							= "VULKAN by D3PSI";
 	GLFWmonitor*								monitor							= nullptr; 
 	uint32_t									numThreads;
 	const std::vector< const char* >			validationLayers				= {
@@ -149,13 +154,9 @@ private:
 	VkDeviceMemory								colorImageMemory;
 	VkImageView									colorImageView;
 	const float									maxFPS							= 60.0f;
-	const float									maxPeriod						= 1.0f / maxFPS;
-	SDL_Window*									startWindow;
-	SDL_Surface*								imageSurface					= nullptr;
-	SDL_Surface*								windowSurface					= nullptr;
+	const float									maxPeriod						= 1.0f / maxFPS; 
 
 	void initStartWindow(void);
-	void stopStartWindow(void);
 	void initWindow(void);
 	void initVulkan(void);
 	void createInstance(void);

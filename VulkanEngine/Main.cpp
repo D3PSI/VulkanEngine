@@ -90,6 +90,8 @@ namespace game {
 	*	
 	*
 	*/
+	std::mutex											closeStartWindow;
+	const std::string									TITLE								= "VULKAN by D3PSI";
 	Engine												engine;
 	Camera												camera;
 	bool												firstMouse							= true;
@@ -98,6 +100,7 @@ namespace game {
 	double												DELTATIME;
 	GLFWwindow*											pWindow;
 	const unsigned int									MAX_FRAMES_IN_FLIGHT				= 2;
+	float												loadingProgress						= 0.0f;
 
 	/*
 	*	Function:		VkResult game::CreateDebugUtilsMessengerEXT(
