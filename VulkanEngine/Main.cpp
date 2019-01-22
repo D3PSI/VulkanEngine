@@ -18,6 +18,9 @@
 */
 #include "VERSION.cpp"
 #define NOMINMAX
+#if !defined GAME_RELEASE || !defined GAME_DEVELOPMENT
+	#define GAME_RELEASE
+#endif
 #ifdef GAME_RELEASE
 	#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #endif
@@ -91,7 +94,7 @@ namespace game {
 	*
 	*/
 	std::mutex											closeStartWindow;
-	const std::string									TITLE								= "VULKAN by D3PSI";
+	const std::string									TITLE								= "VULKAN by D3PSI\0";
 	Engine												engine;
 	Camera												camera;
 	bool												firstMouse							= true;

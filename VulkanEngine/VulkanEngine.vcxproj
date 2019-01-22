@@ -76,12 +76,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\External Resources\SDL\include;$(SolutionDir)\..\External Resources\tinyobjloader;$(SolutionDir)\..\External Resources\stbimage;$(SolutionDir)\..\External Resources\glm;C:\VulkanSDK\1.1.85.0\Include;$(SolutionDir)\..\External Resources\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\External Resources\irrklang\include;$(SolutionDir)\..\External Resources\SDL\include;$(SolutionDir)\..\External Resources\tinyobjloader;$(SolutionDir)\..\External Resources\stbimage;$(SolutionDir)\..\External Resources\glm;C:\VulkanSDK\1.1.85.0\Include;$(SolutionDir)\..\External Resources\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\External Resources\SDL\lib;C:\VulkanSDK\1.1.85.0\Lib32;$(SolutionDir)\..\External Resources\glfw\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2.lib;vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\External Resources\irrklang\lib\Win32-visualStudio;$(SolutionDir)\..\External Resources\SDL\lib;C:\VulkanSDK\1.1.85.0\Lib32;$(SolutionDir)\..\External Resources\glfw\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>irrKlang.lib;SDL2.lib;vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>
       </SubSystem>
       <EntryPointSymbol>
@@ -105,13 +105,13 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\External Resources\SDL\include;$(SolutionDir)\..\External Resources\tinyobjloader;$(SolutionDir)\..\External Resources\stbimage;$(SolutionDir)\..\External Resources\glm;C:\VulkanSDK\1.1.85.0\Include;$(SolutionDir)\..\External Resources\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\External Resources\irrklang\include;$(SolutionDir)\..\External Resources\SDL\include;$(SolutionDir)\..\External Resources\tinyobjloader;$(SolutionDir)\..\External Resources\stbimage;$(SolutionDir)\..\External Resources\glm;C:\VulkanSDK\1.1.85.0\Include;$(SolutionDir)\..\External Resources\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\External Resources\SDL\lib;C:\VulkanSDK\1.1.85.0\Lib32;$(SolutionDir)\..\External Resources\glfw\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2.lib;vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\External Resources\irrklang\lib\Win32-visualStudio;$(SolutionDir)\..\External Resources\SDL\lib;C:\VulkanSDK\1.1.85.0\Lib32;$(SolutionDir)\..\External Resources\glfw\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>irrKlang.lib;SDL2.lib;vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>
       </SubSystem>
       <EntryPointSymbol>

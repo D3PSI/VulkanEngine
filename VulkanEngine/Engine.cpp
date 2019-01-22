@@ -156,7 +156,7 @@ void Engine::initWindow() {
 	GLFWimage windowIcon[1];
 	windowIcon[0].pixels = stbi_load(
 		
-		"res/icon/icon.png",
+		"res/icon/infinity.jpg",
 		&windowIcon[0].width,
 		&windowIcon[0].height,
 		0,
@@ -193,6 +193,9 @@ void Engine::initVulkan() {
 		createCamera();
 	
 	});
+	game::loadingProgress += 0.1f;
+
+	init3DAudio();
 	game::loadingProgress += 0.1f;
 
 	logger.log(EVENT_LOG, "Starting thread...");
@@ -377,6 +380,28 @@ void Engine::mainLoop() {
 	float nbFrames		= 0;
 	float maxfps		= 0;
 
+	std::thread t0([=]() {
+
+		bgmusic = audioEngine->play3D(
+			
+			"res/sounds/bgmusic.wav",
+			irrklang::vec3df(0, 0, 0),
+			true, 
+			false, 
+			true
+		
+		);
+
+		if (bgmusic) {
+		
+			bgmusic->setMinDistance(1.0f);
+			bgmusic->setVolume(1.0f);
+		
+		}
+
+	});
+	t0.detach();
+
 	while (!glfwWindowShouldClose(window)) {
 
 		double currentTime		= glfwGetTime();
@@ -410,6 +435,25 @@ void Engine::mainLoop() {
 
 			}
 
+			audioEngine->setListenerPosition(
+				
+				irrklang::vec3df(
+					
+					game::camera.position.x, 
+					game::camera.position.y, 
+					game::camera.position.z
+				
+				),
+				irrklang::vec3df(
+					
+					-game::camera.front.x,
+					-game::camera.front.y,
+					-game::camera.front.z
+				
+				)
+			
+			);
+
 			glfwPollEvents();
 			queryKeyboardGLFW();
 			renderFrame();
@@ -428,6 +472,10 @@ void Engine::mainLoop() {
 *
 */
 void Engine::cleanup() {
+
+	//effect->drop();
+	bgmusic->drop();
+	audioEngine->drop();
 
 	cleanupSwapChain();
 
@@ -3838,6 +3886,22 @@ void Engine::queryKeyboardGLFW(void) {
 
 		game::camera.processKeyboard(RIGHT, static_cast< float >(game::DELTATIME));
 
+	}
+
+}
+
+/*
+*	Function:		void init3DAudio()
+*	Purpose:		Initializes the 3D audio library (irrKlang)
+*
+*/
+void Engine::init3DAudio(void) {
+
+	audioEngine = irrklang::createIrrKlangDevice();
+	if (!audioEngine) {
+	
+		logger.log(ERROR_LOG, "Failed to find audio device!");
+	
 	}
 
 }
