@@ -15,6 +15,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/hash.hpp>
+#include <al.h>
+#include <alc.h>
 
 #include <string>
 #include <map>
@@ -155,6 +157,9 @@ private:
 	VkImageView									colorImageView;
 	const float									maxFPS							= 60.0f;
 	const float									maxPeriod						= 1.0f / maxFPS; 
+
+	ALCdevice*									audioDevice;
+	ALCcontext*									context;
 
 	void initStartWindow(void);
 	void initWindow(void);
@@ -319,5 +324,7 @@ private:
 	);
 	void createCamera(void);
 	void queryKeyboardGLFW(void);
+	void init3DAudio(void);
+	static void list_audio_devices(const ALCchar* devices);
 
 };

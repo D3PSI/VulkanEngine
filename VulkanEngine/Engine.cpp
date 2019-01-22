@@ -195,6 +195,9 @@ void Engine::initVulkan() {
 	});
 	game::loadingProgress += 0.1f;
 
+	init3DAudio();
+	game::loadingProgress += 0.1f;
+
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t1([=] {
 
@@ -3839,5 +3842,66 @@ void Engine::queryKeyboardGLFW(void) {
 		game::camera.processKeyboard(RIGHT, static_cast< float >(game::DELTATIME));
 
 	}
+
+}
+
+/*
+*	Function:		void init3DAudio()
+*	Purpose:		Initializes the 3D audio library (OpenAL)
+*
+*/
+void Engine::init3DAudio(void) {
+
+	audioDevice = alcOpenDevice(NULL);
+	if (!audioDevice) {
+	
+		logger.log(ERROR_LOG, "Failed to open an audio device handle!");
+	
+	}
+
+	ALboolean enumeration;
+
+	enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
+	if (enumeration == AL_FALSE) {
+
+		logger.log(ERROR_LOG, "Enumeration not supported!");
+	
+	}
+	else {
+	
+		list_audio_devices(alcGetString(NULL, ALC_DEVICE_SPECIFIER));
+	
+	}
+
+	context = alcCreateContext(audioDevice, NULL);
+	if (!alcMakeContextCurrent(context)) {
+	
+		logger.log(ERROR_LOG, "Failed to create audio context!");
+	
+	}
+
+}
+
+/*
+*	Function:		void list_audio_devices(const ALCchar* devices)
+*	Purpose:		Enumerates all available audio devices
+*
+*/
+void Engine::list_audio_devices(const ALCchar* devices) {
+
+	const ALCchar* device = devices, *next = devices + 1;
+	size_t len = 0;
+
+	fprintf(stdout, "Devices list:\n");
+	fprintf(stdout, "----------\n");
+	while (device && *device != '\0' && next && *next != '\0') {
+
+		fprintf(stdout, "%s\n", device);
+		len = strlen(device);
+		device += (len + 1);
+		next += (len + 2);
+	
+	}
+	fprintf(stdout, "----------\n");
 
 }
