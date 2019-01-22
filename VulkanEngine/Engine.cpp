@@ -67,7 +67,7 @@ void Engine::initWindow() {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
-	glfwWindowHint(GLFW_CURSOR_HIDDEN, GLFW_TRUE);
+	glfwWindowHint(GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
 	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
