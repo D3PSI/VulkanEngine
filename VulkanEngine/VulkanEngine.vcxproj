@@ -138,6 +138,8 @@
     <ClCompile Include="Hash.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="QueueFamilyIndices.cpp" />
     <ClCompile Include="StartWindow.cpp" />
     <ClCompile Include="SwapChainSupportDetails.cpp" />
@@ -150,6 +152,8 @@
     <ClInclude Include="ConsoleColor.hpp" />
     <ClInclude Include="Engine.hpp" />
     <ClInclude Include="Logger.hpp" />
+    <ClInclude Include="Mesh.hpp" />
+    <ClInclude Include="Model.hpp" />
     <ClInclude Include="StartWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
