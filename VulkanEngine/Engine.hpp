@@ -286,7 +286,7 @@ private:
 	);
 	VkFormat findDepthFormat(void);
 	bool hasStencilComponent(VkFormat format_);
-	void loadModel(void);
+	void loadModels(void);
 	static void keyboardInputCallback(
 		
 		GLFWwindow*			window_, 
