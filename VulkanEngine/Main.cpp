@@ -21,7 +21,7 @@
 #if !defined GAME_RELEASE || !defined GAME_DEVELOPMENT
 	#define GAME_RELEASE
 #endif
-#ifdef GAME_RELEASE
+#if defined GAME_RELEASE && !defined GAME_DEVELOPMENT
 	#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #endif
 #define GLFW_INCLUDE_VULKAN
@@ -104,6 +104,7 @@ namespace game {
 	GLFWwindow*											pWindow;
 	const unsigned int									MAX_FRAMES_IN_FLIGHT				= 2;
 	float												loadingProgress						= 0.0f;
+	VkDevice											globalDevice;
 
 	/*
 	*	Function:		VkResult game::CreateDebugUtilsMessengerEXT(

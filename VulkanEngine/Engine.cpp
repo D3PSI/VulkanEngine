@@ -725,7 +725,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Engine::debugCallback(
 
 	std::string msg = pCallbackData_->pMessage;
 
-	std::cerr << "Validation layer: " << msg << std::endl;
+	std::cout << red << "Validation layer: " << msg << std::endl;
 
 	return VK_FALSE;
 
@@ -902,6 +902,8 @@ void Engine::createLogicalDevice() {
 		logger.log(ERROR_LOG, "Failed to create logical device!");
 
 	}
+
+	game::globalDevice = device;
 
 	vkGetDeviceQueue(
 		
@@ -1339,7 +1341,7 @@ void Engine::createImageViews(void) {
 
 /*
 *	Function:		VkShaderModule createShaderModule(const std::vector< char >& code_)
-*	Purpose:		Creates a shader module from a given byte array of SPIR-V compiled GLSL-shading code_
+*	Purpose:		Creates a shader module from a given byte array of SPIR-V compiled GLSL-shading code
 *
 */
 VkShaderModule Engine::createShaderModule(const std::vector< char >& code_) {
@@ -1373,25 +1375,9 @@ VkShaderModule Engine::createShaderModule(const std::vector< char >& code_) {
 */
 void Engine::createGraphicsPipeline(void) {
 
-	auto vertShaderCode																= game::readFile("shaders/vert.spv");
-	auto fragShaderCode																= game::readFile("shaders/frag.spv");
+	objectShaderPipeline = ShaderPipeline("shaders/vert.spv", "shaders/frag.spv");
 
-	VkShaderModule vertShaderModule													= createShaderModule(vertShaderCode);
-	VkShaderModule fragShaderModule													= createShaderModule(fragShaderCode);
-
-	VkPipelineShaderStageCreateInfo vertShaderStageInfo								= {};
-	vertShaderStageInfo.sType														= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	vertShaderStageInfo.stage														= VK_SHADER_STAGE_VERTEX_BIT;
-	vertShaderStageInfo.module														= vertShaderModule;
-	vertShaderStageInfo.pName														= "main";
-
-	VkPipelineShaderStageCreateInfo fragShaderStageInfo								= {};
-	fragShaderStageInfo.sType														= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	fragShaderStageInfo.stage														= VK_SHADER_STAGE_FRAGMENT_BIT;
-	fragShaderStageInfo.module														= fragShaderModule;
-	fragShaderStageInfo.pName														= "main";
-
-	VkPipelineShaderStageCreateInfo shaderStages[]									= { vertShaderStageInfo, fragShaderStageInfo };
+	VkPipelineShaderStageCreateInfo shaderStages[]									= { objectShaderPipeline.getVertStageInfo(), objectShaderPipeline.getFragStageInfo() };
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo							= {};
 	vertexInputInfo.sType															= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -1534,8 +1520,20 @@ void Engine::createGraphicsPipeline(void) {
 	
 	}
 
-	vkDestroyShaderModule(device, fragShaderModule, nullptr);
-	vkDestroyShaderModule(device, vertShaderModule, nullptr);
+	vkDestroyShaderModule(
+
+		device,
+		objectShaderPipeline.getVertShaderModule().getModule(),
+		nullptr
+
+	);
+	vkDestroyShaderModule(
+
+		device,
+		objectShaderPipeline.getFragShaderModule().getModule(),
+		nullptr
+
+	);
 
 }
 

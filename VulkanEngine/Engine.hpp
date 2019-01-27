@@ -37,6 +37,8 @@
 #include "UniformBufferObject.cpp"
 #include "Camera.hpp"
 #include "StartWindow.hpp"
+#include "ConsoleColor.hpp"
+#include "ShaderPipeline.hpp"
 
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
@@ -62,6 +64,7 @@ namespace game {
 	extern GLFWwindow*									pWindow;
 	extern const unsigned int							MAX_FRAMES_IN_FLIGHT;
 	extern float										loadingProgress;
+	extern VkDevice										globalDevice;
 
 	VkResult CreateDebugUtilsMessengerEXT(
 
@@ -156,6 +159,8 @@ private:
 	VkImageView									colorImageView;
 	const float									maxFPS							= 60.0f;
 	const float									maxPeriod						= 1.0f / maxFPS; 
+
+	ShaderPipeline								objectShaderPipeline;
 
 	irrklang::ISoundEngine*						audioEngine;
 	irrklang::ISound*							bgmusic;
