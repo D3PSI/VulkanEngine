@@ -1375,7 +1375,7 @@ VkShaderModule Engine::createShaderModule(const std::vector< char >& code_) {
 */
 void Engine::createGraphicsPipeline(void) {
 
-	objectShaderPipeline = ShaderPipeline("shaders/vert.spv", "shaders/frag.spv");
+	objectShaderPipeline															= ShaderPipeline("shaders/objectShaders/vert.spv", "shaders/objectShaders/frag.spv");
 
 	VkPipelineShaderStageCreateInfo shaderStages[]									= { objectShaderPipeline.getVertStageInfo(), objectShaderPipeline.getFragStageInfo() };
 

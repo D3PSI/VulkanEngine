@@ -97,9 +97,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\shader.vert" />
-    <None Include="shaders\shader.frag" />
-    <None Include="shaders\compile.bat">
+    <None Include="shaders\objectShaders\shader.vert" />
+    <None Include="shaders\objectShaders\shader.frag" />
+    <None Include="shaders\objectShaders\compile.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="shaders\lightingShaders\compile.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="shaders\lightingShaders\shader.frag" />
+    <None Include="shaders\lightingShaders\shader.vert" />
+    <None Include="shaders\SHADERS.bat">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
