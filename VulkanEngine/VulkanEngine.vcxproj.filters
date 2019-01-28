@@ -63,7 +63,7 @@
     <ClCompile Include="ShaderModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shaders\LightVertex.cpp">
+    <ClCompile Include="LightVertex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

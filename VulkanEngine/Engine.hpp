@@ -38,6 +38,7 @@
 #include "Camera.hpp"
 #include "StartWindow.hpp"
 #include "ConsoleColor.hpp"
+#include "LightVertex.cpp"
 #include "ShaderPipeline.hpp"
 
 #ifdef NDEBUG
@@ -145,6 +146,7 @@ private:
 	VkImageView									textureImageView;
 	VkSampler									textureSampler;
 	std::vector< Vertex >						vertices;
+	std::vector< LightVertex >					lightVertices;
 	std::vector< uint32_t >						indices;
 	VkImage										depthImage;
 	VkDeviceMemory								depthImageMemory;

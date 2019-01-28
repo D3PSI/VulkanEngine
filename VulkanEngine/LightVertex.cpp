@@ -8,7 +8,7 @@ struct LightVertex {
 
 	glm::vec3 pos;
 
-	static VkVertexInputBindingDescription getBindingDescriptio() {
+	static VkVertexInputBindingDescription getBindingDescription() {
 	
 		VkVertexInputBindingDescription bindingDescription		= {};
 		bindingDescription.binding								= 0;
@@ -29,6 +29,12 @@ struct LightVertex {
 		attributeDescriptions[0].offset				= offsetof(LightVertex, pos);
 	
 		return attributeDescriptions;
+
+	}
+
+	bool operator==(const LightVertex& other) const {
+
+		return pos == other.pos;
 
 	}
 

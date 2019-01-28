@@ -529,6 +529,14 @@ void Engine::cleanup() {
 	
 	);
 
+	vkDestroyDescriptorSetLayout(
+
+		device,
+		lightingDescriptorSetLayout,
+		nullptr
+
+	);
+
 	for (size_t i = 0; i < swapChainImages.size(); i++) {
 	
 		vkDestroyBuffer(
@@ -1527,8 +1535,8 @@ void Engine::createGraphicsPipeline(void) {
 
 	VkPipelineShaderStageCreateInfo lightingShaderStages[] = { lightingShaderPipeline.getVertStageInfo(), lightingShaderPipeline.getFragStageInfo() };
 
-	VkVertexInputBindingDescription lightingBindingDescription								= Vertex::getBindingDescription();
-	std::array< VkVertexInputAttributeDescription, 3 > lightingAttributeDescriptions		= Vertex::getAttributeDescriptions();
+	VkVertexInputBindingDescription lightingBindingDescription								= LightVertex::getBindingDescription();
+	std::array< VkVertexInputAttributeDescription, 1 > lightingAttributeDescriptions		= LightVertex::getAttributeDescriptions();
 
 	vertexInputInfo.vertexBindingDescriptionCount											= 1;
 	vertexInputInfo.vertexAttributeDescriptionCount											= static_cast< uint32_t >(lightingAttributeDescriptions.size());
@@ -1597,6 +1605,21 @@ void Engine::createGraphicsPipeline(void) {
 
 		device,
 		objectShaderPipeline.getFragShaderModule().getModule(),
+		nullptr
+
+	);
+
+	vkDestroyShaderModule(
+
+		device,
+		lightingShaderPipeline.getVertShaderModule().getModule(),
+		nullptr
+
+	);
+	vkDestroyShaderModule(
+
+		device,
+		lightingShaderPipeline.getFragShaderModule().getModule(),
 		nullptr
 
 	);
@@ -2163,7 +2186,7 @@ void Engine::cleanupSwapChain(void) {
 		
 		device,
 		commandPool,
-		static_cast<uint32_t>(commandBuffers.size()),
+		static_cast< uint32_t >(commandBuffers.size()),
 		commandBuffers.data()
 	
 	);
@@ -2182,6 +2205,22 @@ void Engine::cleanupSwapChain(void) {
 		nullptr
 	
 	);
+
+	vkDestroyPipeline(
+
+		device,
+		lightingGraphicsPipeline,
+		nullptr
+
+	);
+	vkDestroyPipelineLayout(
+
+		device,
+		lightingPipelineLayout,
+		nullptr
+
+	);
+
 	vkDestroyRenderPass(
 		
 		device,
@@ -2575,6 +2614,25 @@ void Engine::createDescriptorSetLayout(void) {
 
 		logger.log(ERROR_LOG, "Failed to create descriptor set layout!");
 
+	}
+
+	std::array<VkDescriptorSetLayoutBinding, 1> lightingBindings		= { uboLayoutBinding };
+	VkDescriptorSetLayoutCreateInfo lightingLayoutInfo					= {};
+	layoutInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount												= static_cast< uint32_t >(lightingBindings.size());
+	layoutInfo.pBindings												= lightingBindings.data();
+
+	if (vkCreateDescriptorSetLayout(
+	
+		device,
+		&lightingLayoutInfo,
+		nullptr,
+		&lightingDescriptorSetLayout
+
+	) != VK_SUCCESS) {
+	
+		logger.log(ERROR_LOG, "Failed to create descriptor set layout!");
+	
 	}
 
 }
