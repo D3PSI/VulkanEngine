@@ -13,6 +13,7 @@
 
 class ShaderPipeline {
 public:
+	ShaderPipeline();
 	ShaderPipeline(const std::string& vertShaderPath_, const std::string& fragShaderPath_);
 	ShaderModule getVertShaderModule(void);
 	ShaderModule getFragShaderModule(void);

@@ -122,11 +122,7 @@ private:
 	VkExtent2D									swapChainExtent;
 	std::vector< VkImageView >					swapChainImageViews;
 	VkRenderPass								renderPass;
-	VkDescriptorSetLayout						descriptorSetLayout;
 	VkDescriptorPool							descriptorPool;
-	std::vector< VkDescriptorSet >				descriptorSets;
-	VkPipelineLayout							pipelineLayout;
-	VkPipeline									graphicsPipeline;
 	std::vector< VkFramebuffer >				swapChainFramebuffers;
 	VkCommandPool								commandPool;
 	std::vector< VkCommandBuffer >				commandBuffers;
@@ -160,7 +156,18 @@ private:
 	const float									maxFPS							= 60.0f;
 	const float									maxPeriod						= 1.0f / maxFPS; 
 
+	VkDescriptorSetLayout						objectDescriptorSetLayout;
+	std::vector< VkDescriptorSet >				objectDescriptorSets;
+	VkPipelineLayout							objectPipelineLayout;
+	VkPipeline									objectGraphicsPipeline;
+
+	VkDescriptorSetLayout						lightingDescriptorSetLayout;
+	std::vector< VkDescriptorSet >				lightingDescriptorSets;
+	VkPipelineLayout							lightingPipelineLayout;
+	VkPipeline									lightingGraphicsPipeline;
+
 	ShaderPipeline								objectShaderPipeline;
+	ShaderPipeline								lightingShaderPipeline;
 
 	irrklang::ISoundEngine*						audioEngine;
 	irrklang::ISound*							bgmusic;

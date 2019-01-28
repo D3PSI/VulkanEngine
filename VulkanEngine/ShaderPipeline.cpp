@@ -5,6 +5,17 @@
 #include "ShaderPipeline.hpp"
 
 /*
+*	Function:		ShaderPipeline()
+*	Purpose:		Default constructor
+*	
+*/
+ShaderPipeline::ShaderPipeline() {
+
+
+
+}
+
+/*
 *	Function:		ShaderPipeline(const std::string& vertShaderPath_, const std::string& fragShaderPath_)
 *	Purpose:		Contructor
 *	
