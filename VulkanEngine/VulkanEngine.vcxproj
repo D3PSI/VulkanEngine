@@ -144,6 +144,7 @@
     <ClCompile Include="QueueFamilyIndices.cpp" />
     <ClCompile Include="ShaderModule.cpp" />
     <ClCompile Include="ShaderPipeline.cpp" />
+    <ClCompile Include="shaders\LightVertex.cpp" />
     <ClCompile Include="StartWindow.cpp" />
     <ClCompile Include="SwapChainSupportDetails.cpp" />
     <ClCompile Include="UniformBufferObject.cpp" />
