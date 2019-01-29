@@ -1601,6 +1601,8 @@ void Engine::createGraphicsPipeline(void) {
 
 	}
 
+	rasterizer.cullMode												= VK_CULL_MODE_NONE;
+
 	VkGraphicsPipelineCreateInfo lightingPipelineInfo				= {};
 	lightingPipelineInfo.sType										= VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	lightingPipelineInfo.stageCount									= 2;
@@ -2842,10 +2844,11 @@ void Engine::updateUniformBuffers(uint32_t currentImage_) {
 	ubo.proj[1][1]						*= -1;
 
 	UniformBufferObject lightubo		= {};
+	lightubo.model						= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	lightubo.model						= glm::rotate(lightubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	lightubo.view						= game::camera.getViewMatrix();
 	lightubo.proj						= glm::perspective(glm::radians(game::camera.zoom), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
-	lightubo.proj[1][1]				   *= -1;
+	lightubo.proj[1][1]			        *= -1;
 
 	void* data;
 	
