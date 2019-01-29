@@ -37,6 +37,9 @@
 #include "UniformBufferObject.cpp"
 #include "Camera.hpp"
 #include "StartWindow.hpp"
+#include "ConsoleColor.hpp"
+#include "LightVertex.cpp"
+#include "ShaderPipeline.hpp"
 
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
@@ -62,6 +65,7 @@ namespace game {
 	extern GLFWwindow*									pWindow;
 	extern const unsigned int							MAX_FRAMES_IN_FLIGHT;
 	extern float										loadingProgress;
+	extern VkDevice										globalDevice;
 
 	VkResult CreateDebugUtilsMessengerEXT(
 
@@ -119,11 +123,7 @@ private:
 	VkExtent2D									swapChainExtent;
 	std::vector< VkImageView >					swapChainImageViews;
 	VkRenderPass								renderPass;
-	VkDescriptorSetLayout						descriptorSetLayout;
 	VkDescriptorPool							descriptorPool;
-	std::vector< VkDescriptorSet >				descriptorSets;
-	VkPipelineLayout							pipelineLayout;
-	VkPipeline									graphicsPipeline;
 	std::vector< VkFramebuffer >				swapChainFramebuffers;
 	VkCommandPool								commandPool;
 	std::vector< VkCommandBuffer >				commandBuffers;
@@ -135,18 +135,24 @@ private:
 	VkBuffer									indexBuffer;
 	VkDeviceMemory								indexBufferMemory;
 	std::vector< VkBuffer >						uniformBuffers;
+	std::vector< VkBuffer >						lightUniformBuffers;
 	std::vector< VkDeviceMemory >				uniformBuffersMemory;
+	std::vector< VkDeviceMemory >				lightUniformBuffersMemory;
 	clock_t										current_ticks, delta_ticks;
 	clock_t										fps								= 0;
-	VkBuffer									vertexBuffer;
-	VkDeviceMemory								vertexBufferMemory;
 	uint32_t									mipLevels;
 	VkImage										textureImage;
 	VkDeviceMemory								textureImageMemory;
 	VkImageView									textureImageView;
 	VkSampler									textureSampler;
 	std::vector< Vertex >						vertices;
+	VkBuffer									vertexBuffer;
+	VkDeviceMemory								vertexBufferMemory;
 	std::vector< uint32_t >						indices;
+	VkBuffer									lightingVertexBuffer;
+	VkDeviceMemory								lightingVertexBufferMemory;
+	std::vector< LightVertex >					lightingVertices;
+	VkDescriptorPool							lightingDescriptorPool;
 	VkImage										depthImage;
 	VkDeviceMemory								depthImageMemory;
 	VkImageView									depthImageView;
@@ -156,6 +162,19 @@ private:
 	VkImageView									colorImageView;
 	const float									maxFPS							= 60.0f;
 	const float									maxPeriod						= 1.0f / maxFPS; 
+
+	VkDescriptorSetLayout						objectDescriptorSetLayout;
+	std::vector< VkDescriptorSet >				objectDescriptorSets;
+	VkPipelineLayout							objectPipelineLayout;
+	VkPipeline									objectGraphicsPipeline;
+
+	VkDescriptorSetLayout						lightingDescriptorSetLayout;
+	std::vector< VkDescriptorSet >				lightingDescriptorSets;
+	VkPipelineLayout							lightingPipelineLayout;
+	VkPipeline									lightingGraphicsPipeline;
+
+	ShaderPipeline								objectShaderPipeline;
+	ShaderPipeline								lightingShaderPipeline;
 
 	irrklang::ISoundEngine*						audioEngine;
 	irrklang::ISound*							bgmusic;
@@ -229,7 +248,7 @@ private:
 	void createIndexBuffer(void);
 	void createDescriptorSetLayout(void);
 	void createUniformBuffers(void);
-	void updateUniformBuffer(uint32_t currentImage_);
+	void updateUniformBuffers(uint32_t currentImage_);
 	void createDescriptorPool(void);
 	void createDescriptorSets(void);
 	void createTextureImage(void);
@@ -286,7 +305,7 @@ private:
 	);
 	VkFormat findDepthFormat(void);
 	bool hasStencilComponent(VkFormat format_);
-	void loadModel(void);
+	void loadModels(void);
 	static void keyboardInputCallback(
 		
 		GLFWwindow*			window_, 
@@ -325,5 +344,6 @@ private:
 	void createCamera(void);
 	void queryKeyboardGLFW(void);
 	void init3DAudio(void);
+	void loadLightVertexData(void);
 
 };

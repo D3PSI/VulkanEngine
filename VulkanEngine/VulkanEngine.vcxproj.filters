@@ -48,6 +48,24 @@
     <ClCompile Include="StartWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawableObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LightVertex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.hpp">
@@ -65,11 +83,34 @@
     <ClInclude Include="StartWindow.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawableObject.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderPipeline.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderModule.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\shader.vert" />
-    <None Include="shaders\shader.frag" />
-    <None Include="shaders\compile.bat">
+    <None Include="shaders\objectShaders\shader.vert" />
+    <None Include="shaders\objectShaders\shader.frag" />
+    <None Include="shaders\objectShaders\compile.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="shaders\lightingShaders\compile.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="shaders\lightingShaders\shader.frag" />
+    <None Include="shaders\lightingShaders\shader.vert" />
+    <None Include="shaders\SHADERS.bat">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

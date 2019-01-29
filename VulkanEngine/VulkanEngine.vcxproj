@@ -134,11 +134,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DrawableObject.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Hash.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="QueueFamilyIndices.cpp" />
+    <ClCompile Include="ShaderModule.cpp" />
+    <ClCompile Include="ShaderPipeline.cpp" />
+    <ClCompile Include="LightVertex.cpp" />
     <ClCompile Include="StartWindow.cpp" />
     <ClCompile Include="SwapChainSupportDetails.cpp" />
     <ClCompile Include="UniformBufferObject.cpp" />
@@ -148,14 +154,23 @@
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ConsoleColor.hpp" />
+    <ClInclude Include="DrawableObject.hpp" />
     <ClInclude Include="Engine.hpp" />
     <ClInclude Include="Logger.hpp" />
+    <ClInclude Include="Mesh.hpp" />
+    <ClInclude Include="Model.hpp" />
+    <ClInclude Include="ShaderModule.hpp" />
+    <ClInclude Include="ShaderPipeline.hpp" />
     <ClInclude Include="StartWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\compile.bat" />
-    <None Include="shaders\shader.frag" />
-    <None Include="shaders\shader.vert" />
+    <None Include="shaders\SHADERS.bat" />
+    <None Include="shaders\lightingShaders\compile.bat" />
+    <None Include="shaders\lightingShaders\shader.frag" />
+    <None Include="shaders\lightingShaders\shader.vert" />
+    <None Include="shaders\objectShaders\compile.bat" />
+    <None Include="shaders\objectShaders\shader.frag" />
+    <None Include="shaders\objectShaders\shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
