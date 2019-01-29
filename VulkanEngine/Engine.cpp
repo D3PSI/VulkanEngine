@@ -412,9 +412,9 @@ void Engine::mainLoop() {
 		double currentTime		= glfwGetTime();
 		double deltaTime		= currentTime - pastTime;
 		game::DELTATIME			= deltaTime;
-
+#if defined GAME_USE_VSYNC
 		if (deltaTime >= maxPeriod) {
-
+#endif
 			pastTime = currentTime;
 		
 			nbFrames++;
@@ -462,8 +462,9 @@ void Engine::mainLoop() {
 			glfwPollEvents();
 			queryKeyboardGLFW();
 			renderFrame();
-		
+#if defined GAME_USE_VSYNC
 		}
+#endif
 
 	}
 
