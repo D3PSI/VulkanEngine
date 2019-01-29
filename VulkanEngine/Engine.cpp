@@ -79,7 +79,7 @@ void Engine::initWindow() {
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
 #if !defined GAME_WINDOW_MODE_WINDOWED && !defined GAME_WINDOW_MODE_FULLSCREEN && !defined GAME_WINDOW_MODE_BORDERLESS
-#define GAME_WINDOW_MODE_UNDEFINED
+	#define GAME_WINDOW_MODE_UNDEFINED
 #endif
 
 	// Create a fullscreen window
@@ -102,7 +102,7 @@ void Engine::initWindow() {
 	
 	);
 #endif
-#if defined GAME_WINDOW_MODE_WINDOWED || defined GAME_WINDOW_MODE_UNDEFINED
+#if defined GAME_WINDOW_MODE_WINDOWED
 	// Create a windowed window
 	window = glfwCreateWindow(
 
@@ -122,7 +122,7 @@ void Engine::initWindow() {
 
 	);
 #endif
-#ifdef GAME_WINDOW_MODE_BORDERLESS
+#if defined GAME_WINDOW_MODE_BORDERLESS || defined GAME_WINDOW_MODE_UNDEFINED
 	// Create a borderless fullscreen window 
 	// !!! IMPORTANT !!!
 	// TEARING ISSUES

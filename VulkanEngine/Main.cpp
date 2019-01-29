@@ -18,11 +18,14 @@
 */
 #include "VERSION.cpp"
 #define NOMINMAX
-#if !defined GAME_RELEASE || !defined GAME_DEVELOPMENT
+#if !defined GAME_RELEASE && !defined GAME_DEVELOPMENT
 	#define GAME_RELEASE
 #endif
 #if defined GAME_RELEASE && !defined GAME_DEVELOPMENT
 	#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+#endif
+#if !defined GAME_USE_VSYNC && !defined GAME_NO_VSYNC
+	#define GAME_NO_VSYNC
 #endif
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
