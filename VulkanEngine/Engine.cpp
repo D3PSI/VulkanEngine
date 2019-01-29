@@ -523,6 +523,14 @@ void Engine::cleanup() {
 
 	);
 
+	vkDestroyDescriptorPool(
+	
+		device,
+		lightingDescriptorPool, 
+		nullptr
+
+	);
+
 	vkDestroyDescriptorSetLayout(
 	
 		device,
@@ -586,6 +594,21 @@ void Engine::cleanup() {
 		vertexBufferMemory,
 		nullptr
 
+	);
+
+	vkDestroyBuffer(
+	
+		device,
+		lightingVertexBuffer, 
+		nullptr
+	
+	);
+	vkFreeMemory(
+	
+		device,
+		lightingVertexBufferMemory,
+		nullptr
+	
 	);
 
 	for (size_t i = 0; i < game::MAX_FRAMES_IN_FLIGHT; i++) {
@@ -1939,7 +1962,7 @@ void Engine::createCommandBuffers(void) {
 				vkCmdDraw(
 
 					commandBuffers[i],
-					static_cast< uint32_t >(vertices.size()),
+					static_cast< uint32_t >(lightingVertices.size()),
 					1,
 					0,
 					0
@@ -2849,14 +2872,14 @@ void Engine::createDescriptorPool(void) {
 	}
 
 	std::array< VkDescriptorPoolSize, 1 > lightingPoolSizes			= {};
-	poolSizes[0].type												= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSizes[0].descriptorCount									= static_cast< uint32_t >(swapChainImages.size());
+	lightingPoolSizes[0].type												= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	lightingPoolSizes[0].descriptorCount									= static_cast< uint32_t >(swapChainImages.size());
 
 	VkDescriptorPoolCreateInfo lightingPoolInfo						= {};
-	poolInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount											= static_cast< uint32_t >(lightingPoolSizes.size());
-	poolInfo.pPoolSizes												= lightingPoolSizes.data();
-	poolInfo.maxSets												= static_cast< uint32_t >(swapChainImages.size());
+	lightingPoolInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	lightingPoolInfo.poolSizeCount											= static_cast< uint32_t >(lightingPoolSizes.size());
+	lightingPoolInfo.pPoolSizes												= lightingPoolSizes.data();
+	lightingPoolInfo.maxSets												= static_cast< uint32_t >(swapChainImages.size());
 
 	if (vkCreateDescriptorPool(
 
@@ -2943,10 +2966,10 @@ void Engine::createDescriptorSets(void) {
 
 	std::vector< VkDescriptorSetLayout > lightingLayouts(swapChainImages.size(), lightingDescriptorSetLayout);
 	VkDescriptorSetAllocateInfo lightingAllocInfo		= {};
-	allocInfo.sType										= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool							= lightingDescriptorPool;
-	allocInfo.descriptorSetCount						= static_cast< uint32_t >(swapChainImages.size());
-	allocInfo.pSetLayouts								= lightingLayouts.data();
+	lightingAllocInfo.sType										= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	lightingAllocInfo.descriptorPool							= lightingDescriptorPool;
+	lightingAllocInfo.descriptorSetCount						= static_cast< uint32_t >(swapChainImages.size());
+	lightingAllocInfo.pSetLayouts								= lightingLayouts.data();
 
 	lightingDescriptorSets.resize(swapChainImages.size());
 
@@ -2969,7 +2992,7 @@ void Engine::createDescriptorSets(void) {
 		bufferInfo.offset											= 0;
 		bufferInfo.range											= sizeof(UniformBufferObject);
 
-		std::array< VkWriteDescriptorSet, 2> descriptorWrites		= {};
+		std::array< VkWriteDescriptorSet, 1> descriptorWrites		= {};
 		descriptorWrites[0].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[0].dstSet									= lightingDescriptorSets[i];
 		descriptorWrites[0].dstBinding								= 0;
