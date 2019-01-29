@@ -7,6 +7,7 @@
 #include "Engine.hpp"
 #include <stb_image.h>
 #include <tiny_obj_loader.h>
+#include "LightVertex.cpp"
 
 /*
 *	Function:		void run()
@@ -229,7 +230,8 @@ void Engine::initVulkan() {
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t2([=] {
 
-		loadModels();
+		loadModels(); 
+		loadLightVertexData();
 
 	});
 	game::loadingProgress += 0.1f;
@@ -736,7 +738,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Engine::debugCallback(
 
 	std::string msg = pCallbackData_->pMessage;
 
-	std::cout << red << "Validation layer: " << msg << std::endl;
+	std::cout << red << "Validation layer: " << msg << white << std::endl;
 
 	return VK_FALSE;
 
@@ -1857,8 +1859,6 @@ void Engine::createCommandBuffers(void) {
 		
 				);
 
-				/* START OF RENDERING COMMANDS */
-
 				VkBuffer vertexBuffers[]	= {vertexBuffer};
 				VkDeviceSize offsets[]		= {0};
 				vkCmdBindVertexBuffers(
@@ -1879,8 +1879,6 @@ void Engine::createCommandBuffers(void) {
 					VK_INDEX_TYPE_UINT32
 				
 				);
-
-				/* END OF RENDERING COMMANDS */
 
 				vkCmdBindDescriptorSets(
 				
@@ -1904,6 +1902,48 @@ void Engine::createCommandBuffers(void) {
 					0,
 					0
 				
+				);
+
+			vkCmdBindPipeline(
+			
+				commandBuffers[i],
+				VK_PIPELINE_BIND_POINT_GRAPHICS,
+				lightingGraphicsPipeline
+			
+			);
+
+				VkBuffer lightingVertexBuffers[] = { lightingVertexBuffer };
+				vkCmdBindVertexBuffers(
+
+					commandBuffers[i],
+					0,
+					1,
+					lightingVertexBuffers,
+					offsets
+
+				);
+
+				vkCmdBindDescriptorSets(
+
+					commandBuffers[i],
+					VK_PIPELINE_BIND_POINT_GRAPHICS,
+					lightingPipelineLayout,
+					0,
+					1,
+					&lightingDescriptorSets[i],
+					0,
+					nullptr
+
+				);
+
+				vkCmdDraw(
+
+					commandBuffers[i],
+					static_cast< uint32_t >(vertices.size()),
+					1,
+					0,
+					0
+
 				);
 
 		vkCmdEndRenderPass(commandBuffers[i]);
@@ -2354,6 +2394,74 @@ void Engine::createVertexBuffer(void) {
 	
 	);
 
+	VkDeviceSize lightingBufferSize = sizeof(lightingVertices[0]) * lightingVertices.size();
+
+	VkBuffer					lightingStagingBuffer;
+	VkDeviceMemory				lightingStagingBufferMemory;
+
+	createBuffer(
+
+		lightingBufferSize,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		lightingStagingBuffer,
+		lightingStagingBufferMemory
+
+	);
+
+	void* lightingData;
+	vkMapMemory(
+
+		device,
+		lightingStagingBufferMemory,
+		0,
+		lightingBufferSize,
+		0,
+		&lightingData
+
+	);
+	memcpy(
+
+		lightingData,
+		lightingVertices.data(),
+		(size_t)lightingBufferSize
+
+	);
+	vkUnmapMemory(device, lightingStagingBufferMemory);
+
+	createBuffer(
+
+		lightingBufferSize,
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		lightingVertexBuffer,
+		lightingVertexBufferMemory
+
+	);
+
+	copyBuffer(
+
+		lightingStagingBuffer,
+		lightingVertexBuffer,
+		lightingBufferSize
+
+	);
+
+	vkDestroyBuffer(
+
+		device,
+		lightingStagingBuffer,
+		nullptr
+
+	);
+	vkFreeMemory(
+
+		device,
+		lightingStagingBufferMemory,
+		nullptr
+
+	);
+
 }
 
 /*
@@ -2597,7 +2705,7 @@ void Engine::createDescriptorSetLayout(void) {
 	samplerLayoutBinding.pImmutableSamplers						= nullptr;
 	samplerLayoutBinding.stageFlags								= VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings		= { uboLayoutBinding, samplerLayoutBinding };
+	std::array< VkDescriptorSetLayoutBinding, 2 > bindings		= { uboLayoutBinding, samplerLayoutBinding };
 	VkDescriptorSetLayoutCreateInfo layoutInfo					= {};
 	layoutInfo.sType											= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount										= static_cast< uint32_t >(bindings.size());
@@ -2616,11 +2724,11 @@ void Engine::createDescriptorSetLayout(void) {
 
 	}
 
-	std::array<VkDescriptorSetLayoutBinding, 1> lightingBindings		= { uboLayoutBinding };
+	std::array< VkDescriptorSetLayoutBinding, 1 > lightingBindings		= { uboLayoutBinding };
 	VkDescriptorSetLayoutCreateInfo lightingLayoutInfo					= {};
-	layoutInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount												= static_cast< uint32_t >(lightingBindings.size());
-	layoutInfo.pBindings												= lightingBindings.data();
+	lightingLayoutInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	lightingLayoutInfo.bindingCount												= static_cast< uint32_t >(lightingBindings.size());
+	lightingLayoutInfo.pBindings												= lightingBindings.data();
 
 	if (vkCreateDescriptorSetLayout(
 	
@@ -2740,6 +2848,29 @@ void Engine::createDescriptorPool(void) {
 	
 	}
 
+	std::array< VkDescriptorPoolSize, 1 > lightingPoolSizes			= {};
+	poolSizes[0].type												= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[0].descriptorCount									= static_cast< uint32_t >(swapChainImages.size());
+
+	VkDescriptorPoolCreateInfo lightingPoolInfo						= {};
+	poolInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount											= static_cast< uint32_t >(lightingPoolSizes.size());
+	poolInfo.pPoolSizes												= lightingPoolSizes.data();
+	poolInfo.maxSets												= static_cast< uint32_t >(swapChainImages.size());
+
+	if (vkCreateDescriptorPool(
+
+		device,
+		&lightingPoolInfo,
+		nullptr,
+		&lightingDescriptorPool
+
+	) != VK_SUCCESS) {
+
+		logger.log(ERROR_LOG, "Failed to create descriptor pool!");
+
+	}
+
 }
 
 /*
@@ -2806,6 +2937,55 @@ void Engine::createDescriptorSets(void) {
 			0,
 			nullptr
 		
+		);
+
+	}
+
+	std::vector< VkDescriptorSetLayout > lightingLayouts(swapChainImages.size(), lightingDescriptorSetLayout);
+	VkDescriptorSetAllocateInfo lightingAllocInfo		= {};
+	allocInfo.sType										= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool							= lightingDescriptorPool;
+	allocInfo.descriptorSetCount						= static_cast< uint32_t >(swapChainImages.size());
+	allocInfo.pSetLayouts								= lightingLayouts.data();
+
+	lightingDescriptorSets.resize(swapChainImages.size());
+
+	if (vkAllocateDescriptorSets(
+
+		device,
+		&lightingAllocInfo,
+		lightingDescriptorSets.data()
+
+	) != VK_SUCCESS) {
+
+		logger.log(ERROR_LOG, "Failed to allocate descriptor sets!");
+
+	}
+
+	for (size_t i = 0; i < swapChainImages.size(); i++) {
+
+		VkDescriptorBufferInfo bufferInfo							= {};
+		bufferInfo.buffer											= uniformBuffers[i];
+		bufferInfo.offset											= 0;
+		bufferInfo.range											= sizeof(UniformBufferObject);
+
+		std::array< VkWriteDescriptorSet, 2> descriptorWrites		= {};
+		descriptorWrites[0].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[0].dstSet									= lightingDescriptorSets[i];
+		descriptorWrites[0].dstBinding								= 0;
+		descriptorWrites[0].dstArrayElement							= 0;
+		descriptorWrites[0].descriptorType							= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[0].descriptorCount							= 1;
+		descriptorWrites[0].pBufferInfo								= &bufferInfo;
+
+		vkUpdateDescriptorSets(
+
+			device,
+			static_cast< uint32_t >(descriptorWrites.size()),
+			descriptorWrites.data(),
+			0,
+			nullptr
+
 		);
 
 	}
@@ -4025,5 +4205,56 @@ void Engine::init3DAudio(void) {
 		logger.log(ERROR_LOG, "Failed to find audio device!");
 	
 	}
+
+}
+
+/*
+*	Function:		void loadLightVertexData()
+*	Purpose:		Loads the light's vertex data into the appropriate array
+*
+*/
+void Engine::loadLightVertexData(void) {
+
+	const LightVertex lightVert[] = { 
+		
+		glm::vec3(-0.5f, -0.5f, -0.5f),
+		glm::vec3( 0.5f, -0.5f, -0.5f),
+		glm::vec3( 0.5f,  0.5f, -0.5f),
+		glm::vec3( 0.5f,  0.5f, -0.5f),
+		glm::vec3(-0.5f,  0.5f, -0.5f),
+		glm::vec3(-0.5f, -0.5f, -0.5f),
+		glm::vec3(-0.5f, -0.5f,  0.5f),
+		glm::vec3( 0.5f, -0.5f,  0.5f),
+		glm::vec3( 0.5f,  0.5f,  0.5f),
+		glm::vec3( 0.5f,  0.5f,  0.5f),
+		glm::vec3(-0.5f,  0.5f,  0.5f),
+		glm::vec3(-0.5f, -0.5f,  0.5f),
+		glm::vec3(-0.5f,  0.5f,  0.5f),
+		glm::vec3(-0.5f,  0.5f, -0.5f),
+		glm::vec3(-0.5f, -0.5f, -0.5f),
+		glm::vec3(-0.5f, -0.5f, -0.5f),
+		glm::vec3(-0.5f, -0.5f,  0.5f),
+		glm::vec3(-0.5f,  0.5f,  0.5f),
+		glm::vec3( 0.5f,  0.5f,  0.5f),
+		glm::vec3( 0.5f,  0.5f, -0.5f),
+		glm::vec3( 0.5f, -0.5f, -0.5f),
+		glm::vec3( 0.5f, -0.5f, -0.5f),
+		glm::vec3( 0.5f, -0.5f,  0.5f),
+		glm::vec3( 0.5f,  0.5f,  0.5f),
+		glm::vec3(-0.5f, -0.5f, -0.5f),
+		glm::vec3( 0.5f, -0.5f, -0.5f),
+		glm::vec3( 0.5f, -0.5f,  0.5f),
+		glm::vec3( 0.5f, -0.5f,  0.5f),
+		glm::vec3(-0.5f, -0.5f,  0.5f),
+		glm::vec3(-0.5f, -0.5f, -0.5f),
+		glm::vec3(-0.5f,  0.5f, -0.5f),
+		glm::vec3( 0.5f,  0.5f, -0.5f),
+		glm::vec3( 0.5f,  0.5f,  0.5f),
+		glm::vec3( 0.5f,  0.5f,  0.5f),
+		glm::vec3(-0.5f,  0.5f,  0.5f),
+		glm::vec3(-0.5f,  0.5f, -0.5f),
+	
+	};
+	lightingVertices = std::vector(lightVert, lightVert + sizeof(lightVert) / sizeof(lightVert[0]));
 
 }

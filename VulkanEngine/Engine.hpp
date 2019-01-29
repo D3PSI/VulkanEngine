@@ -138,16 +138,19 @@ private:
 	std::vector< VkDeviceMemory >				uniformBuffersMemory;
 	clock_t										current_ticks, delta_ticks;
 	clock_t										fps								= 0;
-	VkBuffer									vertexBuffer;
-	VkDeviceMemory								vertexBufferMemory;
 	uint32_t									mipLevels;
 	VkImage										textureImage;
 	VkDeviceMemory								textureImageMemory;
 	VkImageView									textureImageView;
 	VkSampler									textureSampler;
 	std::vector< Vertex >						vertices;
-	std::vector< LightVertex >					lightVertices;
+	VkBuffer									vertexBuffer;
+	VkDeviceMemory								vertexBufferMemory;
 	std::vector< uint32_t >						indices;
+	VkBuffer									lightingVertexBuffer;
+	VkDeviceMemory								lightingVertexBufferMemory;
+	std::vector< LightVertex >					lightingVertices;
+	VkDescriptorPool							lightingDescriptorPool;
 	VkImage										depthImage;
 	VkDeviceMemory								depthImageMemory;
 	VkImageView									depthImageView;
@@ -339,5 +342,6 @@ private:
 	void createCamera(void);
 	void queryKeyboardGLFW(void);
 	void init3DAudio(void);
+	void loadLightVertexData(void);
 
 };
