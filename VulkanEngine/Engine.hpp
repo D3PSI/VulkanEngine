@@ -135,7 +135,9 @@ private:
 	VkBuffer									indexBuffer;
 	VkDeviceMemory								indexBufferMemory;
 	std::vector< VkBuffer >						uniformBuffers;
+	std::vector< VkBuffer >						lightUniformBuffers;
 	std::vector< VkDeviceMemory >				uniformBuffersMemory;
+	std::vector< VkDeviceMemory >				lightUniformBuffersMemory;
 	clock_t										current_ticks, delta_ticks;
 	clock_t										fps								= 0;
 	uint32_t									mipLevels;
@@ -246,7 +248,7 @@ private:
 	void createIndexBuffer(void);
 	void createDescriptorSetLayout(void);
 	void createUniformBuffers(void);
-	void updateUniformBuffer(uint32_t currentImage_);
+	void updateUniformBuffers(uint32_t currentImage_);
 	void createDescriptorPool(void);
 	void createDescriptorSets(void);
 	void createTextureImage(void);

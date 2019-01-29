@@ -563,6 +563,21 @@ void Engine::cleanup() {
 			nullptr
 
 		);
+
+		vkDestroyBuffer(
+		
+			device,
+			lightUniformBuffers[i],
+			nullptr
+		
+		); 
+		vkFreeMemory(
+
+			device,
+			lightUniformBuffersMemory[i],
+			nullptr
+
+		);
 	
 	}
 
@@ -2073,7 +2088,7 @@ void Engine::renderFrame(void) {
 	
 	}
 
-	updateUniformBuffer(imageIndex);
+	updateUniformBuffers(imageIndex);
 
 	VkSubmitInfo submitInfo				= {};
 	submitInfo.sType					= VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -2747,8 +2762,8 @@ void Engine::createDescriptorSetLayout(void) {
 
 	}
 
-	std::array< VkDescriptorSetLayoutBinding, 1 > lightingBindings		= { uboLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo lightingLayoutInfo					= {};
+	std::array< VkDescriptorSetLayoutBinding, 1 > lightingBindings				= { uboLayoutBinding };
+	VkDescriptorSetLayoutCreateInfo lightingLayoutInfo							= {};
 	lightingLayoutInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	lightingLayoutInfo.bindingCount												= static_cast< uint32_t >(lightingBindings.size());
 	lightingLayoutInfo.pBindings												= lightingBindings.data();
@@ -2780,6 +2795,9 @@ void Engine::createUniformBuffers(void) {
 	uniformBuffers.resize(swapChainImages.size());
 	uniformBuffersMemory.resize(swapChainImages.size());
 
+	lightUniformBuffers.resize(swapChainImages.size());
+	lightUniformBuffersMemory.resize(swapChainImages.size());
+
 	for (size_t i = 0; i < swapChainImages.size(); i++) {
 	
 		createBuffer(
@@ -2789,6 +2807,15 @@ void Engine::createUniformBuffers(void) {
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 			uniformBuffers[i],
 			uniformBuffersMemory[i]
+		
+		);
+		createBuffer(
+		
+			bufferSize,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			lightUniformBuffers[i],
+			lightUniformBuffersMemory[i]
 		
 		);
 	
@@ -2801,18 +2828,24 @@ void Engine::createUniformBuffers(void) {
 *	Purpose:		Updates uniform buffers (transformation matrices) every frame
 *
 */
-void Engine::updateUniformBuffer(uint32_t currentImage_) {
+void Engine::updateUniformBuffers(uint32_t currentImage_) {
 	
-	static auto startTime		= std::chrono::high_resolution_clock::now();
-	auto currentTime			= std::chrono::high_resolution_clock::now();
-	float time					= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
+	static auto startTime				= std::chrono::high_resolution_clock::now();
+	auto currentTime					= std::chrono::high_resolution_clock::now();
+	float time							= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
 
-	UniformBufferObject ubo		= {};
-	ubo.model					= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	ubo.model					= glm::rotate(ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view					= game::camera.getViewMatrix();
-	ubo.proj					= glm::perspective(glm::radians(game::camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
-	ubo.proj[1][1]				*= -1;
+	UniformBufferObject ubo				= {};
+	ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	ubo.model							= glm::rotate(ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view							= game::camera.getViewMatrix();
+	ubo.proj							= glm::perspective(glm::radians(game::camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
+	ubo.proj[1][1]						*= -1;
+
+	UniformBufferObject lightubo		= {};
+	lightubo.model						= glm::rotate(lightubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	lightubo.view						= game::camera.getViewMatrix();
+	lightubo.proj						= glm::perspective(glm::radians(game::camera.zoom), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
+	lightubo.proj[1][1]				   *= -1;
 
 	void* data;
 	
@@ -2836,6 +2869,29 @@ void Engine::updateUniformBuffer(uint32_t currentImage_) {
 	);
 
 	vkUnmapMemory(device, uniformBuffersMemory[currentImage_]);
+
+	void* lightingData;
+
+	vkMapMemory(
+
+		device,
+		lightUniformBuffersMemory[currentImage_],
+		0,
+		sizeof(lightubo),
+		0,
+		&lightingData
+
+	);
+
+	memcpy(
+
+		lightingData,
+		&lightubo,
+		sizeof(lightubo)
+
+	);
+
+	vkUnmapMemory(device, lightUniformBuffersMemory[currentImage_]);
 
 }
 
@@ -2988,7 +3044,7 @@ void Engine::createDescriptorSets(void) {
 	for (size_t i = 0; i < swapChainImages.size(); i++) {
 
 		VkDescriptorBufferInfo bufferInfo							= {};
-		bufferInfo.buffer											= uniformBuffers[i];
+		bufferInfo.buffer											= lightUniformBuffers[i];
 		bufferInfo.offset											= 0;
 		bufferInfo.range											= sizeof(UniformBufferObject);
 
