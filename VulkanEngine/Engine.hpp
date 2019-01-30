@@ -91,92 +91,92 @@ public:
 
 	void run(void);
 private:
-	VkResult									result;
-	GLFWwindow*									window;
-	StartWindow*								startWindow;
-	const std::string							MODEL_PATH						= "res/models/chalet/source/chalet.obj";
-	const std::string							TEXTURE_PATH					= "res/models/chalet/textures/chalet.jpg";
-	GLFWmonitor*								monitor							= nullptr; 
-	uint32_t									numThreads;
-	const std::vector< const char* >			validationLayers				= {
+	VkResult											result;
+	GLFWwindow*											window;
+	StartWindow*										startWindow;
+	const std::string									MODEL_PATH						= "res/models/chalet/source/chalet.obj";
+	const std::string									TEXTURE_PATH					= "res/models/chalet/textures/chalet.jpg";
+	GLFWmonitor*										monitor							= nullptr; 
+	uint32_t											numThreads;
+	const std::vector< const char* >					validationLayers				= {
 	
 		"VK_LAYER_LUNARG_standard_validation"
 	
 	};
-	const std::vector< const char* >			deviceExtensions				= {
+	const std::vector< const char* >					deviceExtensions				= {
 	
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	
 	};
-	VkInstance									instance;
-	VkPhysicalDevice							physicalDevice					= VK_NULL_HANDLE;
-	VkSurfaceKHR								surface;
-	VkQueue										graphicsQueue;
-	VkQueue										presentQueue;
-	VkDebugUtilsMessengerEXT					callback;
-	VkSwapchainKHR								swapChain;
-	std::vector< VkImage >						swapChainImages;
-	VkFormat									swapChainImageFormat;
-	VkColorSpaceKHR								swapChainImageColorSpace;
-	VkExtent2D									swapChainExtent;
-	std::vector< VkImageView >					swapChainImageViews;
-	VkRenderPass								renderPass;
-	VkDescriptorPool							descriptorPool;
-	std::vector< VkFramebuffer >				swapChainFramebuffers;
-	VkCommandPool								commandPool;
-	std::vector< VkCommandBuffer >				commandBuffers;
-	std::vector< VkSemaphore >					imageAvailableSemaphores;
-	std::vector< VkSemaphore >					renderFinishedSemaphores;
-	std::vector< VkFence >						inFlightFences;
-	size_t										currentFrame					= 0;
-	bool										framebufferResized				= false;
-	VkBuffer									indexBuffer;
-	VkDeviceMemory								indexBufferMemory;
-	std::vector< VkBuffer >						uniformBuffers;
-	std::vector< VkBuffer >						lightUniformBuffers;
-	std::vector< VkDeviceMemory >				uniformBuffersMemory;
-	std::vector< VkDeviceMemory >				lightUniformBuffersMemory;
-	clock_t										current_ticks, delta_ticks;
-	clock_t										fps								= 0;
-	uint32_t									mipLevels;
-	VkImage										textureImage;
-	VkDeviceMemory								textureImageMemory;
-	VkImageView									textureImageView;
-	VkSampler									textureSampler;
-	std::vector< Vertex >						vertices;
-	VkBuffer									vertexBuffer;
-	VkDeviceMemory								vertexBufferMemory;
-	std::vector< uint32_t >						indices;
-	VkBuffer									lightingVertexBuffer;
-	VkDeviceMemory								lightingVertexBufferMemory;
-	std::vector< LightVertex >					lightingVertices;
-	VkDescriptorPool							lightingDescriptorPool;
-	VkImage										depthImage;
-	VkDeviceMemory								depthImageMemory;
-	VkImageView									depthImageView;
-	VkSampleCountFlagBits						msaaSamples						= VK_SAMPLE_COUNT_64_BIT;
-	VkImage										colorImage;
-	VkDeviceMemory								colorImageMemory;
-	VkImageView									colorImageView;
-	const float									maxFPS							= 60.0f;
-	const float									maxPeriod						= 1.0f / maxFPS; 
+	VkInstance											instance;
+	VkPhysicalDevice									physicalDevice					= VK_NULL_HANDLE;
+	VkSurfaceKHR										surface;
+	VkQueue												graphicsQueue;
+	VkQueue												presentQueue;
+	VkDebugUtilsMessengerEXT							callback;
+	VkSwapchainKHR										swapChain;
+	std::vector< VkImage >								swapChainImages;
+	VkFormat											swapChainImageFormat;
+	VkColorSpaceKHR										swapChainImageColorSpace;
+	VkExtent2D											swapChainExtent;
+	std::vector< VkImageView >							swapChainImageViews;
+	VkRenderPass										renderPass;
+	VkDescriptorPool									descriptorPool;
+	std::vector< VkFramebuffer >						swapChainFramebuffers;
+	VkCommandPool										commandPool;
+	std::vector< VkCommandBuffer >						commandBuffers;
+	std::vector< VkSemaphore >							imageAvailableSemaphores;
+	std::vector< VkSemaphore >							renderFinishedSemaphores;
+	std::vector< VkFence >								inFlightFences;
+	size_t												currentFrame					= 0;
+	bool												framebufferResized				= false;
+	VkBuffer											indexBuffer;
+	VkDeviceMemory										indexBufferMemory;
+	std::vector< VkBuffer >								uniformBuffers;
+	std::vector< VkBuffer >								lightUniformBuffers;
+	std::vector< VkDeviceMemory >						uniformBuffersMemory;
+	std::vector< VkDeviceMemory >						lightUniformBuffersMemory;
+	clock_t												current_ticks, delta_ticks;
+	clock_t												fps								= 0;
+	uint32_t											mipLevels;
+	VkImage												textureImage;
+	VkDeviceMemory										textureImageMemory;
+	VkImageView											textureImageView;
+	VkSampler											textureSampler;
+	std::vector< Vertex >								vertices;
+	VkBuffer											vertexBuffer;
+	VkDeviceMemory										vertexBufferMemory;
+	std::vector< uint32_t >								indices;
+	VkBuffer											lightingVertexBuffer;
+	VkDeviceMemory										lightingVertexBufferMemory;
+	std::vector< LightVertex >							lightingVertices;
+	VkDescriptorPool									lightingDescriptorPool;
+	VkImage												depthImage;
+	VkDeviceMemory										depthImageMemory;
+	VkImageView											depthImageView;
+	VkSampleCountFlagBits								msaaSamples						= VK_SAMPLE_COUNT_64_BIT;
+	VkImage												colorImage;
+	VkDeviceMemory										colorImageMemory;
+	VkImageView											colorImageView;
+	const float											maxFPS							= 60.0f;
+	const float											maxPeriod						= 1.0f / maxFPS; 
 
-	VkDescriptorSetLayout						objectDescriptorSetLayout;
-	std::vector< VkDescriptorSet >				objectDescriptorSets;
-	VkPipelineLayout							objectPipelineLayout;
-	VkPipeline									objectGraphicsPipeline;
+	VkDescriptorSetLayout								objectDescriptorSetLayout;
+	std::vector< VkDescriptorSet >						objectDescriptorSets;
+	VkPipelineLayout									objectPipelineLayout;
+	VkPipeline											objectGraphicsPipeline;
 
-	VkDescriptorSetLayout						lightingDescriptorSetLayout;
-	std::vector< VkDescriptorSet >				lightingDescriptorSets;
-	VkPipelineLayout							lightingPipelineLayout;
-	VkPipeline									lightingGraphicsPipeline;
+	VkDescriptorSetLayout								lightingDescriptorSetLayout;
+	std::vector< VkDescriptorSet >						lightingDescriptorSets;
+	VkPipelineLayout									lightingPipelineLayout;
+	VkPipeline											lightingGraphicsPipeline;
 
-	ShaderPipeline								objectShaderPipeline;
-	ShaderPipeline								lightingShaderPipeline;
+	ShaderPipeline										objectShaderPipeline;
+	ShaderPipeline										lightingShaderPipeline;
 
-	irrklang::ISoundEngine*						audioEngine;
-	irrklang::ISound*							bgmusic;
-	irrklang::ISound*							effect;
+	irrklang::ISoundEngine*								audioEngine;
+	irrklang::ISound*									bgmusic;
+	irrklang::ISound*									effect;
 
 	void initStartWindow(void);
 	void initWindow(void);
