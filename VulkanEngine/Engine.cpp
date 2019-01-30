@@ -1818,9 +1818,9 @@ void Engine::createCommandBuffers(void) {
 			&renderPassBeginInfo,
 			VK_SUBPASS_CONTENTS_INLINE
 
-			);
+		);
 
-			objectPipeline.bind(commandBuffers[i]);
+			objectPipeline.bind(commandBuffers[i], &objectDescriptorSets[i]);
 
 				VkBuffer vertexBuffers[]	= {vertexBuffer};
 				VkDeviceSize offsets[]		= {0};
@@ -1843,7 +1843,6 @@ void Engine::createCommandBuffers(void) {
 				
 				);
 
-				objectPipeline.bindDescriptorSets(commandBuffers[i], &objectDescriptorSets[i]);
 
 				vkCmdDrawIndexed(
 					
@@ -1856,7 +1855,7 @@ void Engine::createCommandBuffers(void) {
 				
 				);
 
-			lightingPipeline.bind(commandBuffers[i]);
+			lightingPipeline.bind(commandBuffers[i], &lightingDescriptorSets[i]);
 
 				VkBuffer lightingVertexBuffers[] = { lightingVertexBuffer };
 				vkCmdBindVertexBuffers(
@@ -1868,8 +1867,6 @@ void Engine::createCommandBuffers(void) {
 					offsets
 
 				);
-
-				lightingPipeline.bindDescriptorSets(commandBuffers[i], &lightingDescriptorSets[i]);
 
 				vkCmdDraw(
 

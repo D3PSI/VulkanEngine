@@ -132,11 +132,11 @@ Pipeline::Pipeline(
 }
 
 /*
-*	Function:		void bind(VkCommandBuffer commandBuffer_)
+*	Function:		void bind(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet)
 *	Purpose:		Binds a pipeline
 *
 */
-void Pipeline::bind(VkCommandBuffer commandBuffer_) {
+void Pipeline::bind(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_) {
 
 	vkCmdBindPipeline(
 
@@ -146,23 +146,25 @@ void Pipeline::bind(VkCommandBuffer commandBuffer_) {
 
 	);
 
+	bindDescriptorSets(commandBuffer_, descriptorSet_);
+
 }
 
 /*
-*	Function:		void bindDescriptorSets(VkCommandBuffer commandBuffer, VkDescriptorSet* descriptorSet)
+*	Function:		void bindDescriptorSets(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_)
 *	Purpose:		Binds descriptor sets
 *
 */
-void Pipeline::bindDescriptorSets(VkCommandBuffer commandBuffer, VkDescriptorSet* descriptorSet) {
+void Pipeline::bindDescriptorSets(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_) {
 
 	vkCmdBindDescriptorSets(
 
-		commandBuffer,
+		commandBuffer_,
 		VK_PIPELINE_BIND_POINT_GRAPHICS,
 		pipelineLayout,
 		0,
 		1,
-		descriptorSet,
+		descriptorSet_,
 		0,
 		nullptr
 

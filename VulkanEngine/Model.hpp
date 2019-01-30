@@ -4,9 +4,9 @@
 *
 */
 #pragma once
-#include "DrawableObject.hpp"
+#include "Object.hpp"
 class Model
-	: public DrawableObject
+	: public Object
 {
 public:
 	Model();

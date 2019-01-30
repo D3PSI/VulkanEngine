@@ -34,8 +34,8 @@ public:
 		const VkDescriptorSetLayout*						descriptorSetLayout_
 	
 	);
-	void bind(VkCommandBuffer commandBuffer_);
-	void bindDescriptorSets(VkCommandBuffer commandBuffer, VkDescriptorSet* descriptorSet);
+	void bind(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
+	void bindDescriptorSets(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
 	void destroy(void);
 	ShaderModule getVertShaderModule(void);
 	ShaderModule getFragShaderModule(void);

@@ -134,7 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="DrawableObject.cpp" />
+    <ClCompile Include="Object.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Hash.cpp" />
     <ClCompile Include="Logger.cpp" />
@@ -154,7 +154,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ConsoleColor.hpp" />
-    <ClInclude Include="DrawableObject.hpp" />
+    <ClInclude Include="Object.hpp" />
     <ClInclude Include="Engine.hpp" />
     <ClInclude Include="Logger.hpp" />
     <ClInclude Include="Mesh.hpp" />
