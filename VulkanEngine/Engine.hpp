@@ -40,7 +40,7 @@
 #include "StartWindow.hpp"
 #include "ConsoleColor.hpp"
 #include "LightVertex.cpp"
-#include "ShaderPipeline.hpp"
+#include "Pipeline.hpp"
 
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
@@ -163,16 +163,12 @@ private:
 
 	VkDescriptorSetLayout								objectDescriptorSetLayout;
 	std::vector< VkDescriptorSet >						objectDescriptorSets;
-	VkPipelineLayout									objectPipelineLayout;
-	VkPipeline											objectGraphicsPipeline;
 
 	VkDescriptorSetLayout								lightingDescriptorSetLayout;
 	std::vector< VkDescriptorSet >						lightingDescriptorSets;
-	VkPipelineLayout									lightingPipelineLayout;
-	VkPipeline											lightingGraphicsPipeline;
 
-	ShaderPipeline										objectShaderPipeline;
-	ShaderPipeline										lightingShaderPipeline;
+	Pipeline											objectPipeline;
+	Pipeline											lightingPipeline;
 
 	irrklang::ISoundEngine*								audioEngine;
 	irrklang::ISound*									bgmusic;
@@ -209,7 +205,7 @@ private:
 	void createSwapChain(void);
 	void createImageViews(void);
 	VkShaderModule createShaderModule(const std::vector< char >& code_);
-	void createGraphicsPipeline(void);
+	void createPipelines(void);
 	void createRenderPass(void);
 	void createFramebuffers(void);
 	void createCommandPool(void);

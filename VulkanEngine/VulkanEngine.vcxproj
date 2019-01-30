@@ -143,7 +143,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="QueueFamilyIndices.cpp" />
     <ClCompile Include="ShaderModule.cpp" />
-    <ClCompile Include="ShaderPipeline.cpp" />
+    <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="LightVertex.cpp" />
     <ClCompile Include="StartWindow.cpp" />
     <ClCompile Include="SwapChainSupportDetails.cpp" />
@@ -160,7 +160,7 @@
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="Model.hpp" />
     <ClInclude Include="ShaderModule.hpp" />
-    <ClInclude Include="ShaderPipeline.hpp" />
+    <ClInclude Include="Pipeline.hpp" />
     <ClInclude Include="StartWindow.hpp" />
   </ItemGroup>
   <ItemGroup>

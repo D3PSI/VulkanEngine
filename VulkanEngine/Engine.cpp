@@ -214,7 +214,7 @@ void Engine::initVulkan() {
 		createImageViews();
 		createRenderPass();
 		createDescriptorSetLayout();
-		createGraphicsPipeline();
+		createPipelines();
 		createCommandPool();
 		createColorResources();
 		createDepthResources();
@@ -1419,22 +1419,17 @@ VkShaderModule Engine::createShaderModule(const std::vector< char >& code_) {
 }
 
 /*
-*	Function:		void createGraphicsPipeline()
+*	Function:		void createPipelines()
 *	Purpose:		Generates the graphics pipeline for rendering
 *
 */
-void Engine::createGraphicsPipeline(void) {
-
-	objectShaderPipeline															= ShaderPipeline("shaders/objectShaders/vert.spv", "shaders/objectShaders/frag.spv");
-
-	VkPipelineShaderStageCreateInfo objectShaderStages[]							= { objectShaderPipeline.getVertStageInfo(), objectShaderPipeline.getFragStageInfo() };
-
-	VkPipelineVertexInputStateCreateInfo vertexInputInfo							= {};
-	vertexInputInfo.sType															= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+void Engine::createPipelines(void) {
 
 	VkVertexInputBindingDescription objectBindingDescription						= Vertex::getBindingDescription();
 	std::array< VkVertexInputAttributeDescription, 3 > objectAttributeDescriptions	= Vertex::getAttributeDescriptions();
 
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo							= {};
+	vertexInputInfo.sType															= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertexInputInfo.vertexBindingDescriptionCount									= 1;
 	vertexInputInfo.vertexAttributeDescriptionCount									= static_cast< uint32_t >(objectAttributeDescriptions.size());
 	vertexInputInfo.pVertexBindingDescriptions										= &objectBindingDescription;
@@ -1519,60 +1514,26 @@ void Engine::createGraphicsPipeline(void) {
 	depthStencil.front																= {};
 	depthStencil.back																= {};
 
-	VkPipelineLayoutCreateInfo pipelineLayoutInfo									= {};
-	pipelineLayoutInfo.sType														= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount												= 1;
-	pipelineLayoutInfo.pSetLayouts													= &objectDescriptorSetLayout;
-
-	if (vkCreatePipelineLayout(
-	
-		device,
-		&pipelineLayoutInfo,
+	objectPipeline = Pipeline(
+		
+		"shaders/objectShaders/vert.spv", 
+		"shaders/objectShaders/frag.spv",
+		&vertexInputInfo,
+		&inputAssembly,
+		&viewportState,
+		&rasterizer,
+		&multisampling,
+		&depthStencil,
+		&colorBlending,
 		nullptr,
-		&objectPipelineLayout
-	
-	) != VK_SUCCESS) {
-	
-		logger.log(ERROR_LOG, "Failed to create pipeline layout!");
-	
-	}
-
-	VkGraphicsPipelineCreateInfo pipelineInfo						= {};
-	pipelineInfo.sType												= VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	pipelineInfo.stageCount											= 2;
-	pipelineInfo.pStages											= objectShaderStages;
-	pipelineInfo.pVertexInputState									= &vertexInputInfo;
-	pipelineInfo.pInputAssemblyState								= &inputAssembly;
-	pipelineInfo.pViewportState										= &viewportState;
-	pipelineInfo.pRasterizationState								= &rasterizer;
-	pipelineInfo.pMultisampleState									= &multisampling;
-	pipelineInfo.pDepthStencilState									= &depthStencil;
-	pipelineInfo.pColorBlendState									= &colorBlending;
-	pipelineInfo.pDynamicState										= nullptr;
-	pipelineInfo.layout												= objectPipelineLayout;
-	pipelineInfo.renderPass											= renderPass;
-	pipelineInfo.subpass											= 0;
-	pipelineInfo.basePipelineHandle									= VK_NULL_HANDLE;
-	pipelineInfo.basePipelineIndex									= -1;
-
-	if (vkCreateGraphicsPipelines(
-	
-		device,
+		renderPass,
+		0,
 		VK_NULL_HANDLE,
-		1,
-		&pipelineInfo,
-		nullptr,
-		&objectGraphicsPipeline
-	
-	) != VK_SUCCESS) {
-	
-		logger.log(ERROR_LOG, "Failed to create graphics pipeline!");
-	
-	}
+		-1,
+		&objectDescriptorSetLayout
 
-	lightingShaderPipeline = ShaderPipeline("shaders/lightingShaders/vert.spv", "shaders/lightingShaders/frag.spv");
+	);
 
-	VkPipelineShaderStageCreateInfo lightingShaderStages[] = { lightingShaderPipeline.getVertStageInfo(), lightingShaderPipeline.getFragStageInfo() };
 
 	VkVertexInputBindingDescription lightingBindingDescription								= LightVertex::getBindingDescription();
 	std::array< VkVertexInputAttributeDescription, 1 > lightingAttributeDescriptions		= LightVertex::getAttributeDescriptions();
@@ -1582,70 +1543,39 @@ void Engine::createGraphicsPipeline(void) {
 	vertexInputInfo.pVertexBindingDescriptions												= &lightingBindingDescription;
 	vertexInputInfo.pVertexAttributeDescriptions											= lightingAttributeDescriptions.data();
 
-	VkPipelineLayoutCreateInfo lightingPipelineLayoutInfo									= {};
-	lightingPipelineLayoutInfo.sType														= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	lightingPipelineLayoutInfo.setLayoutCount												= 1;
-	lightingPipelineLayoutInfo.pSetLayouts													= &lightingDescriptorSetLayout;
+	rasterizer.cullMode																		= VK_CULL_MODE_NONE;
 
-	if (vkCreatePipelineLayout(
-
-		device,
-		&lightingPipelineLayoutInfo,
+	lightingPipeline = Pipeline(
+		
+		"shaders/lightingShaders/vert.spv",
+		"shaders/lightingShaders/frag.spv",
+		&vertexInputInfo,
+		&inputAssembly,
+		&viewportState,
+		&rasterizer,
+		&multisampling,
+		&depthStencil,
+		&colorBlending,
 		nullptr,
-		&lightingPipelineLayout
-
-	) != VK_SUCCESS) {
-
-		logger.log(ERROR_LOG, "Failed to create pipeline layout!");
-
-	}
-
-	rasterizer.cullMode												= VK_CULL_MODE_NONE;
-
-	VkGraphicsPipelineCreateInfo lightingPipelineInfo				= {};
-	lightingPipelineInfo.sType										= VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	lightingPipelineInfo.stageCount									= 2;
-	lightingPipelineInfo.pStages									= lightingShaderStages;
-	lightingPipelineInfo.pVertexInputState							= &vertexInputInfo;
-	lightingPipelineInfo.pInputAssemblyState						= &inputAssembly;
-	lightingPipelineInfo.pViewportState								= &viewportState;
-	lightingPipelineInfo.pRasterizationState						= &rasterizer;
-	lightingPipelineInfo.pMultisampleState							= &multisampling;
-	lightingPipelineInfo.pDepthStencilState							= &depthStencil;
-	lightingPipelineInfo.pColorBlendState							= &colorBlending;
-	lightingPipelineInfo.pDynamicState								= nullptr;
-	lightingPipelineInfo.layout										= lightingPipelineLayout;
-	lightingPipelineInfo.renderPass									= renderPass;
-	lightingPipelineInfo.subpass									= 0;
-	lightingPipelineInfo.basePipelineHandle							= VK_NULL_HANDLE;
-	lightingPipelineInfo.basePipelineIndex							= -1;
-
-	if (vkCreateGraphicsPipelines(
-
-		device,
+		renderPass,
+		0,
 		VK_NULL_HANDLE,
-		1,
-		&lightingPipelineInfo,
-		nullptr,
-		&lightingGraphicsPipeline
+		-1,
+		&lightingDescriptorSetLayout
 
-	) != VK_SUCCESS) {
-
-		logger.log(ERROR_LOG, "Failed to create graphics pipeline!");
-
-	}
+	);
 
 	vkDestroyShaderModule(
 
 		device,
-		objectShaderPipeline.getVertShaderModule().getModule(),
+		objectPipeline.getVertShaderModule().getModule(),
 		nullptr
 
 	);
 	vkDestroyShaderModule(
 
 		device,
-		objectShaderPipeline.getFragShaderModule().getModule(),
+		objectPipeline.getFragShaderModule().getModule(),
 		nullptr
 
 	);
@@ -1653,14 +1583,14 @@ void Engine::createGraphicsPipeline(void) {
 	vkDestroyShaderModule(
 
 		device,
-		lightingShaderPipeline.getVertShaderModule().getModule(),
+		lightingPipeline.getVertShaderModule().getModule(),
 		nullptr
 
 	);
 	vkDestroyShaderModule(
 
 		device,
-		lightingShaderPipeline.getFragShaderModule().getModule(),
+		lightingPipeline.getFragShaderModule().getModule(),
 		nullptr
 
 	);
@@ -1890,13 +1820,7 @@ void Engine::createCommandBuffers(void) {
 
 			);
 
-				vkCmdBindPipeline(
-		
-					commandBuffers[i],
-					VK_PIPELINE_BIND_POINT_GRAPHICS,
-					objectGraphicsPipeline
-		
-				);
+			objectPipeline.bind(commandBuffers[i]);
 
 				VkBuffer vertexBuffers[]	= {vertexBuffer};
 				VkDeviceSize offsets[]		= {0};
@@ -1919,18 +1843,7 @@ void Engine::createCommandBuffers(void) {
 				
 				);
 
-				vkCmdBindDescriptorSets(
-				
-					commandBuffers[i],
-					VK_PIPELINE_BIND_POINT_GRAPHICS,
-					objectPipelineLayout,
-					0,
-					1,
-					&objectDescriptorSets[i],
-					0,
-					nullptr
-				
-				);
+				objectPipeline.bindDescriptorSets(commandBuffers[i], &objectDescriptorSets[i]);
 
 				vkCmdDrawIndexed(
 					
@@ -1943,13 +1856,7 @@ void Engine::createCommandBuffers(void) {
 				
 				);
 
-			vkCmdBindPipeline(
-			
-				commandBuffers[i],
-				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				lightingGraphicsPipeline
-			
-			);
+			lightingPipeline.bind(commandBuffers[i]);
 
 				VkBuffer lightingVertexBuffers[] = { lightingVertexBuffer };
 				vkCmdBindVertexBuffers(
@@ -1962,18 +1869,7 @@ void Engine::createCommandBuffers(void) {
 
 				);
 
-				vkCmdBindDescriptorSets(
-
-					commandBuffers[i],
-					VK_PIPELINE_BIND_POINT_GRAPHICS,
-					lightingPipelineLayout,
-					0,
-					1,
-					&lightingDescriptorSets[i],
-					0,
-					nullptr
-
-				);
+				lightingPipeline.bindDescriptorSets(commandBuffers[i], &lightingDescriptorSets[i]);
 
 				vkCmdDraw(
 
@@ -2187,7 +2083,7 @@ void Engine::recreateSwapChain(void) {
 	createSwapChain();
 	createImageViews();
 	createRenderPass();
-	createGraphicsPipeline();
+	createPipelines();
 	createColorResources();
 	createDepthResources();
 	createFramebuffers();
@@ -2270,35 +2166,9 @@ void Engine::cleanupSwapChain(void) {
 	
 	);
 
-	vkDestroyPipeline(
+	objectPipeline.destroy();
 
-		device, 
-		objectGraphicsPipeline,
-		nullptr
-
-	);
-	vkDestroyPipelineLayout(
-		
-		device,
-		objectPipelineLayout,
-		nullptr
-	
-	);
-
-	vkDestroyPipeline(
-
-		device,
-		lightingGraphicsPipeline,
-		nullptr
-
-	);
-	vkDestroyPipelineLayout(
-
-		device,
-		lightingPipelineLayout,
-		nullptr
-
-	);
+	lightingPipeline.destroy();
 
 	vkDestroyRenderPass(
 		
