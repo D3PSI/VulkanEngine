@@ -24,8 +24,8 @@
 #if defined GAME_RELEASE && !defined GAME_DEVELOPMENT
 	#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #endif
-#if !defined GAME_USE_VSYNC && !defined GAME_NO_VSYNC
-	#define GAME_NO_VSYNC
+#if !defined GAME_USE_FRAMERATE_CAP_60 && !defined GAME_NO_FRAMERATE_CAP
+	#define GAME_NO_FRAMERATE_CAP
 #endif
 #include <Windows.h>
 #define GLFW_INCLUDE_VULKAN

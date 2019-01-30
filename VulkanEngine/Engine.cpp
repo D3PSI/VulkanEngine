@@ -412,7 +412,7 @@ void Engine::mainLoop() {
 		double currentTime		= glfwGetTime();
 		double deltaTime		= currentTime - pastTime;
 		DELTATIME				= deltaTime;
-#if defined GAME_USE_VSYNC
+#if defined GAME_USE_FRAMERATE_CAP_60
 		if (deltaTime >= maxPeriod) {
 #endif
 			pastTime = currentTime;
@@ -462,7 +462,7 @@ void Engine::mainLoop() {
 			glfwPollEvents();
 			queryKeyboardGLFW();
 			renderFrame();
-#if defined GAME_USE_VSYNC
+#if defined GAME_USE_FRAMERATE_CAP_60
 		}
 #endif
 
@@ -1202,24 +1202,30 @@ VkSurfaceFormatKHR Engine::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFo
 *	Purpose:		Enumerates best present mode for swapchain
 *
 */
-VkPresentModeKHR Engine::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes_) {
+VkPresentModeKHR Engine::chooseSwapPresentMode(const std::vector< VkPresentModeKHR > availablePresentModes_) {
 	
-	VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
+	VkPresentModeKHR bestMode = VK_PRESENT_MODE_MAILBOX_KHR;
+
+	std::string mode = "VK_PRESENT_MODE_MAILBOX_KHR";
 
 	for (const auto& availablePresentMode : availablePresentModes_) {
 	
-		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+		if (availablePresentMode == VK_PRESENT_MODE_FIFO_KHR) {
 		
-			return availablePresentMode;
+			mode = "VK_PRESENT_MODE_FIFO_KHR";
+			bestMode = availablePresentMode;
 		
 		}
 		else if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
 		
+			mode = "VK_PRESENT_MODE_IMMEDIATE_KHR";
 			bestMode = availablePresentMode;
 		
 		}
 	
 	}
+
+	logger.log(EVENT_LOG, "Swapchain presentation mode:	" + mode);
 
 	return bestMode;
 
