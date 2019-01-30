@@ -18,11 +18,11 @@ void Engine::run() {
 
 	logger.log(EVENT_LOG, "Initializing GLFW-window...");
 	initWindow();
-	game::loadingProgress += 0.1f;
+	engine.loadingProgress += 0.1f;
 	logger.log(EVENT_LOG, "Successfully initialized GLFW-window!");
 	logger.log(EVENT_LOG, "Initializing Vulkan...");
 	initVulkan();
-	game::loadingProgress += 0.1f;
+	engine.loadingProgress += 0.1f;
 	logger.log(EVENT_LOG, "Successfully initialized VULKAN!");
 	logger.log(EVENT_LOG, "Entering main game loop...");
 	mainLoop();	
@@ -96,7 +96,7 @@ void Engine::initWindow() {
 		
 		mode->width,
 		mode->height, 
-		game::TITLE.c_str(),
+		engine.TITLE.c_str(),
 		monitor,
 		nullptr
 	
@@ -108,7 +108,7 @@ void Engine::initWindow() {
 
 		WIDTH,
 		HEIGHT,
-		game::TITLE.c_str(),
+		engine.TITLE.c_str(),
 		nullptr,
 		nullptr
 
@@ -130,7 +130,7 @@ void Engine::initWindow() {
 
 		mode->width,
 		mode->height,
-		game::TITLE.c_str(),
+		engine.TITLE.c_str(),
 		monitor,
 		nullptr
 
@@ -139,9 +139,7 @@ void Engine::initWindow() {
 
 	glfwMakeContextCurrent(window);
 
-	game::loadingProgress += 0.1f;
-
-	game::pWindow = window;
+	loadingProgress += 0.1f;
 
 	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
@@ -178,7 +176,7 @@ void Engine::initWindow() {
 
 	stbi_image_free(windowIcon[0].pixels);
 
-	game::loadingProgress += 0.1f;
+	engine.loadingProgress += 0.1f;
 
 }
 
@@ -197,10 +195,10 @@ void Engine::initVulkan() {
 		createCamera();
 	
 	});
-	game::loadingProgress += 0.1f;
+	engine.loadingProgress += 0.1f;
 
 	init3DAudio();
-	game::loadingProgress += 0.1f;
+	engine.loadingProgress += 0.1f;
 
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t1([=] {
@@ -224,7 +222,7 @@ void Engine::initVulkan() {
 		createTextureSampler(); 
 
 	});
-	game::loadingProgress += 0.1f;
+	engine.loadingProgress += 0.1f;
 	//std::this_thread::sleep_for(std::chrono::seconds(5));		// JUST TO SHOW LOADING SCREEN A LITTLE BIT LONGER!!!
 
 	logger.log(EVENT_LOG, "Starting thread...");
@@ -234,13 +232,13 @@ void Engine::initVulkan() {
 		loadLightVertexData();
 
 	});
-	game::loadingProgress += 0.1f;
+	engine.loadingProgress += 0.1f;
 	
 	t1.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
 	t2.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
-	game::loadingProgress += 0.1f;
+	engine.loadingProgress += 0.1f;
 
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t3([=] {
@@ -254,20 +252,20 @@ void Engine::initVulkan() {
 		createSyncObjects();
 
 	});
-	game::loadingProgress += 0.1f;
+	engine.loadingProgress += 0.1f;
 	t3.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
-	game::loadingProgress += 0.1f;
+	engine.loadingProgress += 0.1f;
 	t0.join();
 	logger.log(EVENT_LOG, "Stopping thread...");
-	game::loadingProgress = 1.0f;
+	engine.loadingProgress = 1.0f;
 
 	glfwShowWindow(window); 
 	glfwFocusWindow(window);
 
-	game::closeStartWindow.lock();
+	engine.closeStartWindow.lock();
 	startWindow->closeVar = true;
-	game::closeStartWindow.unlock();
+	engine.closeStartWindow.unlock();
 
 	delete startWindow;
 
@@ -289,9 +287,9 @@ void Engine::createInstance() {
 	VkApplicationInfo appInfo		= {};
 	appInfo.sType					= VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pNext					= nullptr;
-	appInfo.pApplicationName		= game::TITLE.c_str();
+	appInfo.pApplicationName		= engine.TITLE.c_str();
 	appInfo.applicationVersion		= VK_MAKE_VERSION(1, 0, 0);
-	appInfo.pEngineName				= game::TITLE.c_str();
+	appInfo.pEngineName				= engine.TITLE.c_str();
 	appInfo.engineVersion			= VK_MAKE_VERSION(1, 0, 0);
 	appInfo.apiVersion				= VK_API_VERSION_1_0;
 
@@ -411,7 +409,7 @@ void Engine::mainLoop() {
 
 		double currentTime		= glfwGetTime();
 		double deltaTime		= currentTime - pastTime;
-		game::DELTATIME			= deltaTime;
+		DELTATIME				= deltaTime;
 #if defined GAME_USE_VSYNC
 		if (deltaTime >= maxPeriod) {
 #endif
@@ -444,16 +442,16 @@ void Engine::mainLoop() {
 				
 				irrklang::vec3df(
 					
-					game::camera.position.x, 
-					game::camera.position.y, 
-					game::camera.position.z
+					camera.position.x, 
+					camera.position.y, 
+					camera.position.z
 				
 				),
 				irrklang::vec3df(
 					
-					-game::camera.front.x,
-					-game::camera.front.y,
-					-game::camera.front.z
+					-camera.front.x,
+					-camera.front.y,
+					-camera.front.z
 				
 				)
 			
@@ -627,7 +625,7 @@ void Engine::cleanup() {
 	
 	);
 
-	for (size_t i = 0; i < game::MAX_FRAMES_IN_FLIGHT; i++) {
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 
 		vkDestroySemaphore(
 			
@@ -954,8 +952,6 @@ void Engine::createLogicalDevice() {
 		logger.log(ERROR_LOG, "Failed to create logical device!");
 
 	}
-
-	game::globalDevice = device;
 
 	vkGetDeviceQueue(
 		
@@ -2005,9 +2001,9 @@ void Engine::createCommandBuffers(void) {
 */
 void Engine::createSyncObjects(void) {
 
-	imageAvailableSemaphores.resize(game::MAX_FRAMES_IN_FLIGHT);
-	renderFinishedSemaphores.resize(game::MAX_FRAMES_IN_FLIGHT);
-	inFlightFences.resize(game::MAX_FRAMES_IN_FLIGHT);
+	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
 	VkSemaphoreCreateInfo semaphoreInfo		= {};
 	semaphoreInfo.sType						= VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -2017,7 +2013,7 @@ void Engine::createSyncObjects(void) {
 	fenceInfo.flags							= VK_FENCE_CREATE_SIGNALED_BIT;
 
 
-	for (size_t i = 0; i < game::MAX_FRAMES_IN_FLIGHT; i++) {
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 
 		if (vkCreateSemaphore(
 
@@ -2156,7 +2152,7 @@ void Engine::renderFrame(void) {
 
 	vkQueueWaitIdle(presentQueue);
 
-	currentFrame = (currentFrame + 1) % game::MAX_FRAMES_IN_FLIGHT;
+	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
 }
 
@@ -2840,16 +2836,16 @@ void Engine::updateUniformBuffers(uint32_t currentImage_) {
 	UniformBufferObject ubo				= {};
 	ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	ubo.model							= glm::rotate(ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view							= game::camera.getViewMatrix();
-	ubo.proj							= glm::perspective(glm::radians(game::camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
+	ubo.view							= camera.getViewMatrix();
+	ubo.proj							= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
 	ubo.proj[1][1]						*= -1;
 
 	UniformBufferObject lightubo		= {};
 	lightubo.model						= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	lightubo.model						= glm::translate(lightubo.model, glm::vec3(10.0));
 	lightubo.model						= glm::rotate(lightubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	lightubo.view						= game::camera.getViewMatrix();
-	lightubo.proj						= glm::perspective(glm::radians(game::camera.zoom), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
+	lightubo.view						= camera.getViewMatrix();
+	lightubo.proj						= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
 	lightubo.proj[1][1]			        *= -1;
 
 	void* data;
@@ -3873,10 +3869,10 @@ void Engine::keyboardInputCallback(
 				glfwSetWindowShouldClose(window_, GLFW_TRUE);
 				break;
 			case GLFW_KEY_LEFT_CONTROL:
-				game::camera.disableInput();
+				engine.camera.disableInput();
 				glfwSetInputMode(
 
-					game::pWindow,
+					engine.window,
 					GLFW_CURSOR,
 					GLFW_CURSOR_NORMAL
 
@@ -3909,10 +3905,10 @@ void Engine::keyboardInputCallback(
 		switch(key_) {
 		
 			case GLFW_KEY_LEFT_CONTROL:
-				game::camera.enableInput();
+				engine.camera.enableInput();
 				glfwSetInputMode(
 
-					game::pWindow,
+					engine.window,
 					GLFW_CURSOR,
 					GLFW_CURSOR_DISABLED
 
@@ -4177,20 +4173,20 @@ void Engine::mouseCallback(
 
 ) {
 
-	if (game::firstMouse) {
+	if (engine.firstMouse) {
 	
-		game::lastX			= xPos_;
-		game::lastY			= yPos_;
-		game::firstMouse		= false;
+		engine.lastX			= xPos_;
+		engine.lastY			= yPos_;
+		engine.firstMouse		= false;
 	
 	}
 
-	double xOffset		= xPos_ - game::lastX;
-	double yOffset		= -(yPos_ - game::lastY);
-	game::lastX			= xPos_;
-	game::lastY			= yPos_;
+	double xOffset			= xPos_ - engine.lastX;
+	double yOffset			= -(yPos_ - engine.lastY);
+	engine.lastX			= xPos_;
+	engine.lastY			= yPos_;
 
-	game::camera.processMouseMovement(static_cast< float >(xOffset), static_cast< float >(yOffset));
+	engine.camera.processMouseMovement(static_cast< float >(xOffset), static_cast< float >(yOffset));
 
 }
 
@@ -4213,7 +4209,7 @@ void Engine::scrollCallback(
 
 ) {
 
-	game::camera.processMouseScroll(static_cast< float >(yOffset_));
+	engine.camera.processMouseScroll(static_cast< float >(yOffset_));
 
 }
 
@@ -4224,7 +4220,7 @@ void Engine::scrollCallback(
 */
 void Engine::createCamera(void) {
 	
-	game::camera = Camera(
+	camera = Camera(
 
 		glm::vec3(
 			
@@ -4253,24 +4249,24 @@ void Engine::createCamera(void) {
 */
 void Engine::queryKeyboardGLFW(void) {
 
-	if (glfwGetKey(game::pWindow, GLFW_KEY_W) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 
-		game::camera.processKeyboard(FORWARD, static_cast< float >(game::DELTATIME));
-
-	}
-	if (glfwGetKey(game::pWindow, GLFW_KEY_S) == GLFW_PRESS) {
-
-		game::camera.processKeyboard(BACKWARD, static_cast< float >(game::DELTATIME));
+		camera.processKeyboard(FORWARD, static_cast< float >(DELTATIME));
 
 	}
-	if (glfwGetKey(game::pWindow, GLFW_KEY_A) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 
-		game::camera.processKeyboard(LEFT, static_cast< float >(game::DELTATIME));
+		camera.processKeyboard(BACKWARD, static_cast< float >(DELTATIME));
 
 	}
-	if (glfwGetKey(game::pWindow, GLFW_KEY_D) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 
-		game::camera.processKeyboard(RIGHT, static_cast< float >(game::DELTATIME));
+		camera.processKeyboard(LEFT, static_cast< float >(DELTATIME));
+
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+
+		camera.processKeyboard(RIGHT, static_cast< float >(DELTATIME));
 
 	}
 

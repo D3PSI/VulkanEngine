@@ -1,4 +1,7 @@
 #include "StartWindow.hpp"
+#include "Engine.hpp"
+
+extern Engine											engine;
 
 /*
 *	Function:		StartWindow()
@@ -7,9 +10,9 @@
 */
 StartWindow::StartWindow() {
 
-	game::closeStartWindow.lock();
+	engine.closeStartWindow.lock();
 	closeVar = false;
-	game::closeStartWindow.unlock();
+	engine.closeStartWindow.unlock();
 
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 
@@ -19,7 +22,7 @@ StartWindow::StartWindow() {
 
 	window = SDL_CreateWindow(
 
-		game::TITLE.c_str(),
+		engine.TITLE.c_str(),
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		600,
@@ -93,9 +96,9 @@ void StartWindow::loop() {
 
 			if (e.type == SDL_QUIT) {
 
-				game::closeStartWindow.lock();
+				engine.closeStartWindow.lock();
 				closeVar = true;
-				game::closeStartWindow.unlock();
+				engine.closeStartWindow.unlock();
 
 			}
 
@@ -104,7 +107,7 @@ void StartWindow::loop() {
 		SDL_Rect rectProgress;
 		rectProgress.x = 100;
 		rectProgress.y = 500;
-		rectProgress.w = static_cast< int >(game::loadingProgress * 400);
+		rectProgress.w = static_cast< int >(engine.loadingProgress * 400);
 		rectProgress.h = 20;
 
 		SDL_RenderCopy(

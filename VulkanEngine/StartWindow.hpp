@@ -11,9 +11,7 @@
 
 namespace game {
 
-	extern std::mutex									closeStartWindow;
-	extern const std::string							TITLE;
-	extern float										loadingProgress;
+
 
 }
 

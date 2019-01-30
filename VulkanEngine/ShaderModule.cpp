@@ -4,6 +4,8 @@
 */
 #include "ShaderModule.hpp"
 #include "Engine.hpp"
+
+extern Engine				engine;
 /*
 *	Function:		ShaderModule()
 *	Purpose:		Default constructor
@@ -30,7 +32,7 @@ ShaderModule::ShaderModule(const std::string& fileName_) {
 	createInfo.pCode							= reinterpret_cast< const uint32_t* >(code.data());
 	if (vkCreateShaderModule(
 
-		game::globalDevice,
+		engine.device,
 		&createInfo,
 		nullptr,
 		&shaderModule

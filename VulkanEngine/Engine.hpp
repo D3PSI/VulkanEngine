@@ -6,6 +6,7 @@
 #pragma once
 #include "VERSION.cpp"
 #define NOMINMAX
+#include <Windows.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <SDL.h>
@@ -54,19 +55,6 @@ extern Logger											logger;
 
 namespace game {
 
-	extern std::mutex									closeStartWindow;
-	extern const std::string							TITLE;
-
-	extern Camera										camera;
-	extern bool											firstMouse;
-	extern double										lastX;
-	extern double										lastY;
-	extern double										DELTATIME;
-	extern GLFWwindow*									pWindow;
-	extern const unsigned int							MAX_FRAMES_IN_FLIGHT;
-	extern float										loadingProgress;
-	extern VkDevice										globalDevice;
-
 	VkResult CreateDebugUtilsMessengerEXT(
 
 		VkInstance										instance_,
@@ -90,6 +78,17 @@ namespace game {
 class Engine
 {
 public:
+	Camera												camera;
+	VkDevice											device;
+	bool												firstMouse					= true;
+	double												lastX						= WIDTH / 2;
+	double												lastY						= HEIGHT / 2;
+	std::mutex											closeStartWindow;
+	const std::string									TITLE						= "VULKANENGINE by D3PSI\0";
+	const unsigned int									MAX_FRAMES_IN_FLIGHT		= 2;
+	float												loadingProgress				= 0.0f;
+	double												DELTATIME;
+
 	void run(void);
 private:
 	VkResult									result;
@@ -111,7 +110,6 @@ private:
 	};
 	VkInstance									instance;
 	VkPhysicalDevice							physicalDevice					= VK_NULL_HANDLE;
-	VkDevice									device;
 	VkSurfaceKHR								surface;
 	VkQueue										graphicsQueue;
 	VkQueue										presentQueue;
@@ -347,3 +345,5 @@ private:
 	void loadLightVertexData(void);
 
 };
+
+extern Engine											engine;

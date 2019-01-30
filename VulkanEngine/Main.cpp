@@ -27,6 +27,7 @@
 #if !defined GAME_USE_VSYNC && !defined GAME_NO_VSYNC
 	#define GAME_NO_VSYNC
 #endif
+#include <Windows.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #define GLM_FORCE_RADIANS
@@ -55,7 +56,8 @@
 *
 *
 */
-Logger			logger;
+Engine												engine;
+Logger												logger;
 
 /*
 *	Prototypes
@@ -96,18 +98,6 @@ namespace game {
 	*	
 	*
 	*/
-	std::mutex											closeStartWindow;
-	const std::string									TITLE								= "VULKANENGINE by D3PSI\0";
-	Engine												engine;
-	Camera												camera;
-	bool												firstMouse							= true;
-	double												lastX								= WIDTH / 2;
-	double												lastY								= HEIGHT / 2;
-	double												DELTATIME;
-	GLFWwindow*											pWindow;
-	const unsigned int									MAX_FRAMES_IN_FLIGHT				= 2;
-	float												loadingProgress						= 0.0f;
-	VkDevice											globalDevice;
 
 	/*
 	*	Function:		VkResult game::CreateDebugUtilsMessengerEXT(
