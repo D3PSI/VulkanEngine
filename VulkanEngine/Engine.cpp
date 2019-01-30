@@ -189,6 +189,8 @@ void Engine::initVulkan() {
 
 	numThreads = getNumThreads();
 
+	std::cout << green << "std::thread::hardware_concurrency()" << white << ":		" << yellow << numThreads << white << std::endl;
+
 	logger.log(EVENT_LOG, "Starting thread...");
 	std::thread t0([=] {
 	
