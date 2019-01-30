@@ -80,13 +80,13 @@ class Engine
 public:
 	Camera												camera;
 	VkDevice											device;
-	bool												firstMouse					= true;
-	double												lastX						= WIDTH / 2;
-	double												lastY						= HEIGHT / 2;
+	bool												firstMouse						= true;
+	double												lastX							= WIDTH / 2;
+	double												lastY							= HEIGHT / 2;
 	std::mutex											closeStartWindow;
-	const std::string									TITLE						= "VULKANENGINE by D3PSI\0";
-	const unsigned int									MAX_FRAMES_IN_FLIGHT		= 2;
-	float												loadingProgress				= 0.0f;
+	const std::string									TITLE							= "VULKANENGINE by D3PSI\0";
+	const unsigned int									MAX_FRAMES_IN_FLIGHT			= 2;
+	float												loadingProgress					= 0.0f;
 	double												DELTATIME;
 
 	void run(void);
