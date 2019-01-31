@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <array>
 
-struct LightVertex {
+struct CubeVertex {
 
 	glm::vec3 pos;
 
@@ -12,7 +12,7 @@ struct LightVertex {
 	
 		VkVertexInputBindingDescription bindingDescription		= {};
 		bindingDescription.binding								= 0;
-		bindingDescription.stride								= sizeof(LightVertex);
+		bindingDescription.stride								= sizeof(CubeVertex);
 		bindingDescription.inputRate							= VK_VERTEX_INPUT_RATE_VERTEX;
 
 		return bindingDescription;
@@ -26,13 +26,13 @@ struct LightVertex {
 		attributeDescriptions[0].binding			= 0;
 		attributeDescriptions[0].location			= 0;
 		attributeDescriptions[0].format				= VK_FORMAT_R32G32B32_SFLOAT;
-		attributeDescriptions[0].offset				= offsetof(LightVertex, pos);
+		attributeDescriptions[0].offset				= offsetof(CubeVertex, pos);
 	
 		return attributeDescriptions;
 
 	}
 
-	bool operator==(const LightVertex& other) const {
+	bool operator==(const CubeVertex& other) const {
 
 		return pos == other.pos;
 

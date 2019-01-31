@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Hash.cpp" />
@@ -144,7 +145,7 @@
     <ClCompile Include="QueueFamilyIndices.cpp" />
     <ClCompile Include="ShaderModule.cpp" />
     <ClCompile Include="Pipeline.cpp" />
-    <ClCompile Include="LightVertex.cpp" />
+    <ClCompile Include="CubeVertex.cpp" />
     <ClCompile Include="StartWindow.cpp" />
     <ClCompile Include="SwapChainSupportDetails.cpp" />
     <ClCompile Include="UniformBufferObject.cpp" />
@@ -154,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="ConsoleColor.hpp" />
+    <ClInclude Include="Cube.hpp" />
     <ClInclude Include="Object.hpp" />
     <ClInclude Include="Engine.hpp" />
     <ClInclude Include="Logger.hpp" />

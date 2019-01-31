@@ -18,7 +18,7 @@ class Object {
 public:
 	Object(void);
 	Object(const std::string fileName_);
-	void draw(
+	virtual void draw(
 		
 		VkCommandBuffer			commandBuffer_,
 		VkDeviceSize*			vertexOffsets_,
@@ -36,8 +36,9 @@ protected:
 	VkBuffer								indexBuffer;
 	VkDeviceMemory							indexBufferMemory;
 
+	void loadwithtinyobjloader(const std::string fileName_);
 	void load(const std::string fileName_);
-	void createVertexBuffer(void);
+	virtual void createVertexBuffer(void);
 	void createIndexBuffer(void);
 	void bindVBO(VkCommandBuffer commandBuffer_, VkDeviceSize* offsets_);
 	void bindIBO(

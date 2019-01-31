@@ -25,14 +25,18 @@ Object::Object(void) {
 */
 Object::Object(const std::string fileName_) {
 
+#if defined GAME_USE_TINY_OBJ
+	loadwithtinyobjloader(fileName_);
+#elif !defined GAME_USE_TINY_OBJ
 	load(fileName_);
+#endif
 	createVertexBuffer();
 	createIndexBuffer();
 
 }
 
 /*
-*	Function:		void draw(
+*	Function:		virtual void draw(
 *	
 *						VkCommandBuffer			commandBuffer_, 
 *						VkDeviceSize*			vertexOffsets_,
@@ -135,11 +139,11 @@ Object::~Object() {
 }
 
 /*
-*	Function:		void load(const std::string fileName_)
-*	Purpose:		Loads vertex data into array using ASSIMP
+*	Function:		void loadwithtinyobjloader(const std::string fileName_)
+*	Purpose:		Loads vertex data into array using the tiny_obj_loader library
 *
 */
-void Object::load(const std::string fileName_) {
+void Object::loadwithtinyobjloader(const std::string fileName_) {
 
 	tinyobj::attrib_t						attrib;
 	std::vector< tinyobj::shape_t >			shapes;
@@ -202,7 +206,18 @@ void Object::load(const std::string fileName_) {
 }
 
 /*
-*	Function:		void createVertexBuffer()
+*	Function:		void load(const std::string fileName_)
+*	Purpose:		Loads a 3D-model from a file using ASSIMP and the Mesh class
+*
+*/
+void Object::load(const std::string fileName_) {
+
+
+
+}
+
+/*
+*	Function:		virtual void createVertexBuffer()
 *	Purpose:		Creates a valid VkBuffer handle with correct layout from the vertices vector
 *
 */

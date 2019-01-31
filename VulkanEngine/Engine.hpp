@@ -28,6 +28,7 @@
 #include <chrono>
 #include <unordered_map>
 #include <conio.h>
+#include <memory>
 #include <thread>
 
 #include "Logger.hpp"
@@ -41,8 +42,9 @@
 #include "ConsoleColor.hpp"
 #include "Object.hpp"
 #include "Model.hpp"
-#include "LightVertex.cpp"
+#include "CubeVertex.cpp"
 #include "Pipeline.hpp"
+#include "Cube.hpp"
 
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
@@ -92,7 +94,6 @@ public:
 	double												DELTATIME;
 
 	void run(void); 
-	void createVertexBuffer(void);
 	uint32_t findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags properties_);
 	void createBuffer(
 
@@ -110,7 +111,6 @@ public:
 		VkDeviceSize	size_
 
 	);
-	void createIndexBuffer(void);
 private:
 	VkResult											result;
 	GLFWwindow*											window;
@@ -162,9 +162,6 @@ private:
 	VkDeviceMemory										textureImageMemory;
 	VkImageView											textureImageView;
 	VkSampler											textureSampler;
-	VkBuffer											lightingVertexBuffer;
-	VkDeviceMemory										lightingVertexBufferMemory;
-	std::vector< LightVertex >							lightingVertices;
 	VkDescriptorPool									lightingDescriptorPool;
 	VkImage												depthImage;
 	VkDeviceMemory										depthImageMemory;
@@ -185,7 +182,11 @@ private:
 	Pipeline											objectPipeline;
 	Pipeline											lightingPipeline;
 
-	Model												chalet;
+	std::vector< std::unique_ptr< Object > >			objectPipelineObjects;
+	std::vector< std::unique_ptr< Object > >			lightingPipelineObjects;
+
+	Model*												chalet;
+	Cube*												cube;
 
 	irrklang::ISoundEngine*								audioEngine;
 	irrklang::ISound*									bgmusic;
@@ -336,7 +337,6 @@ private:
 	void createCamera(void);
 	void queryKeyboardGLFW(void);
 	void init3DAudio(void);
-	void loadLightVertexData(void);
 
 };
 
