@@ -582,35 +582,7 @@ void Engine::cleanup() {
 	
 	}
 
-	/*vkDestroyBuffer(
-	
-		device,
-		indexBuffer,
-		nullptr
-	
-	);
-	vkFreeMemory(
-	
-		device,
-		indexBufferMemory,
-		nullptr
-	
-	);
-
-	vkDestroyBuffer(
-	
-		device,
-		vertexBuffer,
-		nullptr
-	
-	);
-	vkFreeMemory(
-	
-		device,
-		vertexBufferMemory,
-		nullptr
-
-	);*/
+	chalet.destroy();
 
 	vkDestroyBuffer(
 	
@@ -3628,7 +3600,7 @@ bool Engine::hasStencilComponent(VkFormat format_) {
 */
 void Engine::loadModels(void) {
 
-	chalet = Object(MODEL_PATH);
+	chalet = Model(CHALET_PATH);
 
 }
 

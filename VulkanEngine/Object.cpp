@@ -8,6 +8,17 @@
 #include "Engine.hpp"
 
 /*
+*	Function:		Object()
+*	Purpose:		Default constructor
+*
+*/
+Object::Object(void) {
+
+
+
+}
+
+/*
 *	Function:		Object(const std::string fileName_)
 *	Purpose:		Constructor
 *	
@@ -119,7 +130,7 @@ void Object::bindIBO(
 */
 Object::~Object() {
 
-	
+
 
 }
 
@@ -232,8 +243,6 @@ void Object::createVertexBuffer() {
 	);
 	vkUnmapMemory(engine.device, stagingBufferMemory);
 
-	std::cout << "Working" << std::endl;
-
 	engine.createBuffer(
 
 		bufferSize,
@@ -341,6 +350,45 @@ void Object::createIndexBuffer() {
 
 		engine.device,
 		stagingBufferMemory,
+		nullptr
+
+	);
+
+}
+
+/*
+*	Function:		void destroy()
+*	Purpose:		Destroys all allocated resources per object
+*
+*/
+void Object::destroy() {
+
+	vkDestroyBuffer(
+
+		engine.device,
+		vertexBuffer,
+		nullptr
+
+	);
+	vkFreeMemory(
+
+		engine.device,
+		vertexBufferMemory,
+		nullptr
+
+	);
+
+	vkDestroyBuffer(
+
+		engine.device,
+		indexBuffer,
+		nullptr
+
+	);
+	vkFreeMemory(
+
+		engine.device,
+		indexBufferMemory,
 		nullptr
 
 	);

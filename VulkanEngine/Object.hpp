@@ -16,6 +16,7 @@ extern Logger logger;
 
 class Object {
 public:
+	Object(void);
 	Object(const std::string fileName_);
 	void draw(
 		
@@ -25,6 +26,7 @@ public:
 		VkIndexType				indexType_
 
 	);
+	void destroy(void);
 	~Object();
 protected:
 	std::vector< Vertex >					vertices;
