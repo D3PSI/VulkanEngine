@@ -4,7 +4,6 @@
 */
 #include "Pipeline.hpp"
 #include "Engine.hpp"
-#include <assimp/Importer.hpp>
 
 extern Engine engine;
 

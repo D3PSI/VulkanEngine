@@ -39,6 +39,8 @@
 #include "Camera.hpp"
 #include "StartWindow.hpp"
 #include "ConsoleColor.hpp"
+#include "Object.hpp"
+#include "Model.hpp"
 #include "LightVertex.cpp"
 #include "Pipeline.hpp"
 
@@ -89,7 +91,26 @@ public:
 	float												loadingProgress					= 0.0f;
 	double												DELTATIME;
 
-	void run(void);
+	void run(void); 
+	void createVertexBuffer(void);
+	uint32_t findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags properties_);
+	void createBuffer(
+
+		VkDeviceSize				size_,
+		VkBufferUsageFlags			usage_,
+		VkMemoryPropertyFlags		properties_,
+		VkBuffer&					buffer_,
+		VkDeviceMemory&				bufferMemory_
+
+	);
+	void copyBuffer(
+
+		VkBuffer		srcBuffer_,
+		VkBuffer		dstBuffer_,
+		VkDeviceSize	size_
+
+	);
+	void createIndexBuffer(void);
 private:
 	VkResult											result;
 	GLFWwindow*											window;
@@ -130,8 +151,6 @@ private:
 	std::vector< VkFence >								inFlightFences;
 	size_t												currentFrame					= 0;
 	bool												framebufferResized				= false;
-	VkBuffer											indexBuffer;
-	VkDeviceMemory										indexBufferMemory;
 	std::vector< VkBuffer >								uniformBuffers;
 	std::vector< VkBuffer >								lightUniformBuffers;
 	std::vector< VkDeviceMemory >						uniformBuffersMemory;
@@ -143,10 +162,6 @@ private:
 	VkDeviceMemory										textureImageMemory;
 	VkImageView											textureImageView;
 	VkSampler											textureSampler;
-	std::vector< Vertex >								vertices;
-	VkBuffer											vertexBuffer;
-	VkDeviceMemory										vertexBufferMemory;
-	std::vector< uint32_t >								indices;
 	VkBuffer											lightingVertexBuffer;
 	VkDeviceMemory										lightingVertexBufferMemory;
 	std::vector< LightVertex >							lightingVertices;
@@ -169,6 +184,8 @@ private:
 
 	Pipeline											objectPipeline;
 	Pipeline											lightingPipeline;
+
+	Object												chalet;
 
 	irrklang::ISoundEngine*								audioEngine;
 	irrklang::ISound*									bgmusic;
@@ -221,25 +238,6 @@ private:
 		int				eight_
 	
 	);
-	void createVertexBuffer(void);
-	uint32_t findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags properties_);
-	void createBuffer(
-		
-		VkDeviceSize				size_, 
-		VkBufferUsageFlags			usage_, 
-		VkMemoryPropertyFlags		properties_,
-		VkBuffer&					buffer_, 
-		VkDeviceMemory&				bufferMemory_
-	
-	);
-	void copyBuffer(
-	
-		VkBuffer		srcBuffer_,
-		VkBuffer		dstBuffer_,
-		VkDeviceSize	size_
-	
-	);
-	void createIndexBuffer(void);
 	void createDescriptorSetLayout(void);
 	void createUniformBuffers(void);
 	void updateUniformBuffers(uint32_t currentImage_);

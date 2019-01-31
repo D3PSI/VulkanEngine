@@ -8,7 +8,7 @@
 
 /*
 *	Function:		Mesh()
-*	Purpose:		Default constructor
+*	Purpose:		Constructor
 *
 */
 Mesh::Mesh() {
