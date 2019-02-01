@@ -24,9 +24,6 @@
 #if defined GAME_RELEASE && !defined GAME_DEVELOPMENT
 	#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #endif
-#if !defined GAME_WINDOW_MODE_BORDERLESS && !defined GAME_WINDOW_MODE_FULLSCREEN && !defined GAME_WINDOW_MODE_WINDOWED
-	#define GAME_WINDOW_MODE_WINDOWED
-#endif
 #if !defined GAME_USE_FRAMERATE_CAP_60 && !defined GAME_NO_FRAMERATE_CAP
 	#define GAME_NO_FRAMERATE_CAP
 #endif
