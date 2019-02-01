@@ -190,74 +190,46 @@ void Engine::initVulkan() {
 	numThreads = getNumThreads();
 
 	std::cout << green << "std::thread::hardware_concurrency()" << white << ":		" << yellow << numThreads << white << std::endl;
+	
+	createCamera();
 
-	logger.log(EVENT_LOG, "Starting thread...");
-	std::thread t0([=] {
-	
-		createCamera();
-	
-	});
 	engine.loadingProgress += 0.1f;
 
 	init3DAudio();
+
 	engine.loadingProgress += 0.1f;
 
-	logger.log(EVENT_LOG, "Starting thread...");
-	std::thread t1([=] {
 
-		createInstance();
-		setupDebugCallback();
-		createSurface();
-		pickPhysicalDevice();
-		createLogicalDevice();
-		createSwapChain();
-		createImageViews();
-		createRenderPass();
-		createDescriptorSetLayout();
-		createPipelines();
-		createCommandPool();
-		createColorResources();
-		createDepthResources();
-		createFramebuffers();
-		createTextureImage();
-		createTextureImageView();
-		createTextureSampler(); 
+	createInstance();
+	setupDebugCallback();
+	createSurface();
+	pickPhysicalDevice();
+	createLogicalDevice();
+	createSwapChain();
+	createImageViews();
+	createRenderPass();
+	createDescriptorSetLayout();
+	createPipelines();
+	createCommandPool();
+	createColorResources();
+	createDepthResources();
+	createFramebuffers();
+	createTextureImage();
+	createTextureImageView();
+	createTextureSampler(); 
 
-	});
 	engine.loadingProgress += 0.1f;
 	//std::this_thread::sleep_for(std::chrono::seconds(5));		// JUST TO SHOW LOADING SCREEN A LITTLE BIT LONGER!!!
-
-	logger.log(EVENT_LOG, "Starting thread...");
-	std::thread t2([=] {
-
-		loadModels(); 
-
-	});
-	engine.loadingProgress += 0.1f;
 	
-	t1.join();
-	logger.log(EVENT_LOG, "Stopping thread...");
-	t2.join();
-	logger.log(EVENT_LOG, "Stopping thread...");
+	loadModels(); 
+
 	engine.loadingProgress += 0.1f;
 
-	logger.log(EVENT_LOG, "Starting thread...");
-	std::thread t3([=] {
-
-		createUniformBuffers();
-		createDescriptorPool();
-		createDescriptorSets();
-		createCommandBuffers();
-		createSyncObjects();
-
-	});
-	engine.loadingProgress += 0.1f;
-	t3.join();
-	logger.log(EVENT_LOG, "Stopping thread...");
-	engine.loadingProgress += 0.1f;
-	t0.join();
-	logger.log(EVENT_LOG, "Stopping thread...");
-	engine.loadingProgress = 1.0f;
+	createUniformBuffers();
+	createDescriptorPool();
+	createDescriptorSets();
+	createCommandBuffers();
+	createSyncObjects();
 
 	glfwShowWindow(window); 
 	glfwFocusWindow(window);
@@ -1506,7 +1478,6 @@ void Engine::createPipelines(void) {
 
 	);
 
-
 	VkVertexInputBindingDescription lightingBindingDescription								= CubeVertex::getBindingDescription();
 	std::array< VkVertexInputAttributeDescription, 1 > lightingAttributeDescriptions		= CubeVertex::getAttributeDescriptions();
 
@@ -1769,7 +1740,7 @@ void Engine::createCommandBuffers(void) {
 		renderPassBeginInfo.renderArea.extent			= swapChainExtent;
 
 		std::array< VkClearValue, 2 > clearValues		= {};
-		clearValues[0].color							= {0.0f, 0.0f, 0.0f, 1.0f};
+		clearValues[0].color							= {23.0f / 255.0f, 166.0f / 255.0f, 255.0f / 255.0f, 1.0f};
 		clearValues[1].depthStencil						= {1.0f, 0};
 		renderPassBeginInfo.clearValueCount				= static_cast< uint32_t >(clearValues.size());
 		renderPassBeginInfo.pClearValues				= clearValues.data();
@@ -1794,8 +1765,9 @@ void Engine::createCommandBuffers(void) {
 
 			objectPipeline.bind(commandBuffers[i], &objectDescriptorSets[i]);
 
-				VkDeviceSize offsets[]		= {0};
+				VkDeviceSize offsets[] = {0};
 				for (auto& obj : objectPipelineObjects) {
+
 					obj->draw(
 
 						commandBuffers[i],
@@ -1804,6 +1776,7 @@ void Engine::createCommandBuffers(void) {
 						VK_INDEX_TYPE_UINT32
 
 					);
+
 				}
 
 			lightingPipeline.bind(commandBuffers[i], &lightingDescriptorSets[i]);
@@ -2033,7 +2006,7 @@ void Engine::recreateSwapChain(void) {
 
 /*
 *	Function:		void cleanupSwapChain()
-*	Purpose:		Cleans objectPipelineObjects, that are needed for swapchain recreation
+*	Purpose:		Cleans objects, that are needed for swapchain recreation
 *
 */
 void Engine::cleanupSwapChain(void) {
@@ -2432,7 +2405,7 @@ void Engine::updateUniformBuffers(uint32_t currentImage_) {
 	UniformBufferObject lightubo		= {};
 	lightubo.model						= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	lightubo.model						= glm::translate(lightubo.model, glm::vec3(10.0));
-	lightubo.model						= glm::rotate(lightubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	lightubo.model						= glm::rotate(lightubo.model, time * glm::radians(-30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	lightubo.view						= camera.getViewMatrix();
 	lightubo.proj						= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
 	lightubo.proj[1][1]			        *= -1;
@@ -2517,11 +2490,11 @@ void Engine::createDescriptorPool(void) {
 	
 	}
 
-	std::array< VkDescriptorPoolSize, 1 > lightingPoolSizes			= {};
+	std::array< VkDescriptorPoolSize, 1 > lightingPoolSizes					= {};
 	lightingPoolSizes[0].type												= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	lightingPoolSizes[0].descriptorCount									= static_cast< uint32_t >(swapChainImages.size());
 
-	VkDescriptorPoolCreateInfo lightingPoolInfo						= {};
+	VkDescriptorPoolCreateInfo lightingPoolInfo								= {};
 	lightingPoolInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	lightingPoolInfo.poolSizeCount											= static_cast< uint32_t >(lightingPoolSizes.size());
 	lightingPoolInfo.pPoolSizes												= lightingPoolSizes.data();
