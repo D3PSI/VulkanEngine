@@ -358,7 +358,7 @@ void Engine::mainLoop() {
 
 		bgmusic = audioEngine->play3D(
 			
-			"res/sounds/bgmusic.wav",
+			"res/sounds/bgmusic2.wav",
 			irrklang::vec3df(0, 0, 0),
 			true, 
 			false, 
