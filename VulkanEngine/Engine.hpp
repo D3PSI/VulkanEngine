@@ -92,6 +92,8 @@ public:
 	const unsigned int									MAX_FRAMES_IN_FLIGHT			= 2;
 	float												loadingProgress					= 0.0f;
 	double												DELTATIME;
+	VkDescriptorPool									descriptorPool;
+	std::vector< VkImage >								swapChainImages;
 
 	void run(void); 
 	uint32_t findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags properties_);
@@ -136,13 +138,11 @@ private:
 	VkQueue												presentQueue;
 	VkDebugUtilsMessengerEXT							callback;
 	VkSwapchainKHR										swapChain;
-	std::vector< VkImage >								swapChainImages;
 	VkFormat											swapChainImageFormat;
 	VkColorSpaceKHR										swapChainImageColorSpace;
 	VkExtent2D											swapChainExtent;
 	std::vector< VkImageView >							swapChainImageViews;
 	VkRenderPass										renderPass;
-	VkDescriptorPool									descriptorPool;
 	std::vector< VkFramebuffer >						swapChainFramebuffers;
 	VkCommandPool										commandPool;
 	std::vector< VkCommandBuffer >						commandBuffers;
@@ -173,10 +173,8 @@ private:
 	const float											maxFPS							= 60.0f;
 	const float											maxPeriod						= 1.0f / maxFPS; 
 
-	VkDescriptorSetLayout								objectDescriptorSetLayout;
 	std::vector< VkDescriptorSet >						objectDescriptorSets;
 
-	VkDescriptorSetLayout								lightingDescriptorSetLayout;
 	std::vector< VkDescriptorSet >						lightingDescriptorSets;
 
 	Pipeline											objectPipeline;

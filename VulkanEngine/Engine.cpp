@@ -2304,7 +2304,7 @@ void Engine::createDescriptorSetLayout(void) {
 	samplerLayoutBinding.pImmutableSamplers						= nullptr;
 	samplerLayoutBinding.stageFlags								= VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array< VkDescriptorSetLayoutBinding, 2 > bindings		= { uboLayoutBinding, samplerLayoutBinding };
+	std::vector< VkDescriptorSetLayoutBinding > bindings		= { uboLayoutBinding, samplerLayoutBinding };
 	VkDescriptorSetLayoutCreateInfo layoutInfo					= {};
 	layoutInfo.sType											= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount										= static_cast< uint32_t >(bindings.size());
@@ -2323,7 +2323,7 @@ void Engine::createDescriptorSetLayout(void) {
 
 	}
 
-	std::array< VkDescriptorSetLayoutBinding, 1 > lightingBindings				= { uboLayoutBinding };
+	std::vector< VkDescriptorSetLayoutBinding > lightingBindings				= { uboLayoutBinding };
 	VkDescriptorSetLayoutCreateInfo lightingLayoutInfo							= {};
 	lightingLayoutInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	lightingLayoutInfo.bindingCount												= static_cast< uint32_t >(lightingBindings.size());

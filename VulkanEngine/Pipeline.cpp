@@ -21,21 +21,21 @@ Pipeline::Pipeline() {
 /*
 *	Function:		Pipeline(
 *
-*						const std::string&									vertShaderPath_,
-*						const std::string&									fragShaderPath_,
-*						const VkPipelineVertexInputStateCreateInfo*			vertexInputInfo_,
-*						const VkPipelineInputAssemblyStateCreateInfo*		inputAssembly_,
-*						const VkPipelineViewportStateCreateInfo*			viewportState_,
-*						const VkPipelineRasterizationStateCreateInfo*		rasterizer_,
-*						const VkPipelineMultisampleStateCreateInfo*			multisampling_,
-*						const VkPipelineDepthStencilStateCreateInfo*		depthStencil_,
-*						const VkPipelineColorBlendStateCreateInfo*			colorBlending_,
-*						const VkPipelineDynamicStateCreateInfo*				dynamicState_,
-*						VkRenderPass										renderPass_,
-*						uint32_t											subPass_,
-*						VkPipeline											basePipeline_,
-*						int32_t												basePipelineIndex_,
-*						const VkDescriptorSetLayout*						descriptorSetLayout_
+*						const std::string&										vertShaderPath_,
+*						const std::string&										fragShaderPath_,
+*						const VkPipelineVertexInputStateCreateInfo*				vertexInputInfo_,
+*						const VkPipelineInputAssemblyStateCreateInfo*			inputAssembly_,
+*						const VkPipelineViewportStateCreateInfo*				viewportState_,
+*						const VkPipelineRasterizationStateCreateInfo*			rasterizer_,
+*						const VkPipelineMultisampleStateCreateInfo*				multisampling_,
+*						const VkPipelineDepthStencilStateCreateInfo*			depthStencil_,
+*						const VkPipelineColorBlendStateCreateInfo*				colorBlending_,
+*						const VkPipelineDynamicStateCreateInfo*					dynamicState_,
+*						VkRenderPass											renderPass_,
+*						uint32_t												subPass_,
+*						VkPipeline												basePipeline_,
+*						int32_t													basePipelineIndex_,
+*						const std::vector< VkDescriptorSetLayoutBinding >*		bindings_
 *
 *					)
 *	Purpose:		Constructor
@@ -43,21 +43,21 @@ Pipeline::Pipeline() {
 */
 Pipeline::Pipeline(
 	
-	const std::string&									vertShaderPath_,
-	const std::string&									fragShaderPath_,
-	const VkPipelineVertexInputStateCreateInfo*			vertexInputInfo_,
-	const VkPipelineInputAssemblyStateCreateInfo*		inputAssembly_,
-	const VkPipelineViewportStateCreateInfo*			viewportState_,
-	const VkPipelineRasterizationStateCreateInfo*		rasterizer_,
-	const VkPipelineMultisampleStateCreateInfo*			multisampling_,
-	const VkPipelineDepthStencilStateCreateInfo*		depthStencil_,
-	const VkPipelineColorBlendStateCreateInfo*			colorBlending_,
-	const VkPipelineDynamicStateCreateInfo*				dynamicState_,
-	VkRenderPass										renderPass_,
-	uint32_t											subPass_,
-	VkPipeline											basePipeline_,
-	int32_t												basePipelineIndex_,
-	const VkDescriptorSetLayout*						descriptorSetLayout_
+	const std::string&										vertShaderPath_,
+	const std::string&										fragShaderPath_,
+	const VkPipelineVertexInputStateCreateInfo*				vertexInputInfo_,
+	const VkPipelineInputAssemblyStateCreateInfo*			inputAssembly_,
+	const VkPipelineViewportStateCreateInfo*				viewportState_,
+	const VkPipelineRasterizationStateCreateInfo*			rasterizer_,
+	const VkPipelineMultisampleStateCreateInfo*				multisampling_,
+	const VkPipelineDepthStencilStateCreateInfo*			depthStencil_,
+	const VkPipelineColorBlendStateCreateInfo*				colorBlending_,
+	const VkPipelineDynamicStateCreateInfo*					dynamicState_,
+	VkRenderPass											renderPass_,
+	uint32_t												subPass_,
+	VkPipeline												basePipeline_,
+	int32_t													basePipelineIndex_,
+	const std::vector< VkDescriptorSetLayoutBinding >*		bindings_
 
 
 ) {
@@ -79,10 +79,12 @@ Pipeline::Pipeline(
 
 	VkPipelineShaderStageCreateInfo shaderStages[]				= { vertShaderStageInfo, fragShaderStageInfo };
 
+	createDescriptorSets(bindings_);
+
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo				= {};
 	pipelineLayoutInfo.sType									= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount							= 1;
-	pipelineLayoutInfo.pSetLayouts								= descriptorSetLayout_;
+	pipelineLayoutInfo.pSetLayouts								= &descriptorSetLayout;
 
 	if (vkCreatePipelineLayout(
 
@@ -248,5 +250,93 @@ VkPipelineShaderStageCreateInfo Pipeline::getFragStageInfo(void) {
 Pipeline::~Pipeline() {
 
 		
+
+}
+
+/*
+*	Function:		void createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_)
+*	Purpose:		Creates descriptor sets for each uniform in the shader sets
+*
+*/
+void Pipeline::createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_) {
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo		= {};
+	layoutInfo.sType								= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount							= static_cast< uint32_t >(bindings_->size());
+	layoutInfo.pBindings							= bindings_->data();
+
+	if (vkCreateDescriptorSetLayout(
+
+		engine.device,
+		&layoutInfo,
+		nullptr,
+		&descriptorSetLayout
+
+	) != VK_SUCCESS) {
+
+		logger.log(ERROR_LOG, "Failed to create descriptor set layout!");
+
+	}
+
+	std::vector< VkDescriptorSetLayout > layouts(engine.swapChainImages.size(), descriptorSetLayout);
+	VkDescriptorSetAllocateInfo allocInfo			= {};
+	allocInfo.sType									= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool						= engine.descriptorPool;
+	allocInfo.descriptorSetCount					= static_cast< uint32_t >(engine.swapChainImages.size());
+	allocInfo.pSetLayouts							= layouts.data();
+
+	descriptorSets.resize(engine.swapChainImages.size());
+
+	if (vkAllocateDescriptorSets(
+
+		engine.device,
+		&allocInfo,
+		descriptorSets.data()
+
+	) != VK_SUCCESS) {
+
+		logger.log(ERROR_LOG, "Failed to allocate descriptor sets!");
+
+	}
+
+	for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
+
+		VkDescriptorBufferInfo bufferInfo							= {};
+		bufferInfo.buffer											= uniformBuffers[i];
+		bufferInfo.offset											= 0;
+		bufferInfo.range											= sizeof(UniformBufferObject);
+
+		VkDescriptorImageInfo imageInfo								= {};
+		imageInfo.imageLayout										= VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imageInfo.imageView											= textureImageView;
+		imageInfo.sampler											= textureSampler;
+
+		std::array< VkWriteDescriptorSet, 2> descriptorWrites		= {};
+		descriptorWrites[0].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[0].dstSet									= descriptorSets[i];
+		descriptorWrites[0].dstBinding								= 0;
+		descriptorWrites[0].dstArrayElement							= 0;
+		descriptorWrites[0].descriptorType							= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[0].descriptorCount							= 1;
+		descriptorWrites[0].pBufferInfo								= &bufferInfo;
+		descriptorWrites[1].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[1].dstSet									= descriptorSets[i];
+		descriptorWrites[1].dstBinding								= 1;
+		descriptorWrites[1].dstArrayElement							= 0;
+		descriptorWrites[1].descriptorType							= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[1].descriptorCount							= 1;
+		descriptorWrites[1].pImageInfo								= &imageInfo;
+
+		vkUpdateDescriptorSets(
+
+			engine.device,
+			static_cast< uint32_t >(descriptorWrites.size()),
+			descriptorWrites.data(),
+			0,
+			nullptr
+
+		);
+
+	}
 
 }

@@ -17,21 +17,21 @@ public:
 	Pipeline();
 	Pipeline(
 	
-		const std::string&									vertShaderPath_,
-		const std::string&									fragShaderPath_,
-		const VkPipelineVertexInputStateCreateInfo*			vertexInputInfo_,
-		const VkPipelineInputAssemblyStateCreateInfo*		inputAssembly_,
-		const VkPipelineViewportStateCreateInfo*			viewportState_,
-		const VkPipelineRasterizationStateCreateInfo*		rasterizer_,
-		const VkPipelineMultisampleStateCreateInfo*			multisampling_,
-		const VkPipelineDepthStencilStateCreateInfo*		depthStencil_,
-		const VkPipelineColorBlendStateCreateInfo*			colorBlending_,
-		const VkPipelineDynamicStateCreateInfo*				dynamicState_,
-		VkRenderPass										renderPass_,
-		uint32_t											subPass_,
-		VkPipeline											basePipeline_,
-		int32_t												basePipelineIndex_,
-		const VkDescriptorSetLayout*						descriptorSetLayout_
+		const std::string&										vertShaderPath_,
+		const std::string&										fragShaderPath_,
+		const VkPipelineVertexInputStateCreateInfo*				vertexInputInfo_,
+		const VkPipelineInputAssemblyStateCreateInfo*			inputAssembly_,
+		const VkPipelineViewportStateCreateInfo*				viewportState_,
+		const VkPipelineRasterizationStateCreateInfo*			rasterizer_,
+		const VkPipelineMultisampleStateCreateInfo*				multisampling_,
+		const VkPipelineDepthStencilStateCreateInfo*			depthStencil_,
+		const VkPipelineColorBlendStateCreateInfo*				colorBlending_,
+		const VkPipelineDynamicStateCreateInfo*					dynamicState_,
+		VkRenderPass											renderPass_,
+		uint32_t												subPass_,
+		VkPipeline												basePipeline_,
+		int32_t													basePipelineIndex_,
+		const std::vector< VkDescriptorSetLayoutBinding >*		bindings_
 	
 	);
 	void bind(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
@@ -49,5 +49,11 @@ private:
 	ShaderModule											fragShaderModule; 
 	VkPipelineShaderStageCreateInfo							vertShaderStageInfo;
 	VkPipelineShaderStageCreateInfo							fragShaderStageInfo;
+	VkDescriptorSetLayout									descriptorSetLayout;
+	std::vector< VkDescriptorSet >							descriptorSets;
+	std::vector< VkBuffer >									uniformBuffers;
+	std::vector< VkDeviceMemory >							uniformBufferMemory;
+
+	void createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_);
 };
 
