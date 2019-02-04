@@ -20,6 +20,8 @@ public:
 	std::vector< VkDescriptorSet >								descriptorSets;
 	std::vector< VkBuffer >										uniformBuffers;
 	std::vector< VkDeviceMemory >								uniformBufferMemory;
+	UniformBufferObject											ubo;
+
 
 	Pipeline();
 	Pipeline(
@@ -44,7 +46,7 @@ public:
 
 	);
 	void descriptorSetWrites(std::function< void() > descriptorWritesFunc_);
-	void updateUBOs(uint32_t imageIndex_, UniformBufferObject* newUBO_);
+	void updateUBOs(uint32_t imageIndex_);
 	void bind(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
 	void bindDescriptorSets(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
 	void destroy(void);
@@ -61,8 +63,6 @@ private:
 	VkPipelineShaderStageCreateInfo							vertShaderStageInfo;
 	VkPipelineShaderStageCreateInfo							fragShaderStageInfo;
 	VkDescriptorSetLayout									descriptorSetLayout;
-	UniformBufferObject										ubo;
-
 	void createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_, VkDescriptorPool descriptorPool_);
 	void createUniformBuffer();
 };

@@ -150,11 +150,11 @@ void Pipeline::descriptorSetWrites(std::function< void() > descriptorWritesFunc_
 }
 
 /*
-*	Function:		void updateUBOs(uint32_t imageIndex_, UniformBufferObject* newUBO_)
+*	Function:		void updateUBOs(uint32_t imageIndex_)
 *	Purpose:		Updates uniforms and sends them to the shaders
 *
 */
-void Pipeline::updateUBOs(uint32_t imageIndex_, UniformBufferObject* newUBO_) {
+void Pipeline::updateUBOs(uint32_t imageIndex_) {
 
 	void* data;
 
@@ -163,7 +163,7 @@ void Pipeline::updateUBOs(uint32_t imageIndex_, UniformBufferObject* newUBO_) {
 		engine.device,
 		uniformBufferMemory[imageIndex_],
 		0,
-		sizeof(newUBO_),
+		sizeof(ubo),
 		0,
 		&data
 
@@ -172,8 +172,8 @@ void Pipeline::updateUBOs(uint32_t imageIndex_, UniformBufferObject* newUBO_) {
 	memcpy(
 
 		data,
-		&newUBO_,
-		sizeof(newUBO_)
+		&ubo,
+		sizeof(ubo)
 
 	);
 

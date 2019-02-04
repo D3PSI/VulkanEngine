@@ -2421,28 +2421,27 @@ void Engine::createUniformBuffers(void) {
 */
 void Engine::updateUniformBuffers(uint32_t currentImage_) {
 	
-	static auto startTime				= std::chrono::high_resolution_clock::now();
-	auto currentTime					= std::chrono::high_resolution_clock::now();
-	float time							= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
+	static auto startTime								= std::chrono::high_resolution_clock::now();
+	auto currentTime									= std::chrono::high_resolution_clock::now();
+	float time											= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
 
-	UniformBufferObject ubo				= {};
-	ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	ubo.model							= glm::rotate(ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view							= camera.getViewMatrix();
-	ubo.proj							= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
-	ubo.proj[1][1]						*= -1;
+	
+	objectPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	objectPipeline.ubo.model							= glm::rotate(objectPipeline.ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	objectPipeline.ubo.view								= camera.getViewMatrix();
+	objectPipeline.ubo.proj								= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
+	objectPipeline.ubo.proj[1][1]						*= -1;
 
-	objectPipeline.updateUBOs(currentImage_, &ubo);
+	objectPipeline.updateUBOs(currentImage_);
+	
+	lightingPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	lightingPipeline.ubo.model							= glm::translate(lightingPipeline.ubo.model, glm::vec3(10.0));
+	lightingPipeline.ubo.model							= glm::rotate(lightingPipeline.ubo.model, time * glm::radians(-30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	lightingPipeline.ubo.view							= camera.getViewMatrix();
+	lightingPipeline.ubo.proj							= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
+	lightingPipeline.ubo.proj[1][1]						*= -1;
 
-	UniformBufferObject lightubo		= {};
-	lightubo.model						= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	lightubo.model						= glm::translate(lightubo.model, glm::vec3(10.0));
-	lightubo.model						= glm::rotate(lightubo.model, time * glm::radians(-30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	lightubo.view						= camera.getViewMatrix();
-	lightubo.proj						= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
-	lightubo.proj[1][1]			        *= -1;
-
-	lightingPipeline.updateUBOs(currentImage_, &lightubo);
+	lightingPipeline.updateUBOs(currentImage_);
 
 }
 
