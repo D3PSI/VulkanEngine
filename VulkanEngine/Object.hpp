@@ -27,7 +27,7 @@ public:
 
 	);
 	void destroy(void);
-	~Object();
+	virtual ~Object();
 protected:
 	std::vector< Vertex >					vertices;
 	VkBuffer								vertexBuffer;

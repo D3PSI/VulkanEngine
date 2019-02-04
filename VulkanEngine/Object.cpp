@@ -128,13 +128,13 @@ void Object::bindIBO(
 }
 
 /*
-*	Function:		~Object()
+*	Function:		virtual ~Object()
 *	Purpose:		Default destructor
 *
 */
 Object::~Object() {
 
-
+	
 
 }
 

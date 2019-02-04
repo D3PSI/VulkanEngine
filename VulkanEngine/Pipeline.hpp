@@ -13,10 +13,13 @@
 
 #include "Vertex.cpp"
 #include "ShaderModule.hpp"
+#include "UniformBufferObject.cpp"
 
 class Pipeline {
 public:
 	std::vector< VkDescriptorSet >								descriptorSets;
+	std::vector< VkBuffer >										uniformBuffers;
+	std::vector< VkDeviceMemory >								uniformBufferMemory;
 
 	Pipeline();
 	Pipeline(
@@ -41,6 +44,7 @@ public:
 
 	);
 	void descriptorSetWrites(std::function< void() > descriptorWritesFunc_);
+	void updateUBOs(uint32_t imageIndex_, UniformBufferObject* newUBO_);
 	void bind(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
 	void bindDescriptorSets(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
 	void destroy(void);
@@ -57,9 +61,9 @@ private:
 	VkPipelineShaderStageCreateInfo							vertShaderStageInfo;
 	VkPipelineShaderStageCreateInfo							fragShaderStageInfo;
 	VkDescriptorSetLayout									descriptorSetLayout;
-	std::vector< VkBuffer >									uniformBuffers;
-	std::vector< VkDeviceMemory >							uniformBufferMemory;
+	UniformBufferObject										ubo;
 
 	void createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_, VkDescriptorPool descriptorPool_);
+	void createUniformBuffer();
 };
 

@@ -151,10 +151,6 @@ private:
 	std::vector< VkFence >								inFlightFences;
 	size_t												currentFrame					= 0;
 	bool												framebufferResized				= false;
-	std::vector< VkBuffer >								uniformBuffers;
-	std::vector< VkBuffer >								lightUniformBuffers;
-	std::vector< VkDeviceMemory >						uniformBuffersMemory;
-	std::vector< VkDeviceMemory >						lightUniformBuffersMemory;
 	clock_t												current_ticks, delta_ticks;
 	clock_t												fps								= 0;
 	uint32_t											mipLevels;
@@ -176,11 +172,8 @@ private:
 	Pipeline											objectPipeline;
 	Pipeline											lightingPipeline;
 
-	std::vector< std::unique_ptr< Object > >			objectPipelineObjects;
-	std::vector< std::unique_ptr< Object > >			lightingPipelineObjects;
-
-	Model*												chalet;
-	Cube*												cube;
+	Object*												chalet;
+	Object*												cube;
 
 	irrklang::ISoundEngine*								audioEngine;
 	irrklang::ISound*									bgmusic;

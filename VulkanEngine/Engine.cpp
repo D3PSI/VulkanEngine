@@ -220,7 +220,7 @@ void Engine::initVulkan() {
 	engine.loadingProgress += 0.1f;
 	//std::this_thread::sleep_for(std::chrono::seconds(5));		// JUST TO SHOW LOADING SCREEN A LITTLE BIT LONGER!!!
 	
-	loadModels(); 
+	loadModels();
 
 	engine.loadingProgress += 0.1f;
 
@@ -521,14 +521,14 @@ void Engine::cleanup() {
 		vkDestroyBuffer(
 		
 			device,
-			uniformBuffers[i],
+			objectPipeline.uniformBuffers[i],
 			nullptr
 		
 		);
 		vkFreeMemory(
 		
 			device,
-			uniformBuffersMemory[i],
+			objectPipeline.uniformBufferMemory[i],
 			nullptr
 
 		);
@@ -536,33 +536,25 @@ void Engine::cleanup() {
 		vkDestroyBuffer(
 		
 			device,
-			lightUniformBuffers[i],
+			lightingPipeline.uniformBuffers[i],
 			nullptr
 		
 		); 
 		vkFreeMemory(
 
 			device,
-			lightUniformBuffersMemory[i],
+			lightingPipeline.uniformBufferMemory[i],
 			nullptr
 
 		);
 	
 	}
 
-	for (auto& obj : objectPipelineObjects) {
+	chalet->destroy();
+	cube->destroy();
 
-		obj->destroy();
-		obj.reset();
-
-	}
-
-	for (auto& obj : lightingPipelineObjects) {
-
-		obj->destroy();
-		obj.reset();
-
-	}
+	delete chalet;
+	delete cube;
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 
@@ -1499,7 +1491,7 @@ void Engine::createPipelines(void) {
 		for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
 
 			VkDescriptorBufferInfo bufferInfo							= {};
-			bufferInfo.buffer											= uniformBuffers[i];
+			bufferInfo.buffer											= objectPipeline.uniformBuffers[i];
 			bufferInfo.offset											= 0;
 			bufferInfo.range											= sizeof(UniformBufferObject);
 
@@ -1576,7 +1568,7 @@ void Engine::createPipelines(void) {
 		for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
 
 			VkDescriptorBufferInfo bufferInfo											= {};
-			bufferInfo.buffer															= lightUniformBuffers[i];
+			bufferInfo.buffer															= lightingPipeline.uniformBuffers[i];
 			bufferInfo.offset															= 0;
 			bufferInfo.range															= sizeof(UniformBufferObject);
 
@@ -1861,33 +1853,26 @@ void Engine::createCommandBuffers(void) {
 			objectPipeline.bind(commandBuffers[i], &objectPipeline.descriptorSets[i]);
 
 				VkDeviceSize offsets[] = {0};
-				for (auto& obj : objectPipelineObjects) {
 
-					obj->draw(
+				chalet->draw(
 
-						commandBuffers[i],
-						offsets,
-						0,
-						VK_INDEX_TYPE_UINT32
+					commandBuffers[i],
+					offsets,
+					0,
+					VK_INDEX_TYPE_UINT32
 
-					);
-
-				}
+				);
 
 			lightingPipeline.bind(commandBuffers[i], &lightingPipeline.descriptorSets[i]);
-
-				for (auto& obj : lightingPipelineObjects) {
 			
-					obj->draw(
+				cube->draw(
 					
-						commandBuffers[i],
-						offsets,
-						0,
-						VK_INDEX_TYPE_UINT32
+					commandBuffers[i],
+					offsets,
+					0,
+					VK_INDEX_TYPE_UINT32
 
-					);
-				
-				}
+				);
 
 		vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -2396,7 +2381,7 @@ void Engine::createDescriptorSetLayout(void) {
 */
 void Engine::createUniformBuffers(void) {
 
-	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+	/*VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
 	uniformBuffers.resize(swapChainImages.size());
 	uniformBuffersMemory.resize(swapChainImages.size());
@@ -2425,7 +2410,7 @@ void Engine::createUniformBuffers(void) {
 		
 		);
 	
-	}
+	}*/
 
 }
 
@@ -2447,6 +2432,8 @@ void Engine::updateUniformBuffers(uint32_t currentImage_) {
 	ubo.proj							= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
 	ubo.proj[1][1]						*= -1;
 
+	objectPipeline.updateUBOs(currentImage_, &ubo);
+
 	UniformBufferObject lightubo		= {};
 	lightubo.model						= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	lightubo.model						= glm::translate(lightubo.model, glm::vec3(10.0));
@@ -2455,51 +2442,7 @@ void Engine::updateUniformBuffers(uint32_t currentImage_) {
 	lightubo.proj						= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
 	lightubo.proj[1][1]			        *= -1;
 
-	void* data;
-	
-	vkMapMemory(
-		
-		device, 
-		uniformBuffersMemory[currentImage_], 
-		0,
-		sizeof(ubo),
-		0,
-		&data
-	
-	);
-	
-	memcpy(
-	
-		data,
-		&ubo,
-		sizeof(ubo)
-	
-	);
-
-	vkUnmapMemory(device, uniformBuffersMemory[currentImage_]);
-
-	void* lightingData;
-
-	vkMapMemory(
-
-		device,
-		lightUniformBuffersMemory[currentImage_],
-		0,
-		sizeof(lightubo),
-		0,
-		&lightingData
-
-	);
-
-	memcpy(
-
-		lightingData,
-		&lightubo,
-		sizeof(lightubo)
-
-	);
-
-	vkUnmapMemory(device, lightUniformBuffersMemory[currentImage_]);
+	lightingPipeline.updateUBOs(currentImage_, &lightubo);
 
 }
 
@@ -3383,10 +3326,8 @@ bool Engine::hasStencilComponent(VkFormat format_) {
 */
 void Engine::loadModels(void) {
 
-	chalet = new Model(CHALET_PATH);
-	objectPipelineObjects.emplace_back(chalet);
-	cube = new Cube();
-	lightingPipelineObjects.emplace_back(cube);
+	chalet		= new Model(CHALET_PATH);
+	cube		= new Cube();
 
 }
 

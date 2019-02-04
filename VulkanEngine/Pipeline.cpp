@@ -134,6 +134,8 @@ Pipeline::Pipeline(
 
 	}
 
+	createUniformBuffer();
+
 }
 
 /*
@@ -144,6 +146,38 @@ Pipeline::Pipeline(
 void Pipeline::descriptorSetWrites(std::function< void() > descriptorWritesFunc_) {
 
 	descriptorWritesFunc_();
+
+}
+
+/*
+*	Function:		void updateUBOs(uint32_t imageIndex_, UniformBufferObject* newUBO_)
+*	Purpose:		Updates uniforms and sends them to the shaders
+*
+*/
+void Pipeline::updateUBOs(uint32_t imageIndex_, UniformBufferObject* newUBO_) {
+
+	void* data;
+
+	vkMapMemory(
+
+		engine.device,
+		uniformBufferMemory[imageIndex_],
+		0,
+		sizeof(newUBO_),
+		0,
+		&data
+
+	);
+
+	memcpy(
+
+		data,
+		&newUBO_,
+		sizeof(newUBO_)
+
+	);
+
+	vkUnmapMemory(engine.device, uniformBufferMemory[imageIndex_]);
 
 }
 
@@ -318,6 +352,34 @@ void Pipeline::createDescriptorSets(const std::vector< VkDescriptorSetLayoutBind
 	) != VK_SUCCESS) {
 
 		logger.log(ERROR_LOG, "Failed to allocate descriptor sets!");
+
+	}
+
+}
+
+/*
+*	Function:		void createUniformBuffer()
+*	Purpose:		Creates the UBO's for the shader set
+*
+*/
+void Pipeline::createUniformBuffer() {
+
+	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+	uniformBuffers.resize(engine.swapChainImages.size());
+	uniformBufferMemory.resize(engine.swapChainImages.size());
+
+	for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
+
+		engine.createBuffer(
+
+			bufferSize,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			uniformBuffers[i],
+			uniformBufferMemory[i]
+
+		);
 
 	}
 
