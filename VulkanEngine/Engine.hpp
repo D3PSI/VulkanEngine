@@ -173,10 +173,6 @@ private:
 	const float											maxFPS							= 60.0f;
 	const float											maxPeriod						= 1.0f / maxFPS; 
 
-	std::vector< VkDescriptorSet >						objectDescriptorSets;
-
-	std::vector< VkDescriptorSet >						lightingDescriptorSets;
-
 	Pipeline											objectPipeline;
 	Pipeline											lightingPipeline;
 

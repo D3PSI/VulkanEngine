@@ -35,14 +35,15 @@ Pipeline::Pipeline() {
 *						uint32_t												subPass_,
 *						VkPipeline												basePipeline_,
 *						int32_t													basePipelineIndex_,
-*						const std::vector< VkDescriptorSetLayoutBinding >*		bindings_
+*						const std::vector< VkDescriptorSetLayoutBinding >*		bindings_,
+*						VkDescriptorPool										descriptorPool_
 *
 *					)
 *	Purpose:		Constructor
-*	
+*
 */
 Pipeline::Pipeline(
-	
+
 	const std::string&										vertShaderPath_,
 	const std::string&										fragShaderPath_,
 	const VkPipelineVertexInputStateCreateInfo*				vertexInputInfo_,
@@ -57,34 +58,35 @@ Pipeline::Pipeline(
 	uint32_t												subPass_,
 	VkPipeline												basePipeline_,
 	int32_t													basePipelineIndex_,
-	const std::vector< VkDescriptorSetLayoutBinding >*		bindings_
+	const std::vector< VkDescriptorSetLayoutBinding >*		bindings_,
+	VkDescriptorPool										descriptorPool_
 
 
 ) {
 
-	vertShaderModule											= ShaderModule(vertShaderPath_);
-	fragShaderModule											= ShaderModule(fragShaderPath_);
+	vertShaderModule													= ShaderModule(vertShaderPath_);
+	fragShaderModule													= ShaderModule(fragShaderPath_);
 
-	vertShaderStageInfo											= {};
-	vertShaderStageInfo.sType									= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	vertShaderStageInfo.stage									= VK_SHADER_STAGE_VERTEX_BIT;
-	vertShaderStageInfo.module									= vertShaderModule.getModule();
-	vertShaderStageInfo.pName									= "main";
+	vertShaderStageInfo													= {};
+	vertShaderStageInfo.sType											= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	vertShaderStageInfo.stage											= VK_SHADER_STAGE_VERTEX_BIT;
+	vertShaderStageInfo.module											= vertShaderModule.getModule();
+	vertShaderStageInfo.pName											= "main";
 
-	fragShaderStageInfo											= {};
-	fragShaderStageInfo.sType									= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	fragShaderStageInfo.stage									= VK_SHADER_STAGE_FRAGMENT_BIT;
-	fragShaderStageInfo.module									= fragShaderModule.getModule();
-	fragShaderStageInfo.pName									= "main";
+	fragShaderStageInfo													= {};
+	fragShaderStageInfo.sType											= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	fragShaderStageInfo.stage											= VK_SHADER_STAGE_FRAGMENT_BIT;
+	fragShaderStageInfo.module											= fragShaderModule.getModule();
+	fragShaderStageInfo.pName											= "main";
 
-	VkPipelineShaderStageCreateInfo shaderStages[]				= { vertShaderStageInfo, fragShaderStageInfo };
+	VkPipelineShaderStageCreateInfo shaderStages[]						= { vertShaderStageInfo, fragShaderStageInfo };
 
-	createDescriptorSets(bindings_);
+	createDescriptorSets(bindings_, descriptorPool_);
 
-	VkPipelineLayoutCreateInfo pipelineLayoutInfo				= {};
-	pipelineLayoutInfo.sType									= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount							= 1;
-	pipelineLayoutInfo.pSetLayouts								= &descriptorSetLayout;
+	VkPipelineLayoutCreateInfo pipelineLayoutInfo						= {};
+	pipelineLayoutInfo.sType											= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipelineLayoutInfo.setLayoutCount									= 1;
+	pipelineLayoutInfo.pSetLayouts										= &descriptorSetLayout;
 
 	if (vkCreatePipelineLayout(
 
@@ -99,23 +101,23 @@ Pipeline::Pipeline(
 
 	}
 
-	VkGraphicsPipelineCreateInfo pipelineInfo					= {};
-	pipelineInfo.sType											= VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	pipelineInfo.stageCount										= 2;
-	pipelineInfo.pStages										= shaderStages;
-	pipelineInfo.pVertexInputState								= vertexInputInfo_;
-	pipelineInfo.pInputAssemblyState							= inputAssembly_;
-	pipelineInfo.pViewportState									= viewportState_;
-	pipelineInfo.pRasterizationState							= rasterizer_;
-	pipelineInfo.pMultisampleState								= multisampling_;
-	pipelineInfo.pDepthStencilState								= depthStencil_;
-	pipelineInfo.pColorBlendState								= colorBlending_;
-	pipelineInfo.pDynamicState									= dynamicState_;
-	pipelineInfo.layout											= pipelineLayout;
-	pipelineInfo.renderPass										= renderPass_;
-	pipelineInfo.subpass										= subPass_;
-	pipelineInfo.basePipelineHandle								= basePipeline_;
-	pipelineInfo.basePipelineIndex								= basePipelineIndex_;
+	VkGraphicsPipelineCreateInfo pipelineInfo							= {};
+	pipelineInfo.sType													= VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	pipelineInfo.stageCount												= 2;
+	pipelineInfo.pStages												= shaderStages;
+	pipelineInfo.pVertexInputState										= vertexInputInfo_;
+	pipelineInfo.pInputAssemblyState									= inputAssembly_;
+	pipelineInfo.pViewportState											= viewportState_;
+	pipelineInfo.pRasterizationState									= rasterizer_;
+	pipelineInfo.pMultisampleState										= multisampling_;
+	pipelineInfo.pDepthStencilState										= depthStencil_;
+	pipelineInfo.pColorBlendState										= colorBlending_;
+	pipelineInfo.pDynamicState											= dynamicState_;
+	pipelineInfo.layout													= pipelineLayout;
+	pipelineInfo.renderPass												= renderPass_;
+	pipelineInfo.subpass												= subPass_;
+	pipelineInfo.basePipelineHandle										= basePipeline_;
+	pipelineInfo.basePipelineIndex										= basePipelineIndex_;
 
 	if (vkCreateGraphicsPipelines(
 
@@ -135,10 +137,22 @@ Pipeline::Pipeline(
 }
 
 /*
+*	Function:		void descriptorSetWrites(std::function< void() > descriptorWritesFunc_)
+*	Purpose:		Creates the descriptor sets from a lambda function
+*
+*/
+void Pipeline::descriptorSetWrites(std::function< void() > descriptorWritesFunc_) {
+
+	descriptorWritesFunc_();
+
+}
+
+/*
 *	Function:		void bind(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet)
 *	Purpose:		Binds a pipeline
 *
 */
+
 void Pipeline::bind(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_) {
 
 	vkCmdBindPipeline(
@@ -181,6 +195,14 @@ void Pipeline::bindDescriptorSets(VkCommandBuffer commandBuffer_, VkDescriptorSe
 *
 */
 void Pipeline::destroy(void) {
+
+	vkDestroyDescriptorSetLayout(
+	
+		engine.device,
+		descriptorSetLayout,
+		nullptr
+	
+	);
 
 	vkDestroyPipeline(
 
@@ -254,11 +276,11 @@ Pipeline::~Pipeline() {
 }
 
 /*
-*	Function:		void createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_)
+*	Function:		void createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_, VkDescriptorPool descriptorPool_)
 *	Purpose:		Creates descriptor sets for each uniform in the shader sets
 *
 */
-void Pipeline::createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_) {
+void Pipeline::createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_, VkDescriptorPool descriptorPool_) {
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo		= {};
 	layoutInfo.sType								= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -281,7 +303,7 @@ void Pipeline::createDescriptorSets(const std::vector< VkDescriptorSetLayoutBind
 	std::vector< VkDescriptorSetLayout > layouts(engine.swapChainImages.size(), descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo			= {};
 	allocInfo.sType									= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool						= engine.descriptorPool;
+	allocInfo.descriptorPool						= descriptorPool_;
 	allocInfo.descriptorSetCount					= static_cast< uint32_t >(engine.swapChainImages.size());
 	allocInfo.pSetLayouts							= layouts.data();
 
@@ -296,46 +318,6 @@ void Pipeline::createDescriptorSets(const std::vector< VkDescriptorSetLayoutBind
 	) != VK_SUCCESS) {
 
 		logger.log(ERROR_LOG, "Failed to allocate descriptor sets!");
-
-	}
-
-	for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
-
-		VkDescriptorBufferInfo bufferInfo							= {};
-		bufferInfo.buffer											= uniformBuffers[i];
-		bufferInfo.offset											= 0;
-		bufferInfo.range											= sizeof(UniformBufferObject);
-
-		VkDescriptorImageInfo imageInfo								= {};
-		imageInfo.imageLayout										= VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView											= textureImageView;
-		imageInfo.sampler											= textureSampler;
-
-		std::array< VkWriteDescriptorSet, 2> descriptorWrites		= {};
-		descriptorWrites[0].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet									= descriptorSets[i];
-		descriptorWrites[0].dstBinding								= 0;
-		descriptorWrites[0].dstArrayElement							= 0;
-		descriptorWrites[0].descriptorType							= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount							= 1;
-		descriptorWrites[0].pBufferInfo								= &bufferInfo;
-		descriptorWrites[1].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet									= descriptorSets[i];
-		descriptorWrites[1].dstBinding								= 1;
-		descriptorWrites[1].dstArrayElement							= 0;
-		descriptorWrites[1].descriptorType							= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[1].descriptorCount							= 1;
-		descriptorWrites[1].pImageInfo								= &imageInfo;
-
-		vkUpdateDescriptorSets(
-
-			engine.device,
-			static_cast< uint32_t >(descriptorWrites.size()),
-			descriptorWrites.data(),
-			0,
-			nullptr
-
-		);
 
 	}
 

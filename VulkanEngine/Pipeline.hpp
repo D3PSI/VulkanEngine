@@ -8,15 +8,19 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <string>
+#include <functional>
+#include <array>
 
 #include "Vertex.cpp"
 #include "ShaderModule.hpp"
 
 class Pipeline {
 public:
+	std::vector< VkDescriptorSet >								descriptorSets;
+
 	Pipeline();
 	Pipeline(
-	
+
 		const std::string&										vertShaderPath_,
 		const std::string&										fragShaderPath_,
 		const VkPipelineVertexInputStateCreateInfo*				vertexInputInfo_,
@@ -31,9 +35,12 @@ public:
 		uint32_t												subPass_,
 		VkPipeline												basePipeline_,
 		int32_t													basePipelineIndex_,
-		const std::vector< VkDescriptorSetLayoutBinding >*		bindings_
-	
+		const std::vector< VkDescriptorSetLayoutBinding >*		bindings_,
+		VkDescriptorPool										descriptorPool_
+
+
 	);
+	void descriptorSetWrites(std::function< void() > descriptorWritesFunc_);
 	void bind(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
 	void bindDescriptorSets(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
 	void destroy(void);
@@ -50,10 +57,9 @@ private:
 	VkPipelineShaderStageCreateInfo							vertShaderStageInfo;
 	VkPipelineShaderStageCreateInfo							fragShaderStageInfo;
 	VkDescriptorSetLayout									descriptorSetLayout;
-	std::vector< VkDescriptorSet >							descriptorSets;
 	std::vector< VkBuffer >									uniformBuffers;
 	std::vector< VkDeviceMemory >							uniformBufferMemory;
 
-	void createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_);
+	void createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_, VkDescriptorPool descriptorPool_);
 };
 

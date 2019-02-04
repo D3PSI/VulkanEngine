@@ -199,7 +199,6 @@ void Engine::initVulkan() {
 
 	engine.loadingProgress += 0.1f;
 
-
 	createInstance();
 	setupDebugCallback();
 	createSurface();
@@ -209,7 +208,7 @@ void Engine::initVulkan() {
 	createImageViews();
 	createRenderPass();
 	createDescriptorSetLayout();
-	createPipelines();
+	createDescriptorPool();
 	createCommandPool();
 	createColorResources();
 	createDepthResources();
@@ -226,7 +225,7 @@ void Engine::initVulkan() {
 	engine.loadingProgress += 0.1f;
 
 	createUniformBuffers();
-	createDescriptorPool();
+	createPipelines();
 	createDescriptorSets();
 	createCommandBuffers();
 	createSyncObjects();
@@ -501,7 +500,7 @@ void Engine::cleanup() {
 
 	);
 
-	vkDestroyDescriptorSetLayout(
+	/*vkDestroyDescriptorSetLayout(
 	
 		device,
 		objectDescriptorSetLayout,
@@ -515,7 +514,7 @@ void Engine::cleanup() {
 		lightingDescriptorSetLayout,
 		nullptr
 
-	);
+	);*/
 
 	for (size_t i = 0; i < swapChainImages.size(); i++) {
 	
@@ -1458,6 +1457,22 @@ void Engine::createPipelines(void) {
 	depthStencil.front																= {};
 	depthStencil.back																= {};
 
+	VkDescriptorSetLayoutBinding uboLayoutBinding									= {};
+	uboLayoutBinding.binding														= 0;
+	uboLayoutBinding.descriptorCount												= 1;
+	uboLayoutBinding.descriptorType													= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.pImmutableSamplers												= nullptr;
+	uboLayoutBinding.stageFlags														= VK_SHADER_STAGE_VERTEX_BIT;
+
+	VkDescriptorSetLayoutBinding samplerLayoutBinding								= {};
+	samplerLayoutBinding.binding													= 1;
+	samplerLayoutBinding.descriptorCount											= 1;
+	samplerLayoutBinding.descriptorType												= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerLayoutBinding.pImmutableSamplers											= nullptr;
+	samplerLayoutBinding.stageFlags													= VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::vector< VkDescriptorSetLayoutBinding > bindings							= { uboLayoutBinding, samplerLayoutBinding };
+
 	objectPipeline = Pipeline(
 		
 		"shaders/objectShaders/vert.spv", 
@@ -1474,9 +1489,54 @@ void Engine::createPipelines(void) {
 		0,
 		VK_NULL_HANDLE,
 		-1,
-		&objectDescriptorSetLayout
+		&bindings,
+		descriptorPool
 
 	);
+
+	objectPipeline.descriptorSetWrites([=] () {
+
+		for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
+
+			VkDescriptorBufferInfo bufferInfo							= {};
+			bufferInfo.buffer											= uniformBuffers[i];
+			bufferInfo.offset											= 0;
+			bufferInfo.range											= sizeof(UniformBufferObject);
+
+			VkDescriptorImageInfo imageInfo								= {};
+			imageInfo.imageLayout										= VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView											= textureImageView;
+			imageInfo.sampler											= textureSampler;
+
+			std::array< VkWriteDescriptorSet, 2 > descriptorWrites		= {};
+			descriptorWrites[0].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[0].dstSet									= objectPipeline.descriptorSets[i];
+			descriptorWrites[0].dstBinding								= 0;
+			descriptorWrites[0].dstArrayElement							= 0;
+			descriptorWrites[0].descriptorType							= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[0].descriptorCount							= 1;
+			descriptorWrites[0].pBufferInfo								= &bufferInfo;
+			descriptorWrites[1].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[1].dstSet									= objectPipeline.descriptorSets[i];
+			descriptorWrites[1].dstBinding								= 1;
+			descriptorWrites[1].dstArrayElement							= 0;
+			descriptorWrites[1].descriptorType							= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrites[1].descriptorCount							= 1;
+			descriptorWrites[1].pImageInfo								= &imageInfo;
+
+			vkUpdateDescriptorSets(
+
+				device,
+				static_cast< uint32_t >(descriptorWrites.size()),
+				descriptorWrites.data(),
+				0,
+				nullptr
+
+			);
+
+		}
+
+	});
 
 	VkVertexInputBindingDescription lightingBindingDescription								= CubeVertex::getBindingDescription();
 	std::array< VkVertexInputAttributeDescription, 1 > lightingAttributeDescriptions		= CubeVertex::getAttributeDescriptions();
@@ -1487,6 +1547,8 @@ void Engine::createPipelines(void) {
 	vertexInputInfo.pVertexAttributeDescriptions											= lightingAttributeDescriptions.data();
 
 	rasterizer.cullMode																		= VK_CULL_MODE_NONE;
+
+	std::vector< VkDescriptorSetLayoutBinding > lightingBindings							= { uboLayoutBinding };
 
 	lightingPipeline = Pipeline(
 		
@@ -1504,9 +1566,42 @@ void Engine::createPipelines(void) {
 		0,
 		VK_NULL_HANDLE,
 		-1,
-		&lightingDescriptorSetLayout
+		&lightingBindings,
+		lightingDescriptorPool
 
 	);
+
+	lightingPipeline.descriptorSetWrites([=] () {
+
+		for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
+
+			VkDescriptorBufferInfo bufferInfo											= {};
+			bufferInfo.buffer															= lightUniformBuffers[i];
+			bufferInfo.offset															= 0;
+			bufferInfo.range															= sizeof(UniformBufferObject);
+
+			std::array< VkWriteDescriptorSet, 1> descriptorWrites						= {};
+			descriptorWrites[0].sType													= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[0].dstSet													= lightingPipeline.descriptorSets[i];
+			descriptorWrites[0].dstBinding												= 0;
+			descriptorWrites[0].dstArrayElement											= 0;
+			descriptorWrites[0].descriptorType											= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[0].descriptorCount											= 1;
+			descriptorWrites[0].pBufferInfo												= &bufferInfo;
+
+			vkUpdateDescriptorSets(
+
+				device,
+				static_cast< uint32_t >(descriptorWrites.size()),
+				descriptorWrites.data(),
+				0,
+				nullptr
+
+			);
+
+		}
+
+	});
 
 	vkDestroyShaderModule(
 
@@ -1763,7 +1858,7 @@ void Engine::createCommandBuffers(void) {
 
 		);
 
-			objectPipeline.bind(commandBuffers[i], &objectDescriptorSets[i]);
+			objectPipeline.bind(commandBuffers[i], &objectPipeline.descriptorSets[i]);
 
 				VkDeviceSize offsets[] = {0};
 				for (auto& obj : objectPipelineObjects) {
@@ -1779,7 +1874,7 @@ void Engine::createCommandBuffers(void) {
 
 				}
 
-			lightingPipeline.bind(commandBuffers[i], &lightingDescriptorSets[i]);
+			lightingPipeline.bind(commandBuffers[i], &lightingPipeline.descriptorSets[i]);
 
 				for (auto& obj : lightingPipelineObjects) {
 			
@@ -2290,57 +2385,7 @@ void Engine::copyBuffer(
 */
 void Engine::createDescriptorSetLayout(void) {
 
-	VkDescriptorSetLayoutBinding uboLayoutBinding				= {};
-	uboLayoutBinding.binding									= 0;
-	uboLayoutBinding.descriptorCount							= 1;
-	uboLayoutBinding.descriptorType								= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.pImmutableSamplers							= nullptr;
-	uboLayoutBinding.stageFlags									= VK_SHADER_STAGE_VERTEX_BIT;
 
-	VkDescriptorSetLayoutBinding samplerLayoutBinding			= {};
-	samplerLayoutBinding.binding								= 1;
-	samplerLayoutBinding.descriptorCount						= 1;
-	samplerLayoutBinding.descriptorType							= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerLayoutBinding.pImmutableSamplers						= nullptr;
-	samplerLayoutBinding.stageFlags								= VK_SHADER_STAGE_FRAGMENT_BIT;
-
-	std::vector< VkDescriptorSetLayoutBinding > bindings		= { uboLayoutBinding, samplerLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo layoutInfo					= {};
-	layoutInfo.sType											= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount										= static_cast< uint32_t >(bindings.size());
-	layoutInfo.pBindings										= bindings.data();
-
-	if (vkCreateDescriptorSetLayout(
-		
-		device, 
-		&layoutInfo,
-		nullptr,
-		&objectDescriptorSetLayout
-	
-	) != VK_SUCCESS) {
-
-		logger.log(ERROR_LOG, "Failed to create descriptor set layout!");
-
-	}
-
-	std::vector< VkDescriptorSetLayoutBinding > lightingBindings				= { uboLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo lightingLayoutInfo							= {};
-	lightingLayoutInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	lightingLayoutInfo.bindingCount												= static_cast< uint32_t >(lightingBindings.size());
-	lightingLayoutInfo.pBindings												= lightingBindings.data();
-
-	if (vkCreateDescriptorSetLayout(
-	
-		device,
-		&lightingLayoutInfo,
-		nullptr,
-		&lightingDescriptorSetLayout
-
-	) != VK_SUCCESS) {
-	
-		logger.log(ERROR_LOG, "Failed to create descriptor set layout!");
-	
-	}
 
 }
 
@@ -2522,7 +2567,7 @@ void Engine::createDescriptorPool(void) {
 */
 void Engine::createDescriptorSets(void) {
 
-	std::vector< VkDescriptorSetLayout > layouts(swapChainImages.size(), objectDescriptorSetLayout);
+	/*std::vector< VkDescriptorSetLayout > layouts(swapChainImages.size(), objectDescriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo		= {};
 	allocInfo.sType								= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool					= descriptorPool;
@@ -2630,7 +2675,7 @@ void Engine::createDescriptorSets(void) {
 
 		);
 
-	}
+	}*/
 
 }
 
