@@ -253,6 +253,26 @@ void Pipeline::destroy(void) {
 
 	);
 
+	for (size_t i = 0; i < uniformBuffers.size(); i++) {
+
+		vkDestroyBuffer(
+
+			engine.device,
+			uniformBuffers[i],
+			nullptr
+
+		);
+
+		vkFreeMemory(
+		
+			engine.device,
+			uniformBufferMemory[i],
+			nullptr
+		
+		);
+
+	}
+
 }
 
 /*

@@ -63,6 +63,7 @@ private:
 	VkPipelineShaderStageCreateInfo							vertShaderStageInfo;
 	VkPipelineShaderStageCreateInfo							fragShaderStageInfo;
 	VkDescriptorSetLayout									descriptorSetLayout;
+
 	void createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_, VkDescriptorPool descriptorPool_);
 	void createUniformBuffer();
 };

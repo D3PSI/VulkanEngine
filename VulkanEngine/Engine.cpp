@@ -484,8 +484,6 @@ void Engine::cleanup() {
 	
 	);
 
-	
-
 	/*vkDestroyDescriptorSetLayout(
 	
 		device,
@@ -501,40 +499,6 @@ void Engine::cleanup() {
 		nullptr
 
 	);*/
-
-	for (size_t i = 0; i < swapChainImages.size(); i++) {
-	
-		vkDestroyBuffer(
-		
-			device,
-			objectPipeline.uniformBuffers[i],
-			nullptr
-		
-		);
-		vkFreeMemory(
-		
-			device,
-			objectPipeline.uniformBufferMemory[i],
-			nullptr
-
-		);
-
-		vkDestroyBuffer(
-		
-			device,
-			lightingPipeline.uniformBuffers[i],
-			nullptr
-		
-		); 
-		vkFreeMemory(
-
-			device,
-			lightingPipeline.uniformBufferMemory[i],
-			nullptr
-
-		);
-	
-	}
 
 	chalet->destroy();
 	cube->destroy();
