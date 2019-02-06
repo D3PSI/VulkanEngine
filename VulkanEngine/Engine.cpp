@@ -484,21 +484,7 @@ void Engine::cleanup() {
 	
 	);
 
-	vkDestroyDescriptorPool(
 	
-		device,
-		descriptorPool,
-		nullptr
-
-	);
-
-	vkDestroyDescriptorPool(
-	
-		device,
-		lightingDescriptorPool, 
-		nullptr
-
-	);
 
 	/*vkDestroyDescriptorSetLayout(
 	
@@ -2076,6 +2062,7 @@ void Engine::recreateSwapChain(void) {
 	createSwapChain();
 	createImageViews();
 	createRenderPass();
+	createDescriptorPool();
 	createPipelines();
 	createColorResources();
 	createDepthResources();
@@ -2090,7 +2077,27 @@ void Engine::recreateSwapChain(void) {
 *
 */
 void Engine::cleanupSwapChain(void) {
-	
+
+	objectPipeline.destroy();
+
+	lightingPipeline.destroy();
+
+	vkDestroyDescriptorPool(
+
+		device,
+		descriptorPool,
+		nullptr
+
+	);
+
+	vkDestroyDescriptorPool(
+
+		device,
+		lightingDescriptorPool,
+		nullptr
+
+	);
+
 	vkDestroyImageView(
 	
 		device,
@@ -2158,10 +2165,6 @@ void Engine::cleanupSwapChain(void) {
 		commandBuffers.data()
 	
 	);
-
-	objectPipeline.destroy();
-
-	lightingPipeline.destroy();
 
 	vkDestroyRenderPass(
 		
