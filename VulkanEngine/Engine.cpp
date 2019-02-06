@@ -1413,7 +1413,14 @@ void Engine::createPipelines(void) {
 	samplerLayoutBinding.pImmutableSamplers											= nullptr;
 	samplerLayoutBinding.stageFlags													= VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::vector< VkDescriptorSetLayoutBinding > bindings							= { uboLayoutBinding };
+	VkDescriptorSetLayoutBinding colorBinding										= {};
+	colorBinding.binding															= 1;
+	colorBinding.descriptorCount													= 1;
+	colorBinding.descriptorType														= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	colorBinding.pImmutableSamplers													= nullptr;
+	colorBinding.stageFlags															= VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::vector< VkDescriptorSetLayoutBinding > bindings							= { uboLayoutBinding, colorBinding };
 
 	objectPipeline = Pipeline(
 		
@@ -1432,7 +1439,8 @@ void Engine::createPipelines(void) {
 		VK_NULL_HANDLE,
 		-1,
 		&bindings,
-		descriptorPool
+		descriptorPool,
+		true
 
 	);
 
@@ -1450,7 +1458,12 @@ void Engine::createPipelines(void) {
 			imageInfo.imageView											= textureImageView;
 			imageInfo.sampler											= textureSampler;
 
-			std::array< VkWriteDescriptorSet, 1 > descriptorWrites		= {};
+			VkDescriptorBufferInfo lightingBufferInfo					= {};
+			lightingBufferInfo.buffer									= objectPipeline.lightingBuffers[i];
+			lightingBufferInfo.offset									= 0;
+			lightingBufferInfo.range									= sizeof(LightingBufferObject);
+
+			std::array< VkWriteDescriptorSet, 2 > descriptorWrites		= {};
 			descriptorWrites[0].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[0].dstSet									= objectPipeline.descriptorSets[i];
 			descriptorWrites[0].dstBinding								= 0;
@@ -1458,6 +1471,13 @@ void Engine::createPipelines(void) {
 			descriptorWrites[0].descriptorType							= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			descriptorWrites[0].descriptorCount							= 1;
 			descriptorWrites[0].pBufferInfo								= &bufferInfo;
+			descriptorWrites[1].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[1].dstSet									= objectPipeline.descriptorSets[i];
+			descriptorWrites[1].dstBinding								= 1;
+			descriptorWrites[1].dstArrayElement							= 0;
+			descriptorWrites[1].descriptorType							= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[1].descriptorCount							= 1;
+			descriptorWrites[1].pBufferInfo								= &lightingBufferInfo;
 			/*descriptorWrites[1].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[1].dstSet									= objectPipeline.descriptorSets[i];
 			descriptorWrites[1].dstBinding								= 1;
@@ -1509,7 +1529,8 @@ void Engine::createPipelines(void) {
 		VK_NULL_HANDLE,
 		-1,
 		&lightingBindings,
-		lightingDescriptorPool
+		lightingDescriptorPool,
+		false
 
 	);
 
@@ -2422,7 +2443,7 @@ void Engine::createDescriptorPool(void) {
 	std::array< VkDescriptorPoolSize, 2 > poolSizes			= {};
 	poolSizes[0].type										= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount							= static_cast< uint32_t >(swapChainImages.size());
-	poolSizes[1].type										= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[1].type										= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[1].descriptorCount							= static_cast< uint32_t >(swapChainImages.size());
 
 	VkDescriptorPoolCreateInfo poolInfo						= {};

@@ -44,6 +44,7 @@
 #include "Model.hpp"
 #include "CubeVertex.cpp"
 #include "Pipeline.hpp"
+#include "LightingBufferObject.cpp"
 #include "Cube.hpp"
 
 #ifdef NDEBUG

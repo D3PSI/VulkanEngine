@@ -36,7 +36,8 @@ Pipeline::Pipeline() {
 *						VkPipeline												basePipeline_,
 *						int32_t													basePipelineIndex_,
 *						const std::vector< VkDescriptorSetLayoutBinding >*		bindings_,
-*						VkDescriptorPool										descriptorPool_
+*						VkDescriptorPool										descriptorPool_,
+*						bool													usesLBO_							= false
 *
 *					)
 *	Purpose:		Constructor
@@ -59,7 +60,8 @@ Pipeline::Pipeline(
 	VkPipeline												basePipeline_,
 	int32_t													basePipelineIndex_,
 	const std::vector< VkDescriptorSetLayoutBinding >*		bindings_,
-	VkDescriptorPool										descriptorPool_
+	VkDescriptorPool										descriptorPool_,
+	bool													usesLBO_
 
 
 ) {
@@ -135,6 +137,11 @@ Pipeline::Pipeline(
 	}
 
 	createUniformBuffer();
+	if (usesLBO_) {
+
+		createLightingBuffer();
+
+	}
 
 }
 
@@ -178,6 +185,40 @@ void Pipeline::updateUBOs(uint32_t imageIndex_) {
 	);
 
 	vkUnmapMemory(engine.device, uniformBufferMemory[imageIndex_]);
+
+	updateLBOs(imageIndex_);
+
+}
+
+/*
+*	Function:		void updateLBOs(uint32_t imageIndex_)
+*	Purpose:		Updates the lighting uniform buffers
+*
+*/
+void Pipeline::updateLBOs(uint32_t imageIndex_) {
+
+	void* data;
+
+	vkMapMemory(
+
+		engine.device,
+		lightingBuffersMemory[imageIndex_],
+		0,
+		sizeof(lbo),
+		0,
+		&data
+
+	);
+
+	memcpy(
+
+		data,
+		&lbo,
+		sizeof(lbo)
+
+	);
+
+	vkUnmapMemory(engine.device, lightingBuffersMemory[imageIndex_]);
 
 }
 
@@ -253,7 +294,7 @@ void Pipeline::destroy(void) {
 
 	);
 
-	for (size_t i = 0; i < uniformBuffers.size(); i++) {
+	for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
 
 		vkDestroyBuffer(
 
@@ -262,11 +303,25 @@ void Pipeline::destroy(void) {
 			nullptr
 
 		);
-
 		vkFreeMemory(
 		
 			engine.device,
 			uniformBufferMemory[i],
+			nullptr
+		
+		);
+
+		vkDestroyBuffer(
+		
+			engine.device,
+			lightingBuffers[i],
+			nullptr
+		
+		);
+		vkFreeMemory(
+		
+			engine.device,
+			lightingBuffersMemory[i],
 			nullptr
 		
 		);
@@ -398,6 +453,34 @@ void Pipeline::createUniformBuffer() {
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 			uniformBuffers[i],
 			uniformBufferMemory[i]
+
+		);
+
+	}
+
+}
+
+/*
+*	Function:		void createLightingBuffer()
+*	Purpose:		Creates buffer memory for the lighting values uniform buffer
+*
+*/
+void Pipeline::createLightingBuffer(void) {
+
+	VkDeviceSize bufferSize = sizeof(LightingBufferObject);
+
+	lightingBuffers.resize(engine.swapChainImages.size());
+	lightingBuffersMemory.resize(engine.swapChainImages.size());
+
+	for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
+
+		engine.createBuffer(
+
+			bufferSize,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			lightingBuffers[i],
+			lightingBuffersMemory[i]
 
 		);
 

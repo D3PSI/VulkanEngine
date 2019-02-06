@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="LightingBufferObject.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Hash.cpp" />

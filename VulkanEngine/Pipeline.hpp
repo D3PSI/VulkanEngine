@@ -14,6 +14,7 @@
 #include "Vertex.cpp"
 #include "ShaderModule.hpp"
 #include "UniformBufferObject.cpp"
+#include "LightingBufferObject.cpp"
 
 class Pipeline {
 public:
@@ -21,6 +22,9 @@ public:
 	std::vector< VkBuffer >										uniformBuffers;
 	std::vector< VkDeviceMemory >								uniformBufferMemory;
 	UniformBufferObject											ubo;
+	std::vector< VkBuffer >										lightingBuffers;
+	std::vector< VkDeviceMemory >								lightingBuffersMemory;
+	LightingBufferObject										lbo;
 
 
 	Pipeline();
@@ -41,12 +45,14 @@ public:
 		VkPipeline												basePipeline_,
 		int32_t													basePipelineIndex_,
 		const std::vector< VkDescriptorSetLayoutBinding >*		bindings_,
-		VkDescriptorPool										descriptorPool_
+		VkDescriptorPool										descriptorPool_,
+		bool													usesLBO_							= false
 
 
 	);
 	void descriptorSetWrites(std::function< void() > descriptorWritesFunc_);
 	void updateUBOs(uint32_t imageIndex_);
+	void updateLBOs(uint32_t imageIndex_);
 	void bind(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
 	void bindDescriptorSets(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
 	void destroy(void);
@@ -65,6 +71,8 @@ private:
 	VkDescriptorSetLayout									descriptorSetLayout;
 
 	void createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_, VkDescriptorPool descriptorPool_);
-	void createUniformBuffer();
+	void createUniformBuffer(void);
+	void createLightingBuffer(void);
+
 };
 
