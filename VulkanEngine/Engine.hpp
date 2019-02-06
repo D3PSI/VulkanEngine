@@ -172,8 +172,8 @@ private:
 	Pipeline											objectPipeline;
 	Pipeline											lightingPipeline;
 
-	Object*												chalet;
-	Object*												cube;
+	Cube*												renderedCube;
+	Cube*												lightingCube;
 
 	irrklang::ISoundEngine*								audioEngine;
 	irrklang::ISound*									bgmusic;

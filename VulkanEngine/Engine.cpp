@@ -500,11 +500,11 @@ void Engine::cleanup() {
 
 	);*/
 
-	chalet->destroy();
-	cube->destroy();
+	renderedCube->destroy();
+	lightingCube->destroy();
 
-	delete chalet;
-	delete cube;
+	delete renderedCube;
+	delete lightingCube;
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 
@@ -1310,8 +1310,8 @@ VkShaderModule Engine::createShaderModule(const std::vector< char >& code_) {
 */
 void Engine::createPipelines(void) {
 
-	VkVertexInputBindingDescription objectBindingDescription						= Vertex::getBindingDescription();
-	std::array< VkVertexInputAttributeDescription, 3 > objectAttributeDescriptions	= Vertex::getAttributeDescriptions();
+	VkVertexInputBindingDescription objectBindingDescription						= CubeVertex::getBindingDescription();
+	std::array< VkVertexInputAttributeDescription, 1 > objectAttributeDescriptions  = CubeVertex::getAttributeDescriptions();
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo							= {};
 	vertexInputInfo.sType															= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -1350,7 +1350,7 @@ void Engine::createPipelines(void) {
 	rasterizer.rasterizerDiscardEnable												= VK_FALSE;
 	rasterizer.polygonMode															= VK_POLYGON_MODE_FILL;
 	rasterizer.lineWidth															= 1.0f;
-	rasterizer.cullMode																= VK_CULL_MODE_BACK_BIT;
+	rasterizer.cullMode																= VK_CULL_MODE_NONE;
 	rasterizer.frontFace															= VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable														= VK_FALSE;
 	rasterizer.depthBiasConstantFactor												= 0.0f;
@@ -1413,7 +1413,7 @@ void Engine::createPipelines(void) {
 	samplerLayoutBinding.pImmutableSamplers											= nullptr;
 	samplerLayoutBinding.stageFlags													= VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::vector< VkDescriptorSetLayoutBinding > bindings							= { uboLayoutBinding, samplerLayoutBinding };
+	std::vector< VkDescriptorSetLayoutBinding > bindings							= { uboLayoutBinding };
 
 	objectPipeline = Pipeline(
 		
@@ -1450,7 +1450,7 @@ void Engine::createPipelines(void) {
 			imageInfo.imageView											= textureImageView;
 			imageInfo.sampler											= textureSampler;
 
-			std::array< VkWriteDescriptorSet, 2 > descriptorWrites		= {};
+			std::array< VkWriteDescriptorSet, 1 > descriptorWrites		= {};
 			descriptorWrites[0].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[0].dstSet									= objectPipeline.descriptorSets[i];
 			descriptorWrites[0].dstBinding								= 0;
@@ -1458,13 +1458,13 @@ void Engine::createPipelines(void) {
 			descriptorWrites[0].descriptorType							= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			descriptorWrites[0].descriptorCount							= 1;
 			descriptorWrites[0].pBufferInfo								= &bufferInfo;
-			descriptorWrites[1].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			/*descriptorWrites[1].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[1].dstSet									= objectPipeline.descriptorSets[i];
 			descriptorWrites[1].dstBinding								= 1;
 			descriptorWrites[1].dstArrayElement							= 0;
 			descriptorWrites[1].descriptorType							= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			descriptorWrites[1].descriptorCount							= 1;
-			descriptorWrites[1].pImageInfo								= &imageInfo;
+			descriptorWrites[1].pImageInfo								= &imageInfo;*/
 
 			vkUpdateDescriptorSets(
 
@@ -1804,7 +1804,7 @@ void Engine::createCommandBuffers(void) {
 
 				VkDeviceSize offsets[] = {0};
 
-				chalet->draw(
+				renderedCube->draw(
 
 					commandBuffers[i],
 					offsets,
@@ -1815,7 +1815,7 @@ void Engine::createCommandBuffers(void) {
 
 			lightingPipeline.bind(commandBuffers[i], &lightingPipeline.descriptorSets[i]);
 			
-				cube->draw(
+				lightingCube->draw(
 					
 					commandBuffers[i],
 					offsets,
@@ -3292,8 +3292,8 @@ bool Engine::hasStencilComponent(VkFormat format_) {
 */
 void Engine::loadModels(void) {
 
-	chalet		= new Model(CHALET_PATH);
-	cube		= new Cube();
+	renderedCube		= new Cube();
+	lightingCube		= new Cube();
 
 }
 
