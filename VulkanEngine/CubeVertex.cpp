@@ -6,8 +6,8 @@
 
 struct CubeVertex {
 
-	glm::vec3 pos;
-	glm::vec3 normal;
+	float pos[3];
+	float normal[3];
 
 	static VkVertexInputBindingDescription getBindingDescription() {
 	
