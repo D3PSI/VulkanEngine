@@ -215,7 +215,7 @@ private:
 	void createRenderPass(void);
 	void createFramebuffers(void);
 	void createCommandPool(void);
-	void createCommandBuffers(void);
+	void recordCommandBuffers(void);
 	void createSyncObjects(void);
 	void renderFrame(void);
 	void recreateSwapChain(void);

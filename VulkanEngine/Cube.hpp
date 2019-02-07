@@ -1,6 +1,7 @@
 #pragma once
 #include "Object.hpp"
 #include "CubeVertex.cpp"
+
 class Cube :
 	public Object {
 public:
@@ -16,7 +17,7 @@ public:
 	~Cube();
 private:
 	std::vector< CubeVertex > vertices;
-	
+
 	void createVertexBuffer(void);
 
 };

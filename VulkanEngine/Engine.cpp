@@ -227,7 +227,7 @@ void Engine::initVulkan() {
 	createUniformBuffers();
 	createPipelines();
 	createDescriptorSets();
-	createCommandBuffers();
+	recordCommandBuffers();
 	createSyncObjects();
 
 	glfwShowWindow(window); 
@@ -1311,7 +1311,7 @@ VkShaderModule Engine::createShaderModule(const std::vector< char >& code_) {
 void Engine::createPipelines(void) {
 
 	VkVertexInputBindingDescription objectBindingDescription						= CubeVertex::getBindingDescription();
-	std::array< VkVertexInputAttributeDescription, 1 > objectAttributeDescriptions  = CubeVertex::getAttributeDescriptions();
+	std::array< VkVertexInputAttributeDescription, 2 > objectAttributeDescriptions  = CubeVertex::getAttributeDescriptions();
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo							= {};
 	vertexInputInfo.sType															= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -1413,14 +1413,14 @@ void Engine::createPipelines(void) {
 	samplerLayoutBinding.pImmutableSamplers											= nullptr;
 	samplerLayoutBinding.stageFlags													= VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	VkDescriptorSetLayoutBinding colorBinding										= {};
-	colorBinding.binding															= 1;
-	colorBinding.descriptorCount													= 1;
-	colorBinding.descriptorType														= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	colorBinding.pImmutableSamplers													= nullptr;
-	colorBinding.stageFlags															= VK_SHADER_STAGE_FRAGMENT_BIT;
+	VkDescriptorSetLayoutBinding lboBinding											= {};
+	lboBinding.binding																= 1;
+	lboBinding.descriptorCount														= 1;
+	lboBinding.descriptorType														= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	lboBinding.pImmutableSamplers													= nullptr;
+	lboBinding.stageFlags															= VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::vector< VkDescriptorSetLayoutBinding > bindings							= { uboLayoutBinding, colorBinding };
+	std::vector< VkDescriptorSetLayoutBinding > bindings							= { uboLayoutBinding, lboBinding };
 
 	objectPipeline = Pipeline(
 		
@@ -1501,7 +1501,7 @@ void Engine::createPipelines(void) {
 	});
 
 	VkVertexInputBindingDescription lightingBindingDescription								= CubeVertex::getBindingDescription();
-	std::array< VkVertexInputAttributeDescription, 1 > lightingAttributeDescriptions		= CubeVertex::getAttributeDescriptions();
+	std::array< VkVertexInputAttributeDescription, 2 > lightingAttributeDescriptions		= CubeVertex::getAttributeDescriptions();
 
 	vertexInputInfo.vertexBindingDescriptionCount											= 1;
 	vertexInputInfo.vertexAttributeDescriptionCount											= static_cast< uint32_t >(lightingAttributeDescriptions.size());
@@ -1762,11 +1762,11 @@ void Engine::createCommandPool(void) {
 }
 
 /*
-*	Function:		void createCommandBuffers()
+*	Function:		void recordCommandBuffers()
 *	Purpose:		Creates command buffers
 *
 */
-void Engine::createCommandBuffers(void) {
+void Engine::recordCommandBuffers(void) {
 
 	commandBuffers.resize(swapChainFramebuffers.size());
 
@@ -2052,7 +2052,7 @@ void Engine::recreateSwapChain(void) {
 	createColorResources();
 	createDepthResources();
 	createFramebuffers();
-	createCommandBuffers();
+	recordCommandBuffers();
 
 }
 
@@ -2408,27 +2408,31 @@ void Engine::createUniformBuffers(void) {
 *
 */
 void Engine::updateUniformBuffers(uint32_t currentImage_) {
-	
+
 	static auto startTime								= std::chrono::high_resolution_clock::now();
 	auto currentTime									= std::chrono::high_resolution_clock::now();
 	float time											= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
 	
-	objectPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	objectPipeline.ubo.model							= glm::rotate(objectPipeline.ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//objectPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//objectPipeline.ubo.model							= glm::rotate(objectPipeline.ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	objectPipeline.ubo.view								= camera.getViewMatrix();
 	objectPipeline.ubo.proj								= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
 	objectPipeline.ubo.proj[1][1]						*= -1;
 
 	objectPipeline.updateUBOs(currentImage_);
 
+	glm::vec3 lightPos									= glm::vec3(glm::sin(time) * 10.0f);
+
 	objectPipeline.lbo.lightColor						= glm::vec3(1.0f, 1.0f, 1.0f);
 	objectPipeline.lbo.objectColor						= glm::vec3(23.0f / 255.0f, 166.0f / 255.0f, 255.0f / 255.0f);		// R, G, B
+	objectPipeline.lbo.lightPos							= lightPos;
 
 	objectPipeline.updateLBOs(currentImage_);
 	
 	lightingPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	lightingPipeline.ubo.model							= glm::translate(lightingPipeline.ubo.model, glm::vec3(10.0));
-	lightingPipeline.ubo.model							= glm::rotate(lightingPipeline.ubo.model, time * glm::radians(-30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	lightingPipeline.ubo.model							= glm::translate(lightingPipeline.ubo.model, lightPos);
+	lightingPipeline.ubo.model							= glm::scale(lightingPipeline.ubo.model, glm::vec3(0.1f));
+	//lightingPipeline.ubo.model							= glm::rotate(lightingPipeline.ubo.model, time * glm::radians(-30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	lightingPipeline.ubo.view							= camera.getViewMatrix();
 	lightingPipeline.ubo.proj							= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
 	lightingPipeline.ubo.proj[1][1]						*= -1;
