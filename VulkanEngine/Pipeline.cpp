@@ -66,6 +66,8 @@ Pipeline::Pipeline(
 
 ) {
 
+	usesLBO																= usesLBO_;
+
 	vertShaderModule													= ShaderModule(vertShaderPath_);
 	fragShaderModule													= ShaderModule(fragShaderPath_);
 
@@ -186,8 +188,6 @@ void Pipeline::updateUBOs(uint32_t imageIndex_) {
 
 	vkUnmapMemory(engine.device, uniformBufferMemory[imageIndex_]);
 
-	updateLBOs(imageIndex_);
-
 }
 
 /*
@@ -203,7 +203,7 @@ void Pipeline::updateLBOs(uint32_t imageIndex_) {
 
 		engine.device,
 		lightingBuffersMemory[imageIndex_],
-		0,
+		sizeof(float),
 		sizeof(lbo),
 		0,
 		&data
@@ -311,20 +311,24 @@ void Pipeline::destroy(void) {
 		
 		);
 
-		vkDestroyBuffer(
-		
-			engine.device,
-			lightingBuffers[i],
-			nullptr
-		
-		);
-		vkFreeMemory(
-		
-			engine.device,
-			lightingBuffersMemory[i],
-			nullptr
-		
-		);
+		if (usesLBO) {
+
+			vkDestroyBuffer(
+
+				engine.device,
+				lightingBuffers[i],
+				nullptr
+
+			);
+			vkFreeMemory(
+
+				engine.device,
+				lightingBuffersMemory[i],
+				nullptr
+
+			);
+
+		}
 
 	}
 

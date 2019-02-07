@@ -2412,7 +2412,6 @@ void Engine::updateUniformBuffers(uint32_t currentImage_) {
 	static auto startTime								= std::chrono::high_resolution_clock::now();
 	auto currentTime									= std::chrono::high_resolution_clock::now();
 	float time											= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
-
 	
 	objectPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	objectPipeline.ubo.model							= glm::rotate(objectPipeline.ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -2421,6 +2420,11 @@ void Engine::updateUniformBuffers(uint32_t currentImage_) {
 	objectPipeline.ubo.proj[1][1]						*= -1;
 
 	objectPipeline.updateUBOs(currentImage_);
+
+	objectPipeline.lbo.lightColor						= glm::vec3(1.0f, 1.0f, 1.0f);
+	objectPipeline.lbo.objectColor						= glm::vec3(23.0f / 255.0f, 166.0f / 255.0f, 255.0f / 255.0f);		// R, G, B
+
+	objectPipeline.updateLBOs(currentImage_);
 	
 	lightingPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	lightingPipeline.ubo.model							= glm::translate(lightingPipeline.ubo.model, glm::vec3(10.0));

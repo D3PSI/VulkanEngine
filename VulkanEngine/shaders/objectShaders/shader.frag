@@ -12,6 +12,6 @@ layout(binding = 1) uniform LightingUniformBuffer {
 
 void main() {
 
-    outColor = vec4(lbo.lightColor * lbo.objectColor, 1.0);
+    outColor = vec4(lbo.objectColor * lbo.lightColor, 1.0);
 
 }

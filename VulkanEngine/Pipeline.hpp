@@ -25,6 +25,7 @@ public:
 	std::vector< VkBuffer >										lightingBuffers;
 	std::vector< VkDeviceMemory >								lightingBuffersMemory;
 	LightingBufferObject										lbo;
+	bool														usesLBO;
 
 
 	Pipeline();
