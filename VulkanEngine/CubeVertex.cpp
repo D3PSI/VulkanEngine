@@ -6,8 +6,8 @@
 
 struct CubeVertex {
 
-	float pos[3];
-	float normal[3];
+	glm::vec3 pos;
+	glm::vec3 normal;
 
 	static VkVertexInputBindingDescription getBindingDescription() {
 	
@@ -40,7 +40,7 @@ struct CubeVertex {
 
 	bool operator==(const CubeVertex& other) const {
 
-		return pos == other.pos;
+		return pos == other.pos && normal == other.normal;
 
 	}
 
