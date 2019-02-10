@@ -118,7 +118,7 @@ private:
 	VkResult											result;
 	GLFWwindow*											window;
 	StartWindow*										startWindow;
-	const std::string									CHALET_PATH						= "res/models/chalet/source/chalet.obj";
+	const std::string									CHALET_PATH						= "res/models/ship/source/ship.obj";
 	const std::string									TEXTURE_PATH					= "res/models/chalet/textures/chalet.jpg";
 	GLFWmonitor*										monitor							= nullptr; 
 	uint32_t											numThreads;
@@ -173,7 +173,7 @@ private:
 	Pipeline											objectPipeline;
 	Pipeline											lightingPipeline;
 
-	Cube*												renderedCube;
+	Object*												chalet;
 	Cube*												lightingCube;
 
 	irrklang::ISoundEngine*								audioEngine;

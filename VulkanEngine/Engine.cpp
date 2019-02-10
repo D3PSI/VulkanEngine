@@ -500,10 +500,10 @@ void Engine::cleanup() {
 
 	);*/
 
-	renderedCube->destroy();
+	chalet->destroy();
 	lightingCube->destroy();
 
-	delete renderedCube;
+	delete chalet;
 	delete lightingCube;
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -1310,8 +1310,8 @@ VkShaderModule Engine::createShaderModule(const std::vector< char >& code_) {
 */
 void Engine::createPipelines(void) {
 
-	VkVertexInputBindingDescription objectBindingDescription						= CubeVertex::getBindingDescription();
-	std::array< VkVertexInputAttributeDescription, 2 > objectAttributeDescriptions  = CubeVertex::getAttributeDescriptions();
+	VkVertexInputBindingDescription objectBindingDescription						= Vertex::getBindingDescription();
+	auto objectAttributeDescriptions												= Vertex::getAttributeDescriptions();
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo							= {};
 	vertexInputInfo.sType															= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -1825,7 +1825,7 @@ void Engine::recordCommandBuffers(void) {
 
 				VkDeviceSize offsets[] = {0};
 
-				renderedCube->draw(
+				chalet->draw(
 
 					commandBuffers[i],
 					offsets,
@@ -2413,8 +2413,9 @@ void Engine::updateUniformBuffers(uint32_t currentImage_) {
 	auto currentTime									= std::chrono::high_resolution_clock::now();
 	float time											= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
 	
-	//objectPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	//objectPipeline.ubo.model							= glm::rotate(objectPipeline.ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	objectPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	objectPipeline.ubo.model							= glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+	objectPipeline.ubo.model							= glm::rotate(objectPipeline.ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	objectPipeline.ubo.view								= camera.getViewMatrix();
 	objectPipeline.ubo.proj								= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
 	objectPipeline.ubo.proj[1][1]						*= -1;
@@ -3321,7 +3322,7 @@ bool Engine::hasStencilComponent(VkFormat format_) {
 */
 void Engine::loadModels(void) {
 
-	renderedCube		= new Cube();
+	chalet				= new Object(CHALET_PATH);
 	lightingCube		= new Cube();
 
 }
