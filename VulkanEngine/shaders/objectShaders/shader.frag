@@ -13,6 +13,7 @@ layout(binding = 1) uniform LightingUniformBuffer {
     vec3 lightColor;
     vec3 objectColor;
 	vec3 lightPos;
+	vec3 viewPos;
 
 } lbo;
 
@@ -26,6 +27,12 @@ void main() {
 
 	float diff					= max(dot(norm, lightDir), 0.0);
 	vec3 diffuse				= diff * lbo.lightColor;
+
+	float specularStrength		= 0.5;
+	vec3 viewDir				= normalize(lbo.viewPos - FragPos);
+	vec3 reflectDir				= reflect(-lightDir, norm);
+	float spec					= pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	vec3 specular				= specularStrength * spec * lbo.lightColor;
 
 	vec3 result					= (ambient + diffuse) * lbo.objectColor;
 

@@ -2414,20 +2414,21 @@ void Engine::updateUniformBuffers(uint32_t currentImage_) {
 	float time											= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
 	
 	objectPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	//objectPipeline.ubo.model							= glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
-	objectPipeline.ubo.model							= glm::rotate(objectPipeline.ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	objectPipeline.ubo.model							= glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
+	//objectPipeline.ubo.model							= glm::rotate(objectPipeline.ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	objectPipeline.ubo.view								= camera.getViewMatrix();
 	objectPipeline.ubo.proj								= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
 	objectPipeline.ubo.proj[1][1]						*= -1;
 
 	objectPipeline.updateUBOs(currentImage_);
 
-	float lightRadius									= glm::sin(time * 3);
+	float lightRadius									= 5;						//glm::sin(time * 3);
 	glm::vec3 lightPos									= glm::vec3(glm::sin(time) * lightRadius, 0.0f, glm::cos(time) * 3.0f * lightRadius);
 
 	objectPipeline.lbo.lightColor						= glm::vec3(1.0f, 1.0f, 1.0f);
 	objectPipeline.lbo.objectColor						= glm::vec3(255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f);		// R, G, B
 	objectPipeline.lbo.lightPos							= lightPos;
+	objectPipeline.lbo.viewPos							= camera.position;
 
 	objectPipeline.updateLBOs(currentImage_);
 	
