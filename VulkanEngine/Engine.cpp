@@ -2422,7 +2422,8 @@ void Engine::updateUniformBuffers(uint32_t currentImage_) {
 
 	objectPipeline.updateUBOs(currentImage_);
 
-	glm::vec3 lightPos									= glm::vec3(glm::sin(time) * 10.0f, 0.0f, glm::cos(time) * 10.0f);
+	float lightRadius									= glm::sin(time * 3);
+	glm::vec3 lightPos									= glm::vec3(glm::sin(time) * lightRadius, 0.0f, glm::cos(time) * 3.0f * lightRadius);
 
 	objectPipeline.lbo.lightColor						= glm::vec3(1.0f, 1.0f, 1.0f);
 	objectPipeline.lbo.objectColor						= glm::vec3(255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f);		// R, G, B
