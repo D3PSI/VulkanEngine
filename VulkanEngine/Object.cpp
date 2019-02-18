@@ -193,7 +193,7 @@ void Object::loadwithtinyobjloader(const std::string fileName_) {
 			vertex.normal = {
 			
 				attrib.normals[3 * index.normal_index + 0],
-				1.0f - attrib.normals[3 * index.normal_index + 1],
+				attrib.normals[3 * index.normal_index + 1],
 				attrib.normals[3 * index.normal_index + 2]
 			
 			};
