@@ -301,18 +301,18 @@ void Engine::createInstance() {
 	createInfo.pApplicationInfo				= &appInfo;
 	if (enableValidationLayers) {
 	
-		createInfo.enabledLayerCount		= static_cast<uint32_t>(validationLayers.size());
+		createInfo.enabledLayerCount		= static_cast< uint32_t >(validationLayers.size());
 		createInfo.ppEnabledLayerNames		= validationLayers.data();
 	
 	}
 	else {
 
-		createInfo.enabledLayerCount = 0;
-		createInfo.ppEnabledLayerNames = nullptr;
+		createInfo.enabledLayerCount		= 0;
+		createInfo.ppEnabledLayerNames		= nullptr;
 
 	}
 
-	auto reqExtensions = getRequiredExtensions();
+	auto reqExtensions						= getRequiredExtensions();
 	createInfo.enabledExtensionCount		= static_cast< uint32_t >(reqExtensions.size());
 	createInfo.ppEnabledExtensionNames		= reqExtensions.data();
 
@@ -354,10 +354,9 @@ void Engine::mainLoop() {
 
 	std::thread t0([=]() {
 
-		bgmusic = audioEngine->play3D(
+		bgmusic = audioEngine->play2D(
 			
 			"res/sounds/bgmusic2.wav",
-			irrklang::vec3df(0, 0, 0),
 			true, 
 			false, 
 			true
@@ -366,7 +365,6 @@ void Engine::mainLoop() {
 
 		if (bgmusic) {
 		
-			bgmusic->setMinDistance(1.0f);
 			bgmusic->setVolume(1.0f);
 		
 		}
@@ -403,28 +401,9 @@ void Engine::mainLoop() {
 				printf(frametime.c_str(), double((1000.0 * seconds) / nbFrames));
 				printf(maxFPS.c_str(), double(maxfps / seconds));
 				nbFrames	 = 0;
-				lastTime	+= seconds;
+				lastTime	 += seconds;
 
 			}
-
-			audioEngine->setListenerPosition(
-				
-				irrklang::vec3df(
-					
-					camera.position.x, 
-					camera.position.y, 
-					camera.position.z
-				
-				),
-				irrklang::vec3df(
-					
-					-camera.front.x,
-					-camera.front.y,
-					-camera.front.z
-				
-				)
-			
-			);
 
 			glfwPollEvents();
 			queryKeyboardGLFW();
@@ -499,11 +478,12 @@ void Engine::cleanup() {
 
 	);*/
 
-	chalet->destroy();
-	lightingCube->destroy();
-
-	delete chalet;
-	delete lightingCube;
+	for (auto& obj : objects) {
+	
+		obj->destroy();
+		obj.reset();
+	
+	}
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 
@@ -1820,9 +1800,11 @@ void Engine::recordCommandBuffers(void) {
 
 		);
 
-				VkDeviceSize offsets[] = {0};
+			for (auto& obj : objects) {
 
-				chalet->draw(
+				VkDeviceSize offsets[] = { 0 };
+
+				obj->draw(
 
 					commandBuffers[i],
 					offsets,
@@ -1831,16 +1813,8 @@ void Engine::recordCommandBuffers(void) {
 					i
 
 				);
-			
-				lightingCube->draw(
-					
-					commandBuffers[i],
-					offsets,
-					0,
-					VK_INDEX_TYPE_UINT32,
-					i
 
-				);
+			}
 
 		vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -3322,7 +3296,9 @@ bool Engine::hasStencilComponent(VkFormat format_) {
 void Engine::loadModels(void) {
 
 	chalet				= new Model(CHALET_PATH, &objectPipeline);
+	objects.emplace_back(chalet);
 	lightingCube		= new Cube(&lightingPipeline);
+	objects.emplace_back(lightingCube);
 
 }
 

@@ -176,7 +176,7 @@ private:
 	Object*												chalet;
 	Object*												lightingCube;
 
-	std::vector< Object* >								objects;
+	std::vector< std::unique_ptr< Object > >			objects;
 
 	irrklang::ISoundEngine*								audioEngine;
 	irrklang::ISound*									bgmusic;
