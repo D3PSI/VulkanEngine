@@ -48,11 +48,13 @@ const CubeVertex vert[] = {
 };
 
 /*
-*	Function:		Cube()
+*	Function:		Cube(Pipeline* pipeline_))
 *	Purpose:		Default constructor
 *
 */
-Cube::Cube() {
+Cube::Cube(Pipeline* pipeline_) {
+
+	pipeline = pipeline_;
 
 	vertices = std::vector(vert, vert + sizeof(vert) / sizeof(vert[0]));
 
@@ -66,7 +68,8 @@ Cube::Cube() {
 *						VkCommandBuffer			commandBuffer_,
 *						VkDeviceSize*			vertexOffsets_,
 *						VkDeviceSize			indexOffset_,
-*						VkIndexType				indexType_
+*						VkIndexType				indexType_,
+*						uint32_t				descriptorSetIndex_
 *
 *					)
 *	Purpose:		Overrides inherited draw function to draw without an index buffer	
@@ -77,9 +80,12 @@ void Cube::draw(
 	VkCommandBuffer			commandBuffer_,
 	VkDeviceSize*			vertexOffsets_,
 	VkDeviceSize			indexOffset_,
-	VkIndexType				indexType_
+	VkIndexType				indexType_,
+	uint32_t				descriptorSetIndex_
 
 ) {
+
+	pipeline->bind(commandBuffer_, &(pipeline->descriptorSets[descriptorSetIndex_]));
 
 	bindVBO(commandBuffer_, vertexOffsets_);
 

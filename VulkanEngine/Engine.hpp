@@ -174,7 +174,9 @@ private:
 	Pipeline											lightingPipeline;
 
 	Object*												chalet;
-	Cube*												lightingCube;
+	Object*												lightingCube;
+
+	std::vector< Object* >								objects;
 
 	irrklang::ISoundEngine*								audioEngine;
 	irrklang::ISound*									bgmusic;

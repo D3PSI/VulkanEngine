@@ -7,11 +7,11 @@
 
 
 /*
-*	Function:		Model(const std::string fileName_)
+*	Function:		Model(const std::string fileName_, Pipeline* pipeline_)
 *	Purpose:		Constructor
 *
 */
-Model::Model(const std::string fileName_) : Object(fileName_){
+Model::Model(const std::string fileName_, Pipeline* pipeline_) : Object(fileName_, pipeline_){
 
 	
 

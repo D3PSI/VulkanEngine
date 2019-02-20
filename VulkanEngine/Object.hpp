@@ -11,19 +11,21 @@
 
 #include "Vertex.cpp"
 #include "Logger.hpp"
+#include "Pipeline.hpp"
 
 extern Logger logger;
 
 class Object {
 public:
 	Object(void);
-	Object(const std::string fileName_);
+	Object(const std::string fileName_, Pipeline* pipeline_);
 	virtual void draw(
 		
 		VkCommandBuffer			commandBuffer_,
 		VkDeviceSize*			vertexOffsets_,
 		VkDeviceSize			indexOffset_,
-		VkIndexType				indexType_
+		VkIndexType				indexType_,
+		uint32_t				descriptorSetIndex_
 
 	);
 	void destroy(void);
@@ -35,6 +37,7 @@ protected:
 	std::vector< uint32_t >					indices;
 	VkBuffer								indexBuffer;
 	VkDeviceMemory							indexBufferMemory;
+	Pipeline*								pipeline;
 
 	void loadwithtinyobjloader(const std::string fileName_);
 	void load(const std::string fileName_);

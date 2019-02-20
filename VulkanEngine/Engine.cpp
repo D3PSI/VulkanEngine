@@ -219,13 +219,12 @@ void Engine::initVulkan() {
 
 	engine.loadingProgress += 0.1f;
 	//std::this_thread::sleep_for(std::chrono::seconds(5));		// JUST TO SHOW LOADING SCREEN A LITTLE BIT LONGER!!!
-	
-	loadModels();
 
 	engine.loadingProgress += 0.1f;
 
 	createUniformBuffers();
 	createPipelines();
+	loadModels();
 	createDescriptorSets();
 	recordCommandBuffers();
 	createSyncObjects();
@@ -1821,8 +1820,6 @@ void Engine::recordCommandBuffers(void) {
 
 		);
 
-			objectPipeline.bind(commandBuffers[i], &objectPipeline.descriptorSets[i]);
-
 				VkDeviceSize offsets[] = {0};
 
 				chalet->draw(
@@ -1830,18 +1827,18 @@ void Engine::recordCommandBuffers(void) {
 					commandBuffers[i],
 					offsets,
 					0,
-					VK_INDEX_TYPE_UINT32
+					VK_INDEX_TYPE_UINT32,
+					i
 
 				);
-
-			lightingPipeline.bind(commandBuffers[i], &lightingPipeline.descriptorSets[i]);
 			
 				lightingCube->draw(
 					
 					commandBuffers[i],
 					offsets,
 					0,
-					VK_INDEX_TYPE_UINT32
+					VK_INDEX_TYPE_UINT32,
+					i
 
 				);
 
@@ -2422,7 +2419,7 @@ void Engine::updateUniformBuffers(uint32_t currentImage_) {
 
 	objectPipeline.updateUBOs(currentImage_);
 
-	float lightRadius									= 2;						//glm::sin(time * 3);
+	float lightRadius									= glm::sin(time * 3);
 	glm::vec3 lightPos									= glm::vec3(glm::sin(time) * lightRadius, 0.0f, glm::cos(time) * 3.0f * lightRadius);
 
 	objectPipeline.lbo.lightColor						= glm::vec3(1.0f, 1.0f, 1.0f);
@@ -3324,8 +3321,8 @@ bool Engine::hasStencilComponent(VkFormat format_) {
 */
 void Engine::loadModels(void) {
 
-	chalet				= new Object(CHALET_PATH);
-	lightingCube		= new Cube();
+	chalet				= new Model(CHALET_PATH, &objectPipeline);
+	lightingCube		= new Cube(&lightingPipeline);
 
 }
 

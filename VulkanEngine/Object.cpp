@@ -19,12 +19,13 @@ Object::Object(void) {
 }
 
 /*
-*	Function:		Object(const std::string fileName_)
+*	Function:		Object(const std::string fileName_, Pipeline* pipeline_)
 *	Purpose:		Constructor
 *	
 */
-Object::Object(const std::string fileName_) {
+Object::Object(const std::string fileName_, Pipeline* pipeline_) {
 
+	pipeline = pipeline_;
 #if defined GAME_USE_TINY_OBJ
 	loadwithtinyobjloader(fileName_);
 #elif !defined GAME_USE_TINY_OBJ
@@ -41,7 +42,8 @@ Object::Object(const std::string fileName_) {
 *						VkCommandBuffer			commandBuffer_, 
 *						VkDeviceSize*			vertexOffsets_,
 *						VkDeviceSize			indexOffset_,
-*						VkIndexType				indexType_
+*						VkIndexType				indexType_,
+*						uint32_t				descriptorSetIndex_
 *
 *					)
 *	Purpose:		Binds appropriate buffers and draws to the command buffer
@@ -52,9 +54,12 @@ void Object::draw(
 	VkCommandBuffer			commandBuffer_, 
 	VkDeviceSize*			vertexOffsets_,
 	VkDeviceSize			indexOffset_,
-	VkIndexType				indexType_
+	VkIndexType				indexType_,
+	uint32_t				descriptorSetIndex_
 
 ) {
+
+	pipeline->bind(commandBuffer_, &(pipeline->descriptorSets[descriptorSetIndex_]));
 
 	bindVBO(commandBuffer_, vertexOffsets_);
 	bindIBO(
