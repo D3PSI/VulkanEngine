@@ -9,7 +9,7 @@ class Model
 	: public Object
 {
 public:
-	Model();
+	Model(const std::string fileName_, Pipeline* pipeline_);
 	~Model();
 };
 

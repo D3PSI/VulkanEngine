@@ -28,6 +28,7 @@
 #include <chrono>
 #include <unordered_map>
 #include <conio.h>
+#include <memory>
 #include <thread>
 
 #include "Logger.hpp"
@@ -39,8 +40,12 @@
 #include "Camera.hpp"
 #include "StartWindow.hpp"
 #include "ConsoleColor.hpp"
-#include "LightVertex.cpp"
+#include "Object.hpp"
+#include "Model.hpp"
+#include "CubeVertex.cpp"
 #include "Pipeline.hpp"
+#include "LightingBufferObject.cpp"
+#include "Cube.hpp"
 
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
@@ -88,13 +93,32 @@ public:
 	const unsigned int									MAX_FRAMES_IN_FLIGHT			= 2;
 	float												loadingProgress					= 0.0f;
 	double												DELTATIME;
+	VkDescriptorPool									descriptorPool;
+	std::vector< VkImage >								swapChainImages;
 
-	void run(void);
+	void run(void); 
+	uint32_t findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags properties_);
+	void createBuffer(
+
+		VkDeviceSize				size_,
+		VkBufferUsageFlags			usage_,
+		VkMemoryPropertyFlags		properties_,
+		VkBuffer&					buffer_,
+		VkDeviceMemory&				bufferMemory_
+
+	);
+	void copyBuffer(
+
+		VkBuffer		srcBuffer_,
+		VkBuffer		dstBuffer_,
+		VkDeviceSize	size_
+
+	);
 private:
 	VkResult											result;
 	GLFWwindow*											window;
 	StartWindow*										startWindow;
-	const std::string									MODEL_PATH						= "res/models/chalet/source/chalet.obj";
+	const std::string									CHALET_PATH						= "res/models/chalet/source/chaletblend.obj";
 	const std::string									TEXTURE_PATH					= "res/models/chalet/textures/chalet.jpg";
 	GLFWmonitor*										monitor							= nullptr; 
 	uint32_t											numThreads;
@@ -115,13 +139,11 @@ private:
 	VkQueue												presentQueue;
 	VkDebugUtilsMessengerEXT							callback;
 	VkSwapchainKHR										swapChain;
-	std::vector< VkImage >								swapChainImages;
 	VkFormat											swapChainImageFormat;
 	VkColorSpaceKHR										swapChainImageColorSpace;
 	VkExtent2D											swapChainExtent;
 	std::vector< VkImageView >							swapChainImageViews;
 	VkRenderPass										renderPass;
-	VkDescriptorPool									descriptorPool;
 	std::vector< VkFramebuffer >						swapChainFramebuffers;
 	VkCommandPool										commandPool;
 	std::vector< VkCommandBuffer >						commandBuffers;
@@ -130,12 +152,6 @@ private:
 	std::vector< VkFence >								inFlightFences;
 	size_t												currentFrame					= 0;
 	bool												framebufferResized				= false;
-	VkBuffer											indexBuffer;
-	VkDeviceMemory										indexBufferMemory;
-	std::vector< VkBuffer >								uniformBuffers;
-	std::vector< VkBuffer >								lightUniformBuffers;
-	std::vector< VkDeviceMemory >						uniformBuffersMemory;
-	std::vector< VkDeviceMemory >						lightUniformBuffersMemory;
 	clock_t												current_ticks, delta_ticks;
 	clock_t												fps								= 0;
 	uint32_t											mipLevels;
@@ -143,13 +159,6 @@ private:
 	VkDeviceMemory										textureImageMemory;
 	VkImageView											textureImageView;
 	VkSampler											textureSampler;
-	std::vector< Vertex >								vertices;
-	VkBuffer											vertexBuffer;
-	VkDeviceMemory										vertexBufferMemory;
-	std::vector< uint32_t >								indices;
-	VkBuffer											lightingVertexBuffer;
-	VkDeviceMemory										lightingVertexBufferMemory;
-	std::vector< LightVertex >							lightingVertices;
 	VkDescriptorPool									lightingDescriptorPool;
 	VkImage												depthImage;
 	VkDeviceMemory										depthImageMemory;
@@ -161,14 +170,13 @@ private:
 	const float											maxFPS							= 60.0f;
 	const float											maxPeriod						= 1.0f / maxFPS; 
 
-	VkDescriptorSetLayout								objectDescriptorSetLayout;
-	std::vector< VkDescriptorSet >						objectDescriptorSets;
-
-	VkDescriptorSetLayout								lightingDescriptorSetLayout;
-	std::vector< VkDescriptorSet >						lightingDescriptorSets;
-
 	Pipeline											objectPipeline;
 	Pipeline											lightingPipeline;
+
+	Object*												chalet;
+	Object*												lightingCube;
+
+	std::vector< std::unique_ptr< Object > >			objects;
 
 	irrklang::ISoundEngine*								audioEngine;
 	irrklang::ISound*									bgmusic;
@@ -209,7 +217,7 @@ private:
 	void createRenderPass(void);
 	void createFramebuffers(void);
 	void createCommandPool(void);
-	void createCommandBuffers(void);
+	void recordCommandBuffers(void);
 	void createSyncObjects(void);
 	void renderFrame(void);
 	void recreateSwapChain(void);
@@ -221,25 +229,6 @@ private:
 		int				eight_
 	
 	);
-	void createVertexBuffer(void);
-	uint32_t findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags properties_);
-	void createBuffer(
-		
-		VkDeviceSize				size_, 
-		VkBufferUsageFlags			usage_, 
-		VkMemoryPropertyFlags		properties_,
-		VkBuffer&					buffer_, 
-		VkDeviceMemory&				bufferMemory_
-	
-	);
-	void copyBuffer(
-	
-		VkBuffer		srcBuffer_,
-		VkBuffer		dstBuffer_,
-		VkDeviceSize	size_
-	
-	);
-	void createIndexBuffer(void);
 	void createDescriptorSetLayout(void);
 	void createUniformBuffers(void);
 	void updateUniformBuffers(uint32_t currentImage_);
@@ -338,7 +327,6 @@ private:
 	void createCamera(void);
 	void queryKeyboardGLFW(void);
 	void init3DAudio(void);
-	void loadLightVertexData(void);
 
 };
 

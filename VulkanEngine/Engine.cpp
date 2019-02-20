@@ -7,7 +7,7 @@
 #include "Engine.hpp"
 #include <stb_image.h>
 #include <tiny_obj_loader.h>
-#include "LightVertex.cpp"
+#include "CubeVertex.cpp"
 
 /*
 *	Function:		void run()
@@ -190,77 +190,44 @@ void Engine::initVulkan() {
 	numThreads = getNumThreads();
 
 	std::cout << green << "std::thread::hardware_concurrency()" << white << ":		" << yellow << numThreads << white << std::endl;
+	
+	createCamera();
 
-	logger.log(EVENT_LOG, "Starting thread...");
-	std::thread t0([=] {
-	
-		createCamera();
-	
-	});
 	engine.loadingProgress += 0.1f;
 
 	init3DAudio();
+
 	engine.loadingProgress += 0.1f;
 
-	logger.log(EVENT_LOG, "Starting thread...");
-	std::thread t1([=] {
+	createInstance();
+	setupDebugCallback();
+	createSurface();
+	pickPhysicalDevice();
+	createLogicalDevice();
+	createSwapChain();
+	createImageViews();
+	createRenderPass();
+	createDescriptorSetLayout();
+	createDescriptorPool();
+	createCommandPool();
+	createColorResources();
+	createDepthResources();
+	createFramebuffers();
+	createTextureImage();
+	createTextureImageView();
+	createTextureSampler(); 
 
-		createInstance();
-		setupDebugCallback();
-		createSurface();
-		pickPhysicalDevice();
-		createLogicalDevice();
-		createSwapChain();
-		createImageViews();
-		createRenderPass();
-		createDescriptorSetLayout();
-		createPipelines();
-		createCommandPool();
-		createColorResources();
-		createDepthResources();
-		createFramebuffers();
-		createTextureImage();
-		createTextureImageView();
-		createTextureSampler(); 
-
-	});
 	engine.loadingProgress += 0.1f;
 	//std::this_thread::sleep_for(std::chrono::seconds(5));		// JUST TO SHOW LOADING SCREEN A LITTLE BIT LONGER!!!
 
-	logger.log(EVENT_LOG, "Starting thread...");
-	std::thread t2([=] {
-
-		loadModels(); 
-		loadLightVertexData();
-
-	});
-	engine.loadingProgress += 0.1f;
-	
-	t1.join();
-	logger.log(EVENT_LOG, "Stopping thread...");
-	t2.join();
-	logger.log(EVENT_LOG, "Stopping thread...");
 	engine.loadingProgress += 0.1f;
 
-	logger.log(EVENT_LOG, "Starting thread...");
-	std::thread t3([=] {
-
-		createVertexBuffer();
-		createIndexBuffer();
-		createUniformBuffers();
-		createDescriptorPool();
-		createDescriptorSets();
-		createCommandBuffers();
-		createSyncObjects();
-
-	});
-	engine.loadingProgress += 0.1f;
-	t3.join();
-	logger.log(EVENT_LOG, "Stopping thread...");
-	engine.loadingProgress += 0.1f;
-	t0.join();
-	logger.log(EVENT_LOG, "Stopping thread...");
-	engine.loadingProgress = 1.0f;
+	createUniformBuffers();
+	createPipelines();
+	loadModels();
+	createDescriptorSets();
+	recordCommandBuffers();
+	createSyncObjects();
 
 	glfwShowWindow(window); 
 	glfwFocusWindow(window);
@@ -334,18 +301,18 @@ void Engine::createInstance() {
 	createInfo.pApplicationInfo				= &appInfo;
 	if (enableValidationLayers) {
 	
-		createInfo.enabledLayerCount		= static_cast<uint32_t>(validationLayers.size());
+		createInfo.enabledLayerCount		= static_cast< uint32_t >(validationLayers.size());
 		createInfo.ppEnabledLayerNames		= validationLayers.data();
 	
 	}
 	else {
 
-		createInfo.enabledLayerCount = 0;
-		createInfo.ppEnabledLayerNames = nullptr;
+		createInfo.enabledLayerCount		= 0;
+		createInfo.ppEnabledLayerNames		= nullptr;
 
 	}
 
-	auto reqExtensions = getRequiredExtensions();
+	auto reqExtensions						= getRequiredExtensions();
 	createInfo.enabledExtensionCount		= static_cast< uint32_t >(reqExtensions.size());
 	createInfo.ppEnabledExtensionNames		= reqExtensions.data();
 
@@ -387,10 +354,9 @@ void Engine::mainLoop() {
 
 	std::thread t0([=]() {
 
-		bgmusic = audioEngine->play3D(
+		bgmusic = audioEngine->play2D(
 			
-			"res/sounds/bgmusic.wav",
-			irrklang::vec3df(0, 0, 0),
+			"res/sounds/bgmusic2.wav",
 			true, 
 			false, 
 			true
@@ -399,7 +365,6 @@ void Engine::mainLoop() {
 
 		if (bgmusic) {
 		
-			bgmusic->setMinDistance(1.0f);
 			bgmusic->setVolume(1.0f);
 		
 		}
@@ -436,28 +401,9 @@ void Engine::mainLoop() {
 				printf(frametime.c_str(), double((1000.0 * seconds) / nbFrames));
 				printf(maxFPS.c_str(), double(maxfps / seconds));
 				nbFrames	 = 0;
-				lastTime	+= seconds;
+				lastTime	 += seconds;
 
 			}
-
-			audioEngine->setListenerPosition(
-				
-				irrklang::vec3df(
-					
-					camera.position.x, 
-					camera.position.y, 
-					camera.position.z
-				
-				),
-				irrklang::vec3df(
-					
-					-camera.front.x,
-					-camera.front.y,
-					-camera.front.z
-				
-				)
-			
-			);
 
 			glfwPollEvents();
 			queryKeyboardGLFW();
@@ -516,23 +462,7 @@ void Engine::cleanup() {
 	
 	);
 
-	vkDestroyDescriptorPool(
-	
-		device,
-		descriptorPool,
-		nullptr
-
-	);
-
-	vkDestroyDescriptorPool(
-	
-		device,
-		lightingDescriptorPool, 
-		nullptr
-
-	);
-
-	vkDestroyDescriptorSetLayout(
+	/*vkDestroyDescriptorSetLayout(
 	
 		device,
 		objectDescriptorSetLayout,
@@ -546,86 +476,14 @@ void Engine::cleanup() {
 		lightingDescriptorSetLayout,
 		nullptr
 
-	);
+	);*/
 
-	for (size_t i = 0; i < swapChainImages.size(); i++) {
+	for (auto& obj : objects) {
 	
-		vkDestroyBuffer(
-		
-			device,
-			uniformBuffers[i],
-			nullptr
-		
-		);
-		vkFreeMemory(
-		
-			device,
-			uniformBuffersMemory[i],
-			nullptr
-
-		);
-
-		vkDestroyBuffer(
-		
-			device,
-			lightUniformBuffers[i],
-			nullptr
-		
-		); 
-		vkFreeMemory(
-
-			device,
-			lightUniformBuffersMemory[i],
-			nullptr
-
-		);
+		obj->destroy();
+		obj.reset();
 	
 	}
-
-	vkDestroyBuffer(
-	
-		device,
-		indexBuffer,
-		nullptr
-	
-	);
-	vkFreeMemory(
-	
-		device,
-		indexBufferMemory,
-		nullptr
-	
-	);
-
-	vkDestroyBuffer(
-	
-		device,
-		vertexBuffer,
-		nullptr
-	
-	);
-	vkFreeMemory(
-	
-		device,
-		vertexBufferMemory,
-		nullptr
-
-	);
-
-	vkDestroyBuffer(
-	
-		device,
-		lightingVertexBuffer, 
-		nullptr
-	
-	);
-	vkFreeMemory(
-	
-		device,
-		lightingVertexBufferMemory,
-		nullptr
-	
-	);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 
@@ -775,17 +633,51 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Engine::debugCallback(
 
 	) {
 
+	time_t current_time;
+	struct tm local_time;
+
+	time(&current_time);
+	localtime_s(&local_time, &current_time);
+
+	int Year		= local_time.tm_year + 1900;
+	int Month		= local_time.tm_mon + 1;
+	int Day			= local_time.tm_mday;
+
+	int Hour		= local_time.tm_hour;
+	int Min			= local_time.tm_min;
+	int Sec			= local_time.tm_sec;
+
+	std::ofstream stream;
+
 	std::string msg = pCallbackData_->pMessage;
 
-	std::cout << red << "Validation layer: " << msg << white << std::endl;
+	stream.open("logs/debugReport.log", std::ios::app);
+
+	std::cout << green << Day << white << ":"
+		<< green << Month << white << ":"
+		<< green << Year << white << "   "
+		<< green << Hour << white << ":"
+		<< green << Min << white << ":"
+		<< green << Sec << white << "		###		" << red << "Validation layer: " << red 
+		<< msg << white << std::endl;
+
+	stream << green << Day << white << ":"
+		<< green << Month << white << ":"
+		<< green << Year << white << "   "
+		<< green << Hour << white << ":"
+		<< green << Min << white << ":"
+		<< green << Sec << red << "		###		" << red << "Validation layer: " << red
+		<< msg << white << std::endl;
+
+	stream.close();
 
 	return VK_FALSE;
 
 }
 
 /*
-*	Function:		
-*	Purpose:		
+*	Function:		void setupDebugCallback()
+*	Purpose:		Sets uup validation layer messenger callback
 *
 */
 void Engine::setupDebugCallback() {
@@ -1432,7 +1324,7 @@ VkShaderModule Engine::createShaderModule(const std::vector< char >& code_) {
 void Engine::createPipelines(void) {
 
 	VkVertexInputBindingDescription objectBindingDescription						= Vertex::getBindingDescription();
-	std::array< VkVertexInputAttributeDescription, 3 > objectAttributeDescriptions	= Vertex::getAttributeDescriptions();
+	auto objectAttributeDescriptions												= Vertex::getAttributeDescriptions();
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo							= {};
 	vertexInputInfo.sType															= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -1520,6 +1412,29 @@ void Engine::createPipelines(void) {
 	depthStencil.front																= {};
 	depthStencil.back																= {};
 
+	VkDescriptorSetLayoutBinding uboLayoutBinding									= {};
+	uboLayoutBinding.binding														= 0;
+	uboLayoutBinding.descriptorCount												= 1;
+	uboLayoutBinding.descriptorType													= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.pImmutableSamplers												= nullptr;
+	uboLayoutBinding.stageFlags														= VK_SHADER_STAGE_VERTEX_BIT;
+
+	VkDescriptorSetLayoutBinding samplerLayoutBinding								= {};
+	samplerLayoutBinding.binding													= 1;
+	samplerLayoutBinding.descriptorCount											= 1;
+	samplerLayoutBinding.descriptorType												= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerLayoutBinding.pImmutableSamplers											= nullptr;
+	samplerLayoutBinding.stageFlags													= VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	VkDescriptorSetLayoutBinding lboBinding											= {};
+	lboBinding.binding																= 1;
+	lboBinding.descriptorCount														= 1;
+	lboBinding.descriptorType														= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	lboBinding.pImmutableSamplers													= nullptr;
+	lboBinding.stageFlags															= VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::vector< VkDescriptorSetLayoutBinding > bindings							= { uboLayoutBinding, lboBinding };
+
 	objectPipeline = Pipeline(
 		
 		"shaders/objectShaders/vert.spv", 
@@ -1536,13 +1451,70 @@ void Engine::createPipelines(void) {
 		0,
 		VK_NULL_HANDLE,
 		-1,
-		&objectDescriptorSetLayout
+		&bindings,
+		descriptorPool,
+		true
 
 	);
 
+	objectPipeline.descriptorSetWrites([=] () {
 
-	VkVertexInputBindingDescription lightingBindingDescription								= LightVertex::getBindingDescription();
-	std::array< VkVertexInputAttributeDescription, 1 > lightingAttributeDescriptions		= LightVertex::getAttributeDescriptions();
+		for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
+
+			VkDescriptorBufferInfo bufferInfo							= {};
+			bufferInfo.buffer											= objectPipeline.uniformBuffers[i];
+			bufferInfo.offset											= 0;
+			bufferInfo.range											= sizeof(UniformBufferObject);
+
+			VkDescriptorImageInfo imageInfo								= {};
+			imageInfo.imageLayout										= VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView											= textureImageView;
+			imageInfo.sampler											= textureSampler;
+
+			VkDescriptorBufferInfo lightingBufferInfo					= {};
+			lightingBufferInfo.buffer									= objectPipeline.lightingBuffers[i];
+			lightingBufferInfo.offset									= 0;
+			lightingBufferInfo.range									= sizeof(LightingBufferObject);
+
+			std::array< VkWriteDescriptorSet, 2 > descriptorWrites		= {};
+			descriptorWrites[0].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[0].dstSet									= objectPipeline.descriptorSets[i];
+			descriptorWrites[0].dstBinding								= 0;
+			descriptorWrites[0].dstArrayElement							= 0;
+			descriptorWrites[0].descriptorType							= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[0].descriptorCount							= 1;
+			descriptorWrites[0].pBufferInfo								= &bufferInfo;
+			descriptorWrites[1].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[1].dstSet									= objectPipeline.descriptorSets[i];
+			descriptorWrites[1].dstBinding								= 1;
+			descriptorWrites[1].dstArrayElement							= 0;
+			descriptorWrites[1].descriptorType							= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[1].descriptorCount							= 1;
+			descriptorWrites[1].pBufferInfo								= &lightingBufferInfo;
+			/*descriptorWrites[1].sType									= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[1].dstSet									= objectPipeline.descriptorSets[i];
+			descriptorWrites[1].dstBinding								= 1;
+			descriptorWrites[1].dstArrayElement							= 0;
+			descriptorWrites[1].descriptorType							= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrites[1].descriptorCount							= 1;
+			descriptorWrites[1].pImageInfo								= &imageInfo;*/
+
+			vkUpdateDescriptorSets(
+
+				device,
+				static_cast< uint32_t >(descriptorWrites.size()),
+				descriptorWrites.data(),
+				0,
+				nullptr
+
+			);
+
+		}
+
+	});
+
+	VkVertexInputBindingDescription lightingBindingDescription								= CubeVertex::getBindingDescription();
+	std::array< VkVertexInputAttributeDescription, 2 > lightingAttributeDescriptions		= CubeVertex::getAttributeDescriptions();
 
 	vertexInputInfo.vertexBindingDescriptionCount											= 1;
 	vertexInputInfo.vertexAttributeDescriptionCount											= static_cast< uint32_t >(lightingAttributeDescriptions.size());
@@ -1550,6 +1522,8 @@ void Engine::createPipelines(void) {
 	vertexInputInfo.pVertexAttributeDescriptions											= lightingAttributeDescriptions.data();
 
 	rasterizer.cullMode																		= VK_CULL_MODE_NONE;
+
+	std::vector< VkDescriptorSetLayoutBinding > lightingBindings							= { uboLayoutBinding };
 
 	lightingPipeline = Pipeline(
 		
@@ -1567,9 +1541,43 @@ void Engine::createPipelines(void) {
 		0,
 		VK_NULL_HANDLE,
 		-1,
-		&lightingDescriptorSetLayout
+		&lightingBindings,
+		lightingDescriptorPool,
+		false
 
 	);
+
+	lightingPipeline.descriptorSetWrites([=] () {
+
+		for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
+
+			VkDescriptorBufferInfo bufferInfo											= {};
+			bufferInfo.buffer															= lightingPipeline.uniformBuffers[i];
+			bufferInfo.offset															= 0;
+			bufferInfo.range															= sizeof(UniformBufferObject);
+
+			std::array< VkWriteDescriptorSet, 1> descriptorWrites						= {};
+			descriptorWrites[0].sType													= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[0].dstSet													= lightingPipeline.descriptorSets[i];
+			descriptorWrites[0].dstBinding												= 0;
+			descriptorWrites[0].dstArrayElement											= 0;
+			descriptorWrites[0].descriptorType											= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[0].descriptorCount											= 1;
+			descriptorWrites[0].pBufferInfo												= &bufferInfo;
+
+			vkUpdateDescriptorSets(
+
+				device,
+				static_cast< uint32_t >(descriptorWrites.size()),
+				descriptorWrites.data(),
+				0,
+				nullptr
+
+			);
+
+		}
+
+	});
 
 	vkDestroyShaderModule(
 
@@ -1767,11 +1775,11 @@ void Engine::createCommandPool(void) {
 }
 
 /*
-*	Function:		void createCommandBuffers()
+*	Function:		void recordCommandBuffers()
 *	Purpose:		Creates command buffers
 *
 */
-void Engine::createCommandBuffers(void) {
+void Engine::recordCommandBuffers(void) {
 
 	commandBuffers.resize(swapChainFramebuffers.size());
 
@@ -1803,7 +1811,7 @@ void Engine::createCommandBuffers(void) {
 		renderPassBeginInfo.renderArea.extent			= swapChainExtent;
 
 		std::array< VkClearValue, 2 > clearValues		= {};
-		clearValues[0].color							= {0.0f, 0.0f, 0.0f, 1.0f};
+		clearValues[0].color							= {0.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f, 1.0f};
 		clearValues[1].depthStencil						= {1.0f, 0};
 		renderPassBeginInfo.clearValueCount				= static_cast< uint32_t >(clearValues.size());
 		renderPassBeginInfo.pClearValues				= clearValues.data();
@@ -1826,63 +1834,21 @@ void Engine::createCommandBuffers(void) {
 
 		);
 
-			objectPipeline.bind(commandBuffers[i], &objectDescriptorSets[i]);
+			for (auto& obj : objects) {
 
-				VkBuffer vertexBuffers[]	= {vertexBuffer};
-				VkDeviceSize offsets[]		= {0};
-				vkCmdBindVertexBuffers(
-				
-					commandBuffers[i],
-					0,
-					1,
-					vertexBuffers,
-					offsets
-				
-				);
+				VkDeviceSize offsets[] = { 0 };
 
-				vkCmdBindIndexBuffer(
-					
-					commandBuffers[i],
-					indexBuffer,
-					0,
-					VK_INDEX_TYPE_UINT32
-				
-				);
-
-
-				vkCmdDrawIndexed(
-					
-					commandBuffers[i],
-					static_cast< uint32_t >(indices.size()),
-					1,
-					0, 
-					0,
-					0
-				
-				);
-
-			lightingPipeline.bind(commandBuffers[i], &lightingDescriptorSets[i]);
-
-				VkBuffer lightingVertexBuffers[] = { lightingVertexBuffer };
-				vkCmdBindVertexBuffers(
+				obj->draw(
 
 					commandBuffers[i],
+					offsets,
 					0,
-					1,
-					lightingVertexBuffers,
-					offsets
+					VK_INDEX_TYPE_UINT32,
+					i
 
 				);
 
-				vkCmdDraw(
-
-					commandBuffers[i],
-					static_cast< uint32_t >(lightingVertices.size()),
-					1,
-					0,
-					0
-
-				);
+			}
 
 		vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -2086,11 +2052,12 @@ void Engine::recreateSwapChain(void) {
 	createSwapChain();
 	createImageViews();
 	createRenderPass();
+	createDescriptorPool();
 	createPipelines();
 	createColorResources();
 	createDepthResources();
 	createFramebuffers();
-	createCommandBuffers();
+	recordCommandBuffers();
 
 }
 
@@ -2100,7 +2067,27 @@ void Engine::recreateSwapChain(void) {
 *
 */
 void Engine::cleanupSwapChain(void) {
-	
+
+	objectPipeline.destroy();
+
+	lightingPipeline.destroy();
+
+	vkDestroyDescriptorPool(
+
+		device,
+		descriptorPool,
+		nullptr
+
+	);
+
+	vkDestroyDescriptorPool(
+
+		device,
+		lightingDescriptorPool,
+		nullptr
+
+	);
+
 	vkDestroyImageView(
 	
 		device,
@@ -2169,10 +2156,6 @@ void Engine::cleanupSwapChain(void) {
 	
 	);
 
-	objectPipeline.destroy();
-
-	lightingPipeline.destroy();
-
 	vkDestroyRenderPass(
 		
 		device,
@@ -2232,151 +2215,6 @@ void Engine::framebufferResizeCallback(
 }
 
 /*
-*	Function:		void createVertexBuffer()
-*	Purpose:		Creates vertex buffer_
-*
-*/
-void Engine::createVertexBuffer(void) {
-
-	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-
-	VkBuffer					stagingBuffer;
-	VkDeviceMemory				stagingBufferMemory;
-
-	createBuffer(
-	
-		bufferSize,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		stagingBuffer,
-		stagingBufferMemory
-	
-	);
-
-	void* data;
-	vkMapMemory(
-
-		device,
-		stagingBufferMemory,
-		0,
-		bufferSize,
-		0,
-		&data
-	
-	);
-	memcpy(
-
-		data,
-		vertices.data(),
-		(size_t)bufferSize
-	
-	);
-	vkUnmapMemory(device, stagingBufferMemory);
-
-	createBuffer(
-		
-		bufferSize,
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		vertexBuffer,
-		vertexBufferMemory
-	
-	);
-
-	copyBuffer(
-	
-		stagingBuffer,
-		vertexBuffer,
-		bufferSize
-
-	);
-
-	vkDestroyBuffer(
-		
-		device,
-		stagingBuffer, 
-		nullptr
-	
-	);
-	vkFreeMemory(
-		
-		device,
-		stagingBufferMemory,
-		nullptr
-	
-	);
-
-	VkDeviceSize lightingBufferSize = sizeof(lightingVertices[0]) * lightingVertices.size();
-
-	VkBuffer					lightingStagingBuffer;
-	VkDeviceMemory				lightingStagingBufferMemory;
-
-	createBuffer(
-
-		lightingBufferSize,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		lightingStagingBuffer,
-		lightingStagingBufferMemory
-
-	);
-
-	void* lightingData;
-	vkMapMemory(
-
-		device,
-		lightingStagingBufferMemory,
-		0,
-		lightingBufferSize,
-		0,
-		&lightingData
-
-	);
-	memcpy(
-
-		lightingData,
-		lightingVertices.data(),
-		(size_t)lightingBufferSize
-
-	);
-	vkUnmapMemory(device, lightingStagingBufferMemory);
-
-	createBuffer(
-
-		lightingBufferSize,
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		lightingVertexBuffer,
-		lightingVertexBufferMemory
-
-	);
-
-	copyBuffer(
-
-		lightingStagingBuffer,
-		lightingVertexBuffer,
-		lightingBufferSize
-
-	);
-
-	vkDestroyBuffer(
-
-		device,
-		lightingStagingBuffer,
-		nullptr
-
-	);
-	vkFreeMemory(
-
-		device,
-		lightingStagingBufferMemory,
-		nullptr
-
-	);
-
-}
-
-/*
 *	Function:		uint32_t findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags properties_)
 *	Purpose:		Find memory type to use for vertex data
 *
@@ -2412,7 +2250,7 @@ uint32_t Engine::findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags prop
 *						VkDeviceMemory&				bufferMemory_
 *
 *					)
-*	Purpose:		
+*	Purpose:		Creates a valid VkBuffer handle
 *
 */
 void Engine::createBuffer(
@@ -2519,141 +2357,13 @@ void Engine::copyBuffer(
 }
 
 /*
-*	Function:		void createIndexBuffer()
-*	Purpose:		Creates the index buffer_ for the vertices
-*
-*/
-void Engine::createIndexBuffer() {
-
-	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	createBuffer(
-		
-		bufferSize,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		stagingBuffer,
-		stagingBufferMemory
-
-	);
-
-	void* data;
-	vkMapMemory(
-	
-		device,
-		stagingBufferMemory,
-		0,
-		bufferSize,
-		0,
-		&data
-	
-	);
-
-	memcpy(
-
-		data,
-		indices.data(),
-		(size_t)bufferSize
-
-	);
-
-	vkUnmapMemory(device, stagingBufferMemory);
-
-	createBuffer(
-
-		bufferSize,
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-		indexBuffer,
-		indexBufferMemory
-
-	);
-
-	copyBuffer(
-	
-		stagingBuffer, 
-		indexBuffer, 
-		bufferSize
-	
-	);
-
-	vkDestroyBuffer(
-		
-		device,
-		stagingBuffer,
-		nullptr
-	
-	);
-	vkFreeMemory(
-		
-		device,
-		stagingBufferMemory,
-		nullptr
-	
-	);
-
-}
-
-/*
 *	Function:		void createDescriptorSetLayout()
 *	Purpose:		Creates the descriptor set for uniform buffers
 *
 */
 void Engine::createDescriptorSetLayout(void) {
 
-	VkDescriptorSetLayoutBinding uboLayoutBinding				= {};
-	uboLayoutBinding.binding									= 0;
-	uboLayoutBinding.descriptorCount							= 1;
-	uboLayoutBinding.descriptorType								= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.pImmutableSamplers							= nullptr;
-	uboLayoutBinding.stageFlags									= VK_SHADER_STAGE_VERTEX_BIT;
 
-	VkDescriptorSetLayoutBinding samplerLayoutBinding			= {};
-	samplerLayoutBinding.binding								= 1;
-	samplerLayoutBinding.descriptorCount						= 1;
-	samplerLayoutBinding.descriptorType							= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerLayoutBinding.pImmutableSamplers						= nullptr;
-	samplerLayoutBinding.stageFlags								= VK_SHADER_STAGE_FRAGMENT_BIT;
-
-	std::array< VkDescriptorSetLayoutBinding, 2 > bindings		= { uboLayoutBinding, samplerLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo layoutInfo					= {};
-	layoutInfo.sType											= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount										= static_cast< uint32_t >(bindings.size());
-	layoutInfo.pBindings										= bindings.data();
-
-	if (vkCreateDescriptorSetLayout(
-		
-		device, 
-		&layoutInfo,
-		nullptr,
-		&objectDescriptorSetLayout
-	
-	) != VK_SUCCESS) {
-
-		logger.log(ERROR_LOG, "Failed to create descriptor set layout!");
-
-	}
-
-	std::array< VkDescriptorSetLayoutBinding, 1 > lightingBindings				= { uboLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo lightingLayoutInfo							= {};
-	lightingLayoutInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	lightingLayoutInfo.bindingCount												= static_cast< uint32_t >(lightingBindings.size());
-	lightingLayoutInfo.pBindings												= lightingBindings.data();
-
-	if (vkCreateDescriptorSetLayout(
-	
-		device,
-		&lightingLayoutInfo,
-		nullptr,
-		&lightingDescriptorSetLayout
-
-	) != VK_SUCCESS) {
-	
-		logger.log(ERROR_LOG, "Failed to create descriptor set layout!");
-	
-	}
 
 }
 
@@ -2664,7 +2374,7 @@ void Engine::createDescriptorSetLayout(void) {
 */
 void Engine::createUniformBuffers(void) {
 
-	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+	/*VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
 	uniformBuffers.resize(swapChainImages.size());
 	uniformBuffersMemory.resize(swapChainImages.size());
@@ -2693,7 +2403,7 @@ void Engine::createUniformBuffers(void) {
 		
 		);
 	
-	}
+	}*/
 
 }
 
@@ -2703,71 +2413,39 @@ void Engine::createUniformBuffers(void) {
 *
 */
 void Engine::updateUniformBuffers(uint32_t currentImage_) {
+
+	static auto startTime								= std::chrono::high_resolution_clock::now();
+	auto currentTime									= std::chrono::high_resolution_clock::now();
+	float time											= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
 	
-	static auto startTime				= std::chrono::high_resolution_clock::now();
-	auto currentTime					= std::chrono::high_resolution_clock::now();
-	float time							= std::chrono::duration< float, std::chrono::seconds::period >(currentTime - startTime).count();
+	objectPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//objectPipeline.ubo.model							= glm::scale(glm::mat4(1.0f), glm::vec3(0.01f));
+	objectPipeline.ubo.model							= glm::rotate(objectPipeline.ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	objectPipeline.ubo.view								= camera.getViewMatrix();
+	objectPipeline.ubo.proj								= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
+	objectPipeline.ubo.proj[1][1]						*= -1;
 
-	UniformBufferObject ubo				= {};
-	ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	ubo.model							= glm::rotate(ubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view							= camera.getViewMatrix();
-	ubo.proj							= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 100.0f);
-	ubo.proj[1][1]						*= -1;
+	objectPipeline.updateUBOs(currentImage_);
 
-	UniformBufferObject lightubo		= {};
-	lightubo.model						= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	lightubo.model						= glm::translate(lightubo.model, glm::vec3(10.0));
-	lightubo.model						= glm::rotate(lightubo.model, time * glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	lightubo.view						= camera.getViewMatrix();
-	lightubo.proj						= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
-	lightubo.proj[1][1]			        *= -1;
+	float lightRadius									= glm::sin(time * 3);
+	glm::vec3 lightPos									= glm::vec3(glm::sin(time) * lightRadius, 0.0f, glm::cos(time) * 3.0f * lightRadius);
 
-	void* data;
+	objectPipeline.lbo.lightColor						= glm::vec3(1.0f, 1.0f, 1.0f);
+	objectPipeline.lbo.objectColor						= glm::vec3(255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f);		// R, G, B
+	objectPipeline.lbo.lightPos							= lightPos;
+	objectPipeline.lbo.viewPos							= camera.position;
+
+	objectPipeline.updateLBOs(currentImage_);
 	
-	vkMapMemory(
-		
-		device, 
-		uniformBuffersMemory[currentImage_], 
-		0,
-		sizeof(ubo),
-		0,
-		&data
-	
-	);
-	
-	memcpy(
-	
-		data,
-		&ubo,
-		sizeof(ubo)
-	
-	);
+	lightingPipeline.ubo.model							= glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	lightingPipeline.ubo.model							= glm::translate(lightingPipeline.ubo.model, lightPos);
+	lightingPipeline.ubo.model							= glm::scale(lightingPipeline.ubo.model, glm::vec3(0.4f));
+	lightingPipeline.ubo.model							= glm::rotate(lightingPipeline.ubo.model, time * glm::radians(-30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	lightingPipeline.ubo.view							= camera.getViewMatrix();
+	lightingPipeline.ubo.proj							= glm::perspective(glm::radians(camera.zoom), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
+	lightingPipeline.ubo.proj[1][1]						*= -1;
 
-	vkUnmapMemory(device, uniformBuffersMemory[currentImage_]);
-
-	void* lightingData;
-
-	vkMapMemory(
-
-		device,
-		lightUniformBuffersMemory[currentImage_],
-		0,
-		sizeof(lightubo),
-		0,
-		&lightingData
-
-	);
-
-	memcpy(
-
-		lightingData,
-		&lightubo,
-		sizeof(lightubo)
-
-	);
-
-	vkUnmapMemory(device, lightUniformBuffersMemory[currentImage_]);
+	lightingPipeline.updateUBOs(currentImage_);
 
 }
 
@@ -2781,7 +2459,7 @@ void Engine::createDescriptorPool(void) {
 	std::array< VkDescriptorPoolSize, 2 > poolSizes			= {};
 	poolSizes[0].type										= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount							= static_cast< uint32_t >(swapChainImages.size());
-	poolSizes[1].type										= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[1].type										= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[1].descriptorCount							= static_cast< uint32_t >(swapChainImages.size());
 
 	VkDescriptorPoolCreateInfo poolInfo						= {};
@@ -2803,11 +2481,11 @@ void Engine::createDescriptorPool(void) {
 	
 	}
 
-	std::array< VkDescriptorPoolSize, 1 > lightingPoolSizes			= {};
+	std::array< VkDescriptorPoolSize, 1 > lightingPoolSizes					= {};
 	lightingPoolSizes[0].type												= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	lightingPoolSizes[0].descriptorCount									= static_cast< uint32_t >(swapChainImages.size());
 
-	VkDescriptorPoolCreateInfo lightingPoolInfo						= {};
+	VkDescriptorPoolCreateInfo lightingPoolInfo								= {};
 	lightingPoolInfo.sType													= VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	lightingPoolInfo.poolSizeCount											= static_cast< uint32_t >(lightingPoolSizes.size());
 	lightingPoolInfo.pPoolSizes												= lightingPoolSizes.data();
@@ -2835,7 +2513,7 @@ void Engine::createDescriptorPool(void) {
 */
 void Engine::createDescriptorSets(void) {
 
-	std::vector< VkDescriptorSetLayout > layouts(swapChainImages.size(), objectDescriptorSetLayout);
+	/*std::vector< VkDescriptorSetLayout > layouts(swapChainImages.size(), objectDescriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo		= {};
 	allocInfo.sType								= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool					= descriptorPool;
@@ -2943,7 +2621,7 @@ void Engine::createDescriptorSets(void) {
 
 		);
 
-	}
+	}*/
 
 }
 
@@ -3651,63 +3329,10 @@ bool Engine::hasStencilComponent(VkFormat format_) {
 */
 void Engine::loadModels(void) {
 
-	tinyobj::attrib_t						attrib;
-	std::vector< tinyobj::shape_t >			shapes;
-	std::vector< tinyobj::material_t >		materials;
-	std::string								warn, err;
-
-	if (!tinyobj::LoadObj(
-
-		&attrib,
-		&shapes,
-		&materials,
-		&warn,
-		&err,
-		MODEL_PATH.c_str()
-
-	)) {
-	
-		logger.log(ERROR_LOG, warn + err);
-	
-	}
-
-	std::unordered_map< Vertex, uint32_t > uniqueVertices = {};
-
-	for (const auto& shape : shapes) {
-	
-		for (const auto& index : shape.mesh.indices) {
-		
-			Vertex vertex = {};
-
-			vertex.pos = {
-
-				attrib.vertices[3 * index.vertex_index + 0],
-				attrib.vertices[3 * index.vertex_index + 1],
-				attrib.vertices[3 * index.vertex_index + 2]
-
-			};
-
-			vertex.texCoord = {
-			
-				attrib.texcoords[2 * index.texcoord_index + 0],
-				1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-
-			};
-
-			vertex.color = {1.0f, 1.0f, 1.0f};
-
-			if (uniqueVertices.count(vertex) == 0) {
-
-				uniqueVertices[vertex] = static_cast< uint32_t >(vertices.size());
-				vertices.push_back(vertex);
-
-			}
-
-			indices.push_back(uniqueVertices[vertex]);
-
-		}
-	
-	}
+	chalet				= new Model(CHALET_PATH, &objectPipeline);
+	objects.emplace_back(chalet);
+	lightingCube		= new Cube(&lightingPipeline);
+	objects.emplace_back(lightingCube);
 
 }
 
@@ -3986,7 +3611,7 @@ VkSampleCountFlagBits Engine::getMaxUsableSampleCount(void) {
 
 /*
 *	Function:		void createColorResources()
-*	Purpose:		Creates a multisampled color buffer_
+*	Purpose:		Creates a multisampled color buffer
 *
 */
 void Engine::createColorResources(void) {
@@ -4160,56 +3785,5 @@ void Engine::init3DAudio(void) {
 		logger.log(ERROR_LOG, "Failed to find audio device!");
 	
 	}
-
-}
-
-/*
-*	Function:		void loadLightVertexData()
-*	Purpose:		Loads the light's vertex data into the appropriate array
-*
-*/
-void Engine::loadLightVertexData(void) {
-
-	const LightVertex lightVert[] = { 
-		
-		glm::vec3(-0.5f, -0.5f, -0.5f),
-		glm::vec3( 0.5f, -0.5f, -0.5f),
-		glm::vec3( 0.5f,  0.5f, -0.5f),
-		glm::vec3( 0.5f,  0.5f, -0.5f),
-		glm::vec3(-0.5f,  0.5f, -0.5f),
-		glm::vec3(-0.5f, -0.5f, -0.5f),
-		glm::vec3(-0.5f, -0.5f,  0.5f),
-		glm::vec3( 0.5f, -0.5f,  0.5f),
-		glm::vec3( 0.5f,  0.5f,  0.5f),
-		glm::vec3( 0.5f,  0.5f,  0.5f),
-		glm::vec3(-0.5f,  0.5f,  0.5f),
-		glm::vec3(-0.5f, -0.5f,  0.5f),
-		glm::vec3(-0.5f,  0.5f,  0.5f),
-		glm::vec3(-0.5f,  0.5f, -0.5f),
-		glm::vec3(-0.5f, -0.5f, -0.5f),
-		glm::vec3(-0.5f, -0.5f, -0.5f),
-		glm::vec3(-0.5f, -0.5f,  0.5f),
-		glm::vec3(-0.5f,  0.5f,  0.5f),
-		glm::vec3( 0.5f,  0.5f,  0.5f),
-		glm::vec3( 0.5f,  0.5f, -0.5f),
-		glm::vec3( 0.5f, -0.5f, -0.5f),
-		glm::vec3( 0.5f, -0.5f, -0.5f),
-		glm::vec3( 0.5f, -0.5f,  0.5f),
-		glm::vec3( 0.5f,  0.5f,  0.5f),
-		glm::vec3(-0.5f, -0.5f, -0.5f),
-		glm::vec3( 0.5f, -0.5f, -0.5f),
-		glm::vec3( 0.5f, -0.5f,  0.5f),
-		glm::vec3( 0.5f, -0.5f,  0.5f),
-		glm::vec3(-0.5f, -0.5f,  0.5f),
-		glm::vec3(-0.5f, -0.5f, -0.5f),
-		glm::vec3(-0.5f,  0.5f, -0.5f),
-		glm::vec3( 0.5f,  0.5f, -0.5f),
-		glm::vec3( 0.5f,  0.5f,  0.5f),
-		glm::vec3( 0.5f,  0.5f,  0.5f),
-		glm::vec3(-0.5f,  0.5f,  0.5f),
-		glm::vec3(-0.5f,  0.5f, -0.5f),
-	
-	};
-	lightingVertices = std::vector(lightVert, lightVert + sizeof(lightVert) / sizeof(lightVert[0]));
 
 }

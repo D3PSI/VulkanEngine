@@ -1,7 +1,7 @@
 #pragma once
 #include "VERSION.cpp"
 #include <iostream>
-#include <windows.h>
+#include <Windows.h>
 
 inline std::ostream& blue(std::ostream& s_) {
 
