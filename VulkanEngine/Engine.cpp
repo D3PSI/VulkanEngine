@@ -633,17 +633,51 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Engine::debugCallback(
 
 	) {
 
+	time_t current_time;
+	struct tm local_time;
+
+	time(&current_time);
+	localtime_s(&local_time, &current_time);
+
+	int Year		= local_time.tm_year + 1900;
+	int Month		= local_time.tm_mon + 1;
+	int Day			= local_time.tm_mday;
+
+	int Hour		= local_time.tm_hour;
+	int Min			= local_time.tm_min;
+	int Sec			= local_time.tm_sec;
+
+	std::ofstream stream;
+
 	std::string msg = pCallbackData_->pMessage;
 
-	std::cout << red << "Validation layer: " << msg << white << std::endl;
+	stream.open("logs/debugReport.log", std::ios::app);
+
+	std::cout << green << Day << white << ":"
+		<< green << Month << white << ":"
+		<< green << Year << white << "   "
+		<< green << Hour << white << ":"
+		<< green << Min << white << ":"
+		<< green << Sec << white << "		###		" << red << "Validation layer: " << red 
+		<< msg << white << std::endl;
+
+	stream << green << Day << white << ":"
+		<< green << Month << white << ":"
+		<< green << Year << white << "   "
+		<< green << Hour << white << ":"
+		<< green << Min << white << ":"
+		<< green << Sec << red << "		###		" << red << "Validation layer: " << red
+		<< msg << white << std::endl;
+
+	stream.close();
 
 	return VK_FALSE;
 
 }
 
 /*
-*	Function:		
-*	Purpose:		
+*	Function:		void setupDebugCallback()
+*	Purpose:		Sets uup validation layer messenger callback
 *
 */
 void Engine::setupDebugCallback() {
