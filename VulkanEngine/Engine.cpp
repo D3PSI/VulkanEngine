@@ -347,10 +347,10 @@ void Engine::createInstance() {
 */
 void Engine::mainLoop() {
 
-	double lastTime		= glfwGetTime();
-	double pastTime		= 0;
-	float nbFrames		= 0;
-	float maxfps		= 0;
+	double	lastTime		= glfwGetTime();
+	double	pastTime		= 0;
+	float	nbFrames		= 0;
+	float	maxfps			= 0;
 
 	std::thread t0([=]() {
 
@@ -365,7 +365,7 @@ void Engine::mainLoop() {
 
 		if (bgmusic) {
 		
-			bgmusic->setVolume(1.0f);
+			bgmusic->setVolume(MASTER_VOLUME / 100.0f);
 		
 		}
 
@@ -381,27 +381,27 @@ void Engine::mainLoop() {
 		if (deltaTime >= maxPeriod) {
 #endif
 			pastTime = currentTime;
-		
+
 			nbFrames++;
 			float seconds = 10.0f;
 
 			if (currentTime - lastTime >= 1.0 && nbFrames > maxfps) {
-		
+
 				maxfps = nbFrames;
-		
+
 			}
 
 			if (currentTime - lastTime >= seconds) {
 
-				std::string fps				= "Average FPS (last " + std::to_string(seconds) + " seconds):	%f\t";
-				std::string frametime		= "Average Frametime (last " + std::to_string(seconds) + " seconds):	%f ms\t";
-				std::string maxFPS			= "Max FPS:	%f\n";
+				std::string fps = "Average FPS (last " + std::to_string(seconds) + " seconds):	%f\t";
+				std::string frametime = "Average Frametime (last " + std::to_string(seconds) + " seconds):	%f ms\t";
+				std::string maxFPS = "Max FPS:	%f\n";
 
 				printf(fps.c_str(), double(nbFrames / seconds));
 				printf(frametime.c_str(), double((1000.0 * seconds) / nbFrames));
 				printf(maxFPS.c_str(), double(maxfps / seconds));
-				nbFrames	 = 0;
-				lastTime	 += seconds;
+				nbFrames = 0;
+				lastTime += seconds;
 
 			}
 
@@ -409,7 +409,7 @@ void Engine::mainLoop() {
 			queryKeyboardGLFW();
 			renderFrame();
 #if defined GAME_USE_FRAMERATE_CAP_60
-		}
+			}
 #endif
 
 	}
@@ -1896,7 +1896,7 @@ void Engine::createSyncObjects(void) {
 			nullptr,
 			&renderFinishedSemaphores[i]
 
-		) != VK_SUCCESS ||vkCreateFence(
+		) != VK_SUCCESS || vkCreateFence(
 		
 			device,
 			&fenceInfo,

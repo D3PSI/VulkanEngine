@@ -10,6 +10,7 @@
 #include <assimp/Importer.hpp>
 
 #include "Vertex.cpp"
+#include "Texture.cpp"
 #include "Logger.hpp"
 #include "Pipeline.hpp"
 
@@ -18,7 +19,13 @@ extern Logger logger;
 class Object {
 public:
 	Object(void);
-	Object(const std::string fileName_, Pipeline* pipeline_);
+	Object(
+
+		const std::string		fileName_,
+		Pipeline*				pipeline_,
+		bool					hasTextures_		= false
+	
+	);
 	virtual void draw(
 		
 		VkCommandBuffer			commandBuffer_,
@@ -37,6 +44,8 @@ protected:
 	std::vector< uint32_t >					indices;
 	VkBuffer								indexBuffer;
 	VkDeviceMemory							indexBufferMemory;
+	std::vector< Texture >					textures;
+	bool									hasTextures;
 	Pipeline*								pipeline;
 
 	void loadwithtinyobjloader(const std::string fileName_);

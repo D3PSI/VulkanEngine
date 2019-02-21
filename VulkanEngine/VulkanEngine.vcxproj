@@ -157,6 +157,7 @@
     <ClCompile Include="CubeVertex.cpp" />
     <ClCompile Include="StartWindow.cpp" />
     <ClCompile Include="SwapChainSupportDetails.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UniformBufferObject.cpp" />
     <ClCompile Include="VERSION.cpp" />
     <ClCompile Include="Vertex.cpp" />

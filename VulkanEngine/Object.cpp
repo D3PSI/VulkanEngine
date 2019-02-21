@@ -19,13 +19,26 @@ Object::Object(void) {
 }
 
 /*
-*	Function:		Object(const std::string fileName_, Pipeline* pipeline_)
+*	Function:		Object(
+*	
+*						const std::string		fileName_, 
+*						Pipeline*				pipeline_,
+*						bool					hasTextures_
+*	
+*					)
 *	Purpose:		Constructor
 *	
 */
-Object::Object(const std::string fileName_, Pipeline* pipeline_) {
+Object::Object(
+	
+	const std::string		fileName_, 
+	Pipeline*				pipeline_,
+	bool					hasTextures_
 
-	pipeline = pipeline_;
+) {
+
+	pipeline			= pipeline_;
+	hasTextures			= hasTextures_;
 #if defined GAME_USE_TINY_OBJ
 	loadwithtinyobjloader(fileName_);
 #elif !defined GAME_USE_TINY_OBJ
