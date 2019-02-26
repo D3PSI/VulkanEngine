@@ -95,7 +95,7 @@ public:
 	double												DELTATIME;
 	VkDescriptorPool									descriptorPool;
 	std::vector< VkImage >								swapChainImages;
-	float												MASTER_VOLUME					= 0.0f;
+	float												MASTER_VOLUME					= 0.5f;
 
 	void run(void); 
 	uint32_t findMemoryType(uint32_t typeFilter_, VkMemoryPropertyFlags properties_);
