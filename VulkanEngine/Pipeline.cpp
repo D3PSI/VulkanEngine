@@ -142,6 +142,7 @@ Pipeline::Pipeline(
 	if (usesLBO_) {
 
 		createLightingBuffer();
+		createMaterialBuffer();
 
 	}
 
@@ -219,6 +220,39 @@ void Pipeline::updateLBOs(uint32_t imageIndex_) {
 	);
 
 	vkUnmapMemory(engine.device, lightingBuffersMemory[imageIndex_]);
+
+
+}
+
+/*
+*	Function:		void updateMBOs(uint32_t imageIndex_)
+*	Purpose:		Updates the material uniform buffers
+*
+*/
+void Pipeline::updateMBOs(uint32_t imageIndex_) {
+
+	void* data;
+
+	vkMapMemory(
+	
+		engine.device,
+		materialBuffersMemory[imageIndex_],
+		sizeof(float),
+		sizeof(mbo),
+		0,
+		&data
+
+	);
+
+	memcpy(
+	
+		data,
+		&mbo,
+		sizeof(mbo)
+
+	);
+
+	vkUnmapMemory(engine.device, materialBuffersMemory[imageIndex_]);
 
 }
 
@@ -304,11 +338,11 @@ void Pipeline::destroy(void) {
 
 		);
 		vkFreeMemory(
-		
+
 			engine.device,
 			uniformBufferMemory[i],
 			nullptr
-		
+
 		);
 
 		if (usesLBO) {
@@ -324,6 +358,21 @@ void Pipeline::destroy(void) {
 
 				engine.device,
 				lightingBuffersMemory[i],
+				nullptr
+
+			);
+
+			vkDestroyBuffer(
+
+				engine.device,
+				materialBuffers[i],
+				nullptr
+
+			);
+			vkFreeMemory(
+
+				engine.device,
+				materialBuffersMemory[i],
 				nullptr
 
 			);
@@ -485,6 +534,34 @@ void Pipeline::createLightingBuffer(void) {
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 			lightingBuffers[i],
 			lightingBuffersMemory[i]
+
+		);
+
+	}
+
+}
+
+/*
+*	Function:		void createMaterialBuffer()
+*	Purpose:		Initializes the material uniform buffer
+*
+*/
+void Pipeline::createMaterialBuffer() {
+
+	VkDeviceSize bufferSize = sizeof(MaterialBufferObject);
+
+	materialBuffers.resize(engine.swapChainImages.size());
+	materialBuffersMemory.resize(engine.swapChainImages.size());
+
+	for (size_t i = 0; i < engine.swapChainImages.size(); i++) {
+
+		engine.createBuffer(
+
+			bufferSize,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			materialBuffers[i],
+			materialBuffersMemory[i]
 
 		);
 

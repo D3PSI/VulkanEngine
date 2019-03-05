@@ -17,24 +17,31 @@ layout(binding = 1) uniform LightingUniformBuffer {
 
 } lbo;
 
+layout(binding = 2) uniform MaterialUniformBuffer {
+
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+	float shininess;
+
+} mat;
+
 void main() {
 
-	float ambientStrength		= 0.1;
-	vec3 ambient				= ambientStrength * lbo.lightColor;
+	vec3 ambient				= mat.ambient * lbo.lightColor;
 
 	vec3 norm					= normalize(Normal);
 	vec3 lightDir				= normalize(lbo.lightPos - FragPos);
 
 	float diff					= max(dot(norm, lightDir), 0.0);
-	vec3 diffuse				= diff * lbo.lightColor;
+	vec3 diffuse				= (diff * mat.diffuse) * lbo.lightColor;
 
-	float specularStrength		= 0.5;
 	vec3 viewDir				= normalize(lbo.viewPos - FragPos);
 	vec3 reflectDir				= reflect(-lightDir, norm);
-	float spec					= pow(max(dot(viewDir, reflectDir), 0.0), 32);
-	vec3 specular				= specularStrength * spec * lbo.lightColor;
+	float spec					= pow(max(dot(viewDir, reflectDir), 0.0), mat.shininess);
+	vec3 specular				= (mat.specular * spec) * lbo.lightColor;
 
-	vec3 result					= (ambient + diffuse) * lbo.objectColor;
+	vec3 result					= ambient + diffuse + specular;
 
     outColor					= vec4(result, 1.0);
 

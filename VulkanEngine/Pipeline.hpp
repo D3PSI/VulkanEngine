@@ -15,6 +15,7 @@
 #include "ShaderModule.hpp"
 #include "UniformBufferObject.cpp"
 #include "LightingBufferObject.cpp"
+#include "MaterialBufferObject.cpp"
 
 class Pipeline {
 public:
@@ -26,6 +27,9 @@ public:
 	std::vector< VkDeviceMemory >								lightingBuffersMemory;
 	LightingBufferObject										lbo;
 	bool														usesLBO;
+	std::vector< VkBuffer >										materialBuffers;
+	std::vector< VkDeviceMemory >								materialBuffersMemory;
+	MaterialBufferObject										mbo;
 
 
 	Pipeline();
@@ -54,6 +58,7 @@ public:
 	void descriptorSetWrites(std::function< void() > descriptorWritesFunc_);
 	void updateUBOs(uint32_t imageIndex_);
 	void updateLBOs(uint32_t imageIndex_);
+	void updateMBOs(uint32_t imageIndex_);
 	void bind(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
 	void bindDescriptorSets(VkCommandBuffer commandBuffer_, VkDescriptorSet* descriptorSet_);
 	void destroy(void);
@@ -63,17 +68,18 @@ public:
 	VkPipelineShaderStageCreateInfo getFragStageInfo(void);
 	~Pipeline();
 private:
-	VkPipeline												pipeline;
-	VkPipelineLayout										pipelineLayout;
-	ShaderModule											vertShaderModule;
-	ShaderModule											fragShaderModule; 
-	VkPipelineShaderStageCreateInfo							vertShaderStageInfo;
-	VkPipelineShaderStageCreateInfo							fragShaderStageInfo;
-	VkDescriptorSetLayout									descriptorSetLayout;
+	VkPipeline													pipeline;
+	VkPipelineLayout											pipelineLayout;
+	ShaderModule												vertShaderModule;
+	ShaderModule												fragShaderModule; 
+	VkPipelineShaderStageCreateInfo								vertShaderStageInfo;
+	VkPipelineShaderStageCreateInfo								fragShaderStageInfo;
+	VkDescriptorSetLayout										descriptorSetLayout;
 
 	void createDescriptorSets(const std::vector< VkDescriptorSetLayoutBinding >* bindings_, VkDescriptorPool descriptorPool_);
 	void createUniformBuffer(void);
 	void createLightingBuffer(void);
+	void createMaterialBuffer(void);
 
 };
 
